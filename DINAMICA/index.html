@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Mapa da Plateia – PET Saúde Digital</title>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #e7ecf3;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+.wrapper {
+    width: 95vw;
+    height: 95vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    position: relative;
+    transition: all 0.3s;
+}
+.card {
+    background: white;
+    border-radius: 20px;
+    padding: 10px 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    transition: all 0.3s;
+}
+h1 {
+    font-size: 22px;
+    margin: 6px 0;
+}
+.legend {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.legend-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+}
+.auditorio {
+    background: #d9dde4;
+    width: 100%;
+    padding-top: 20px;
+    padding-bottom: 10px;
+    border-radius: 40px;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+}
+.palco {
+    width: 90%;
+    height: 30px;
+    background: #333;
+    color: white;
+    font-size: 14px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 14px 14px 4px 4px;
+    margin-bottom: 10px;
+    transition: all 0.3s;
+}
+.grid {
+    display: grid;
+    grid-template-columns: repeat(16, 34px);
+    grid-template-rows: repeat(10, 34px);
+    gap: 6px;
+    padding: 10px 0 20px 0;
+    position: relative;
+    z-index: 1;
+    transition: all 0.3s;
+}
+.seat {
+    width: 34px;
+    height: 34px;
+    position: relative;
+    background-image: url("https://lh3.googleusercontent.com/d/15Nxam9v12Gh-YDelEQHY18zPV5E90XzC");
+    background-size: cover;
+    background-position: center;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.seat.empty {
+    filter: grayscale(100%) brightness(80%);
+    cursor: default;
+}
+.seat.highlight {
+    outline: 2px solid black;
+}
+.overlay {
+    position: absolute;
+    inset: 0;
+    border-radius: 6px;
+    opacity: 0.58;
+}
+.label {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 12px;
+    color: white;
+    font-weight: bold;
+    text-shadow: 0 0 4px black;
+    pointer-events: none;
+}
+svg.lines {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+}
+#buttons {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    z-index: 100;
+}
+.button {
+    padding: 5px 10px;
+    border-radius: 6px;
+    border: none;
+    background: rgba(0,0,0,0.1);
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s;
+}
+.button:hover {
+    background: rgba(0,0,0,0.2);
+}
+
+/* --- CARD RESUMO (REDUZIDO EM 10%) --- */
+#cardRESUMO {
+    padding: 20px;
+    border-radius: 20px;
+    background: white;
+    grid-column: 1 / span 2;
+    display: none;
+
+    transform: scale(0.9);
+    transform-origin: top center;
+}
+
+.resumo-wrapper {
+    display: flex;
+    justify-content: space-between;
+    gap: 25px;
+    width: 100%;
+}
+
+.resumo-box {
+    flex: 1;
+    background: #f3f4f7;
+    padding: 15px 20px;
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.resumo-box h2 {
+    margin: 0 0 10px 0;
+    font-size: 18px;
+    text-align: center;
+}
+
+.resumo-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 25px;
+    width: 100%;
+    justify-items: center;
+}
+
+.resumo-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: white;
+    padding: 6px 12px;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    font-size: 15px;
+}
+
+.resumo-cor {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+}
+</style>
+</head>
+<body>
+
+<div id="buttons">
+    <button class="button" onclick="mostrarMapa('ambos')">Ambos</button>
+    <button class="button" onclick="mostrarMapa('GAT')">Só GAT</button>
+    <button class="button" onclick="mostrarMapa('CURSO')">Só CURSO</button>
+</div>
+
+<div class="wrapper" id="wrapper">
+
+    <div class="card" id="cardGAT">
+        <h1>Distribuição por GAT</h1>
+        <div class="legend" id="legendGAT"></div>
+        <div class="auditorio">
+            <div class="palco">PALCO</div>
+            <svg id="linesGAT" class="lines"></svg>
+            <div class="grid" id="gridGAT"></div>
+        </div>
+    </div>
+
+    <div class="card" id="cardCURSO">
+        <h1>Distribuição por CURSO</h1>
+        <div class="legend" id="legendCURSO"></div>
+        <div class="auditorio">
+            <div class="palco">PALCO</div>
+            <svg id="linesCURSO" class="lines"></svg>
+            <div class="grid" id="gridCURSO"></div>
+        </div>
+    </div>
+
+    <!-- RESUMO -->
+    <div class="card" id="cardRESUMO">
+        <h1>Resumo dos Participantes</h1>
+        <div class="resumo-wrapper">
+
+            <div class="resumo-box">
+                <h2>Por GAT</h2>
+                <div id="resumoGAT" class="resumo-list"></div>
+            </div>
+
+            <div class="resumo-box">
+                <h2>Por CURSO</h2>
+                <div id="resumoCURSO" class="resumo-list"></div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<script>
+// URLs CSV
+const urlGAT="https://docs.google.com/spreadsheets/d/e/2PACX-1vReu57k-B1-7ZG9h3rCGOJ4NiMePfpdVSOWCf7b_z5eQMBWtxrlkR7eWyrrV5pVbR6z1-ptwkHo1m-1/pub?gid=1730316933&single=true&output=csv";
+const urlCURSO="https://docs.google.com/spreadsheets/d/e/2PACX-1vReu57k-B1-7ZG9h3rCGOJ4NiMePfpdVSOWCf7b_z5eQMBWtxrlkR7eWyrrV5pVbR6z1-ptwkHo1m-1/pub?gid=493238154&single=true&output=csv";
+
+// Cores
+const coresGAT={1:"#e6194b",2:"#3cb44b",3:"#ffe119",4:"#0082c8",5:"#f58231",6:"#911eb4",7:"#46f0f0",8:"#f032e6",9:"#d2f53c",10:"#fabebe"};
+const coresCURSO={"Medicina":"#1f77b4","Enfermagem":"#ff7f0e","Ciências Atmosféricas":"#2ca02c","Meteorologia":"#d62728","Eng. Eletrica":"#9467bd","Psicologia":"#8c564b","Desing":"#bcbd22","Outros":"#7f7f7f"};
+
+// CSV → matriz
+async function csvToMatrix(url){
+    const res=await fetch(url);
+    const text=await res.text();
+    return text.trim().split("\n").slice(1).map(l=>l.split(",").map(c=>c.trim()||null).slice(1));
+}
+
+/* --- RESUMO BONITO, ORDENADO DO MAIOR PARA O MENOR --- */
+function gerarResumo(dados,destinoID,cores,prefixo){
+    const dest=document.getElementById(destinoID);
+    dest.innerHTML="";
+
+    const cont={};
+    dados.flat().forEach(v=>{if(v)cont[v]=(cont[v]||0)+1});
+
+    Object.entries(cont)
+        .sort((a,b)=> b[1] - a[1]) // ORDEM DESCENDENTE
+        .forEach(([valor,qtd])=>{
+            const item=document.createElement("div");
+            item.className="resumo-item";
+
+            const cor=document.createElement("div");
+            cor.className="resumo-cor";
+            cor.style.background=cores[valor]||"#000";
+
+            const txt=document.createElement("span");
+            txt.textContent=`${prefixo} ${valor}: ${qtd} participantes`;
+
+            item.appendChild(cor);
+            item.appendChild(txt);
+            dest.appendChild(item);
+        });
+}
+
+/* --- Mapa, resize etc (mesmo código original, sem alterações) --- */
+
+function gerarMapa(gridID,legendID,dados,cores){
+    const grid=document.getElementById(gridID);
+    const legend=document.getElementById(legendID);
+    const svg=document.getElementById(gridID==="gridGAT"?"linesGAT":"linesCURSO");
+
+    legend.innerHTML="";
+    grid.innerHTML="";
+    svg.innerHTML="";
+
+    const valoresPresentes=new Set();
+    dados.forEach(l=>l.forEach(v=>{if(v)valoresPresentes.add(v)}));
+
+    const listaOrdenada=[...valoresPresentes].sort();
+
+    listaOrdenada.forEach(k=>{
+        const item=document.createElement("div");
+        item.className="legend-item";
+        item.innerHTML=`<div class='legend-color' style='background:${cores[k]||"#000"}'></div>${k}`;
+        legend.appendChild(item);
+    });
+
+    dados.forEach(linha=>linha.forEach(valor=>{
+        const seat=document.createElement("div");
+        seat.className="seat";
+        seat.dataset.valor=valor;
+        if(!valor) seat.classList.add("empty");
+        else{
+            const overlay=document.createElement("div");
+            overlay.className="overlay";
+            overlay.style.background=cores[valor]||"#000";
+            seat.appendChild(overlay);
+
+            const label=document.createElement("div");
+            label.className="label";
+            label.textContent=valor;
+            seat.appendChild(label);
+        }
+        grid.appendChild(seat);
+    }));
+
+    function limparDestaques(){
+        svg.innerHTML="";
+        grid.querySelectorAll(".highlight").forEach(s=>s.classList.remove("highlight"));
+    }
+
+    function desenharLinhas(origSeat){
+        svg.innerHTML="";
+        const valor=origSeat.dataset.valor;
+        const seats=[...grid.querySelectorAll(".seat")].filter(s=>s.dataset.valor===valor);
+        seats.forEach(s=>{
+            if(s===origSeat) return;
+            const a=origSeat.getBoundingClientRect();
+            const b=s.getBoundingClientRect();
+            const svgRect=svg.getBoundingClientRect();
+            const line=document.createElementNS("http://www.w3.org/2000/svg","line");
+            line.setAttribute("x1",a.left+a.width/2-svgRect.left);
+            line.setAttribute("y1",a.top+a.height/2-svgRect.top);
+            line.setAttribute("x2",b.left+b.width/2-svgRect.left);
+            line.setAttribute("y2",b.top+b.height/2-svgRect.top);
+            line.setAttribute("stroke","black");
+            line.setAttribute("stroke-width","2");
+            svg.appendChild(line);
+        });
+    }
+
+    grid.querySelectorAll(".seat").forEach(seat=>{
+        if(seat.classList.contains("empty"))return;
+        seat.addEventListener("click",e=>{
+            e.stopPropagation();
+            limparDestaques();
+            seat.classList.add("highlight");
+            grid.querySelectorAll(".seat").forEach(s=>{
+                if(s.dataset.valor===seat.dataset.valor && s!==seat) s.classList.add("highlight");
+            });
+            desenharLinhas(seat);
+        });
+    });
+
+    document.addEventListener("click",limparDestaques);
+}
+
+function redimensionarMapa(card,fullscreen){
+    const grid=card.querySelector(".grid");
+    const palco=card.querySelector(".palco");
+    const seats=[...grid.querySelectorAll(".seat")];
+    const cols=16, rows=10;
+
+    if(fullscreen){
+        const maxWidth=window.innerWidth*0.87;
+        const maxHeight=window.innerHeight*0.87;
+        const palcoHeight=30;
+        const seatSize=Math.min((maxWidth-40-(cols-1)*6)/cols,(maxHeight-100-palcoHeight-(rows-1)*6)/rows);
+        seats.forEach(s=>{s.style.width=seatSize+"px";s.style.height=seatSize+"px";});
+        grid.style.gridTemplateColumns=`repeat(${cols},${seatSize}px)`;
+        grid.style.gridTemplateRows=`repeat(${rows},${seatSize}px)`;
+        grid.style.gap=Math.max(seatSize*0.15,6)+"px";
+        palco.style.height=(seatSize*1.2)+"px";
+        palco.style.fontSize=(seatSize*0.35)+"px";
+    } else {
+        seats.forEach(s=>{s.style.width="34px";s.style.height="34px";});
+        grid.style.gridTemplateColumns=`repeat(${cols},34px)`;
+        grid.style.gridTemplateRows=`repeat(${rows},34px)`;
+        grid.style.gap="6px";
+        palco.style.height="30px";
+        palco.style.fontSize="14px";
+    }
+}
+
+function mostrarMapa(tipo){
+    const cardGAT=document.getElementById("cardGAT");
+    const cardCURSO=document.getElementById("cardCURSO");
+    const cardRESUMO=document.getElementById("cardRESUMO");
+    const wrapper=document.getElementById("wrapper");
+
+    if(tipo==="GAT"){
+        cardGAT.style.display="flex";
+        cardCURSO.style.display="none";
+        cardRESUMO.style.display="none";
+        wrapper.style.gridTemplateColumns="1fr";
+        redimensionarMapa(cardGAT,true);
+    }
+    else if(tipo==="CURSO"){
+        cardGAT.style.display="none";
+        cardCURSO.style.display="flex";
+        cardRESUMO.style.display="none";
+        wrapper.style.gridTemplateColumns="1fr";
+        redimensionarMapa(cardCURSO,true);
+    }
+    else {
+        cardGAT.style.display="flex";
+        cardCURSO.style.display="flex";
+        cardRESUMO.style.display="flex";
+        wrapper.style.gridTemplateColumns="1fr 1fr";
+        redimensionarMapa(cardGAT,false);
+        redimensionarMapa(cardCURSO,false);
+    }
+}
+
+async function init(){
+    const gatData=await csvToMatrix(urlGAT);
+    gerarMapa("gridGAT","legendGAT",gatData,coresGAT);
+
+    const cursoData=await csvToMatrix(urlCURSO);
+    gerarMapa("gridCURSO","legendCURSO",cursoData,coresCURSO);
+
+    gerarResumo(gatData,"resumoGAT",coresGAT,"GAT");
+    gerarResumo(cursoData,"resumoCURSO",coresCURSO,"");
+}
+init();
+
+window.addEventListener("resize",()=>{
+    if(document.getElementById("cardGAT").style.display!=="none")
+        redimensionarMapa(document.getElementById("cardGAT"),document.getElementById("cardCURSO").style.display==="none");
+
+    if(document.getElementById("cardCURSO").style.display!=="none")
+        redimensionarMapa(document.getElementById("cardCURSO"),document.getElementById("cardGAT").style.display==="none");
+});
+</script>
+</body>
+</html>
