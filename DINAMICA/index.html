@@ -3,7 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <title>Mapa da Plateia – PET Saúde Digital</title>
+
 <style>
+/* -------------------------------------------------------
+   ESTILO GERAL
+------------------------------------------------------- */
 body {
     font-family: Arial, sans-serif;
     background: #e7ecf3;
@@ -15,6 +19,7 @@ body {
     align-items: center;
     height: 100vh;
 }
+
 .wrapper {
     width: 95vw;
     height: 95vh;
@@ -24,6 +29,7 @@ body {
     position: relative;
     transition: all 0.3s;
 }
+
 .card {
     background: white;
     border-radius: 20px;
@@ -35,10 +41,12 @@ body {
     position: relative;
     transition: all 0.3s;
 }
+
 h1 {
     font-size: 22px;
     margin: 6px 0;
 }
+
 .legend {
     display: flex;
     justify-content: center;
@@ -47,16 +55,22 @@ h1 {
     font-size: 14px;
     margin-bottom: 5px;
 }
+
 .legend-item {
     display: flex;
     align-items: center;
     gap: 6px;
 }
+
 .legend-color {
     width: 16px;
     height: 16px;
     border-radius: 3px;
 }
+
+/* -------------------------------------------------------
+   MAPA
+------------------------------------------------------- */
 .auditorio {
     background: #d9dde4;
     width: 100%;
@@ -69,6 +83,7 @@ h1 {
     align-items: center;
     position: relative;
 }
+
 .palco {
     width: 90%;
     height: 30px;
@@ -82,6 +97,7 @@ h1 {
     margin-bottom: 10px;
     transition: all 0.3s;
 }
+
 .grid {
     display: grid;
     grid-template-columns: repeat(16, 34px);
@@ -92,6 +108,7 @@ h1 {
     z-index: 1;
     transition: all 0.3s;
 }
+
 .seat {
     width: 34px;
     height: 34px;
@@ -103,19 +120,23 @@ h1 {
     cursor: pointer;
     transition: all 0.3s;
 }
+
 .seat.empty {
     filter: grayscale(100%) brightness(80%);
     cursor: default;
 }
+
 .seat.highlight {
     outline: 2px solid black;
 }
+
 .overlay {
     position: absolute;
     inset: 0;
     border-radius: 6px;
     opacity: 0.58;
 }
+
 .label {
     position: absolute;
     top: 50%;
@@ -127,6 +148,7 @@ h1 {
     text-shadow: 0 0 4px black;
     pointer-events: none;
 }
+
 svg.lines {
     position: absolute;
     top: 0;
@@ -136,6 +158,10 @@ svg.lines {
     pointer-events: none;
     z-index: 0;
 }
+
+/* -------------------------------------------------------
+   BOTÕES SUPERIORES
+------------------------------------------------------- */
 #buttons {
     position: absolute;
     top: 10px;
@@ -145,6 +171,7 @@ svg.lines {
     gap: 10px;
     z-index: 100;
 }
+
 .button {
     padding: 5px 10px;
     border-radius: 6px;
@@ -154,18 +181,20 @@ svg.lines {
     font-size: 14px;
     transition: all 0.3s;
 }
+
 .button:hover {
     background: rgba(0,0,0,0.2);
 }
 
-/* --- CARD RESUMO (REDUZIDO EM 10%) --- */
+/* -------------------------------------------------------
+   RESUMO
+------------------------------------------------------- */
 #cardRESUMO {
     padding: 20px;
     border-radius: 20px;
     background: white;
     grid-column: 1 / span 2;
     display: none;
-
     transform: scale(0.9);
     transform-origin: top center;
 }
@@ -184,7 +213,6 @@ svg.lines {
     border-radius: 15px;
     display: flex;
     flex-direction: column;
-    align-items: center;
 }
 
 .resumo-box h2 {
@@ -193,15 +221,33 @@ svg.lines {
     text-align: center;
 }
 
-.resumo-list {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px 25px;
-    width: 100%;
-    justify-items: center;
+/* === RESUMO POR GAT (3 COLUNAS) === */
+#resumoGAT {
+    columns: 3;
+    column-gap: 15px;
 }
 
-.resumo-item {
+#resumoGAT .resumo-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: white;
+    padding: 6px 10px;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    font-size: 13px;
+    margin-bottom: 8px;
+    break-inside: avoid;
+    justify-content: flex-start;
+}
+
+/* === RESUMO POR CURSO (2 COLUNAS) === */
+#resumoCURSO {
+    columns: 2;
+    column-gap: 30px;
+}
+
+#resumoCURSO .resumo-item {
     display: flex;
     align-items: center;
     gap: 10px;
@@ -209,7 +255,10 @@ svg.lines {
     padding: 6px 12px;
     border-radius: 10px;
     box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    font-size: 15px;
+    font-size: 13px;
+    margin-bottom: 10px;
+    break-inside: avoid;
+    justify-content: flex-start;
 }
 
 .resumo-cor {
@@ -221,6 +270,7 @@ svg.lines {
 </head>
 <body>
 
+<!-- BOTÕES -->
 <div id="buttons">
     <button class="button" onclick="mostrarMapa('ambos')">Ambos</button>
     <button class="button" onclick="mostrarMapa('GAT')">Só GAT</button>
@@ -229,6 +279,7 @@ svg.lines {
 
 <div class="wrapper" id="wrapper">
 
+    <!-- CARD GAT -->
     <div class="card" id="cardGAT">
         <h1>Distribuição por GAT</h1>
         <div class="legend" id="legendGAT"></div>
@@ -239,6 +290,7 @@ svg.lines {
         </div>
     </div>
 
+    <!-- CARD CURSO -->
     <div class="card" id="cardCURSO">
         <h1>Distribuição por CURSO</h1>
         <div class="legend" id="legendCURSO"></div>
@@ -249,7 +301,7 @@ svg.lines {
         </div>
     </div>
 
-    <!-- RESUMO -->
+    <!-- CARD RESUMO -->
     <div class="card" id="cardRESUMO">
         <h1>Resumo dos Participantes</h1>
         <div class="resumo-wrapper">
@@ -270,32 +322,50 @@ svg.lines {
 </div>
 
 <script>
-// URLs CSV
+/* -------------------------------------------------------
+   CONFIGURAÇÃO DOS CSVs
+------------------------------------------------------- */
 const urlGAT="https://docs.google.com/spreadsheets/d/e/2PACX-1vReu57k-B1-7ZG9h3rCGOJ4NiMePfpdVSOWCf7b_z5eQMBWtxrlkR7eWyrrV5pVbR6z1-ptwkHo1m-1/pub?gid=1730316933&single=true&output=csv";
 const urlCURSO="https://docs.google.com/spreadsheets/d/e/2PACX-1vReu57k-B1-7ZG9h3rCGOJ4NiMePfpdVSOWCf7b_z5eQMBWtxrlkR7eWyrrV5pVbR6z1-ptwkHo1m-1/pub?gid=493238154&single=true&output=csv";
 
-// Cores
+/* cores */
 const coresGAT={1:"#e6194b",2:"#3cb44b",3:"#ffe119",4:"#0082c8",5:"#f58231",6:"#911eb4",7:"#46f0f0",8:"#f032e6",9:"#d2f53c",10:"#fabebe"};
-const coresCURSO={"Medicina":"#1f77b4","Enfermagem":"#ff7f0e","Ciências Atmosféricas":"#2ca02c","Meteorologia":"#d62728","Eng. Elétrica":"#9467bd","Psicologia":"#8c564b","Design":"#bcbd22","Outros":"#7f7f7f"};
+const coresCURSO={"Medicina":"#1f77b4","Enfermagem":"#ff7f0e","Ciên. Atmosféricas":"#2ca02c","Meteorologia":"#d62728","Eng. Elétrica":"#9467bd","Psicologia":"#8c564b","Design":"#bcbd22","Outros":"#7f7f7f"};
 
-// CSV → matriz
+/* Abreviações de cursos longos */
+const nomesCurtosCurso = {
+    "Ciências Atmosféricas": "Ciên. Atmosféricas",
+    "Ciências da Computação": "Ciên. Computação"
+};
+
+/* CSV → matriz */
 async function csvToMatrix(url){
     const res=await fetch(url);
     const text=await res.text();
     return text.trim().split("\n").slice(1).map(l=>l.split(",").map(c=>c.trim()||null).slice(1));
 }
 
-/* --- RESUMO BONITO, ORDENADO DO MAIOR PARA O MENOR --- */
-function gerarResumo(dados,destinoID,cores,prefixo){
+/* -------------------------------------------------------
+   GERAR RESUMO (AGORA COM TOTAL DE PARTICIPANTES)
+------------------------------------------------------- */
+function gerarResumo(dados,destinoID,cores,prefixo="", tipoCurso=false){
     const dest=document.getElementById(destinoID);
     dest.innerHTML="";
 
     const cont={};
-    dados.flat().forEach(v=>{if(v)cont[v]=(cont[v]||0)+1});
+    let total=0;
+
+    dados.flat().forEach(v=>{
+        if(v){
+            if(tipoCurso && nomesCurtosCurso[v]) v=nomesCurtosCurso[v];
+            cont[v]=(cont[v]||0)+1;
+            total++;
+        }
+    });
 
     Object.entries(cont)
-        .sort((a,b)=> b[1] - a[1]) // ORDEM DESCENDENTE
-        .forEach(([valor,qtd])=>{
+        .sort((a,b)=> b[1]-a[1])
+        .forEach(([valor,qtd], index)=>{
             const item=document.createElement("div");
             item.className="resumo-item";
 
@@ -304,17 +374,30 @@ function gerarResumo(dados,destinoID,cores,prefixo){
             cor.style.background=cores[valor]||"#000";
 
             const txt=document.createElement("span");
-            txt.textContent=`${prefixo} ${valor}: ${qtd} participantes`;
+            // Se for GAT e o valor for número, usa "GAT X"
+            // Se for Visitante, não usa prefixo "GAT"
+            const label = (prefixo === "GAT" && !isNaN(valor))
+                ? `GAT ${valor}`
+                : valor;
+
+            txt.textContent = `${index+1}° - ${label}: ${qtd} `;
 
             item.appendChild(cor);
             item.appendChild(txt);
             dest.appendChild(item);
         });
+
+    // Novo título
+    const cardRESUMO = document.getElementById("cardRESUMO");
+    const titulo = cardRESUMO.querySelector("h1");
+    titulo.textContent = `Número de Participantes: ${total}`;
 }
 
-/* --- Mapa, resize etc (mesmo código original, sem alterações) --- */
 
-function gerarMapa(gridID,legendID,dados,cores){
+/* -------------------------------------------------------
+   MAPA
+------------------------------------------------------- */
+function gerarMapa(gridID,legendID,dados,cores,tipoCurso=false){
     const grid=document.getElementById(gridID);
     const legend=document.getElementById(legendID);
     const svg=document.getElementById(gridID==="gridGAT"?"linesGAT":"linesCURSO");
@@ -324,35 +407,49 @@ function gerarMapa(gridID,legendID,dados,cores){
     svg.innerHTML="";
 
     const valoresPresentes=new Set();
-    dados.forEach(l=>l.forEach(v=>{if(v)valoresPresentes.add(v)}));
+    dados.forEach(l=>l.forEach(v=>{
+        if(v){
+            if(tipoCurso && nomesCurtosCurso[v]) v=nomesCurtosCurso[v];
+            valoresPresentes.add(v);
+        }
+    }));
 
-    const listaOrdenada=[...valoresPresentes].sort();
-
-    listaOrdenada.forEach(k=>{
+    [...valoresPresentes].sort().forEach(k=>{
         const item=document.createElement("div");
         item.className="legend-item";
         item.innerHTML=`<div class='legend-color' style='background:${cores[k]||"#000"}'></div>${k}`;
         legend.appendChild(item);
     });
 
-    dados.forEach(linha=>linha.forEach(valor=>{
-        const seat=document.createElement("div");
-        seat.className="seat";
-        seat.dataset.valor=valor;
-        if(!valor) seat.classList.add("empty");
-        else{
-            const overlay=document.createElement("div");
-            overlay.className="overlay";
-            overlay.style.background=cores[valor]||"#000";
-            seat.appendChild(overlay);
+    dados.forEach(linha=>
+        linha.forEach(valor=>{
+            let originalValor = valor;
+            if(tipoCurso && nomesCurtosCurso[valor]) valor = nomesCurtosCurso[valor];
 
-            const label=document.createElement("div");
-            label.className="label";
-            label.textContent=valor;
-            seat.appendChild(label);
-        }
-        grid.appendChild(seat);
-    }));
+            const seat=document.createElement("div");
+            seat.className="seat";
+            seat.dataset.valor=valor;
+
+            if(!valor) seat.classList.add("empty");
+            else{
+                const overlay=document.createElement("div");
+                overlay.className="overlay";
+                let corKey = originalValor;
+            if (tipoCurso && nomesCurtosCurso[originalValor])
+                corKey = nomesCurtosCurso[originalValor];
+
+            overlay.style.background = cores[corKey] || "#000";
+                seat.appendChild(overlay);
+
+                const label=document.createElement("div");
+                label.className="label";
+                label.textContent=valor;
+                seat.appendChild(label);
+            }
+
+            grid.appendChild(seat);
+        })
+    );
 
     function limparDestaques(){
         svg.innerHTML="";
@@ -363,11 +460,13 @@ function gerarMapa(gridID,legendID,dados,cores){
         svg.innerHTML="";
         const valor=origSeat.dataset.valor;
         const seats=[...grid.querySelectorAll(".seat")].filter(s=>s.dataset.valor===valor);
+
         seats.forEach(s=>{
             if(s===origSeat) return;
             const a=origSeat.getBoundingClientRect();
             const b=s.getBoundingClientRect();
             const svgRect=svg.getBoundingClientRect();
+
             const line=document.createElementNS("http://www.w3.org/2000/svg","line");
             line.setAttribute("x1",a.left+a.width/2-svgRect.left);
             line.setAttribute("y1",a.top+a.height/2-svgRect.top);
@@ -380,14 +479,19 @@ function gerarMapa(gridID,legendID,dados,cores){
     }
 
     grid.querySelectorAll(".seat").forEach(seat=>{
-        if(seat.classList.contains("empty"))return;
+        if(seat.classList.contains("empty")) return;
+
         seat.addEventListener("click",e=>{
             e.stopPropagation();
             limparDestaques();
+
             seat.classList.add("highlight");
+
             grid.querySelectorAll(".seat").forEach(s=>{
-                if(s.dataset.valor===seat.dataset.valor && s!==seat) s.classList.add("highlight");
+                if(s.dataset.valor===seat.dataset.valor && s!==seat)
+                    s.classList.add("highlight");
             });
+
             desenharLinhas(seat);
         });
     });
@@ -395,6 +499,9 @@ function gerarMapa(gridID,legendID,dados,cores){
     document.addEventListener("click",limparDestaques);
 }
 
+/* -------------------------------------------------------
+   REDIMENSIONAMENTO
+------------------------------------------------------- */
 function redimensionarMapa(card,fullscreen){
     const grid=card.querySelector(".grid");
     const palco=card.querySelector(".palco");
@@ -405,14 +512,19 @@ function redimensionarMapa(card,fullscreen){
         const maxWidth=window.innerWidth*0.87;
         const maxHeight=window.innerHeight*0.87;
         const palcoHeight=30;
-        const seatSize=Math.min((maxWidth-40-(cols-1)*6)/cols,(maxHeight-100-palcoHeight-(rows-1)*6)/rows);
+        const seatSize=Math.min(
+            (maxWidth-40-(cols-1)*6)/cols,
+            (maxHeight-100-palcoHeight-(rows-1)*6)/rows
+        );
+
         seats.forEach(s=>{s.style.width=seatSize+"px";s.style.height=seatSize+"px";});
         grid.style.gridTemplateColumns=`repeat(${cols},${seatSize}px)`;
         grid.style.gridTemplateRows=`repeat(${rows},${seatSize}px)`;
         grid.style.gap=Math.max(seatSize*0.15,6)+"px";
         palco.style.height=(seatSize*1.2)+"px";
         palco.style.fontSize=(seatSize*0.35)+"px";
-    } else {
+    }
+    else {
         seats.forEach(s=>{s.style.width="34px";s.style.height="34px";});
         grid.style.gridTemplateColumns=`repeat(${cols},34px)`;
         grid.style.gridTemplateRows=`repeat(${rows},34px)`;
@@ -422,6 +534,9 @@ function redimensionarMapa(card,fullscreen){
     }
 }
 
+/* -------------------------------------------------------
+   MOSTRAR MAPA (GAT / CURSO / AMBOS)
+------------------------------------------------------- */
 function mostrarMapa(tipo){
     const cardGAT=document.getElementById("cardGAT");
     const cardCURSO=document.getElementById("cardCURSO");
@@ -452,25 +567,27 @@ function mostrarMapa(tipo){
     }
 }
 
+/* -------------------------------------------------------
+   INICIALIZAÇÃO
+------------------------------------------------------- */
 async function init(){
     const gatData=await csvToMatrix(urlGAT);
     gerarMapa("gridGAT","legendGAT",gatData,coresGAT);
 
-    const cursoData=await csvToMatrix(urlCURSO);
-    gerarMapa("gridCURSO","legendCURSO",cursoData,coresCURSO);
+    const cursoData = await csvToMatrix(urlCURSO);
+    gerarMapa("gridCURSO", "legendCURSO", cursoData, coresCURSO, true);
 
-    gerarResumo(gatData,"resumoGAT",coresGAT,"GAT");
-    gerarResumo(cursoData,"resumoCURSO",coresCURSO,"");
+    // Gerar resumos
+    gerarResumo(gatData, "resumoGAT", coresGAT, "GAT");
+    gerarResumo(cursoData, "resumoCURSO", coresCURSO, "", true);
+
+    // Mostrar ambos por padrão
+    mostrarMapa("ambos");
 }
-init();
 
-window.addEventListener("resize",()=>{
-    if(document.getElementById("cardGAT").style.display!=="none")
-        redimensionarMapa(document.getElementById("cardGAT"),document.getElementById("cardCURSO").style.display==="none");
-
-    if(document.getElementById("cardCURSO").style.display!=="none")
-        redimensionarMapa(document.getElementById("cardCURSO"),document.getElementById("cardGAT").style.display==="none");
-});
+// Inicializa ao carregar a página
+window.addEventListener("load", init);
 </script>
+
 </body>
 </html>
