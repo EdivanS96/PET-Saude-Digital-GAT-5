@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LIRAa Digital | Campina Grande</title>
+
+    <link rel="icon" href="https://lh3.googleusercontent.com/d/1CjAJykaxRU8iqYiCdiTD9fMkyLFWR7vx" type="image/png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <style>
+        :root { 
+            --primary: #0e945c; 
+            --primary-dark: #076e43;
+            --danger: #d32f2f; 
+            --warning: #fbc02d; 
+            --safe: #2e7d32; 
+            --bg-light: #f8f9fa;
+        }
+        
+        body, html { height: 100vh; margin: 0; overflow: hidden; font-family: 'Inter', system-ui, -apple-system, sans-serif; background: var(--bg-light); }
+
+        /* --- CABEÇALHO PROFISSIONAL --- */
+        header { 
+            display: flex; align-items: center; justify-content: space-between; 
+            background: #ffffff; padding: 0 30px; height: 90px; 
+            border-bottom: 4px solid var(--primary); 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            z-index: 2000;
+        }
+        .logo-gat {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .logo-gat img { height: 140px; }
+        .logo-main-icon { 
+            font-size: 2.5rem; color: var(--primary); 
+            background: #e8f5e9; padding: 5px 15px; border-radius: 12px;
+        }
+        .titulo-sistema h1 { margin: 0; font-size: 1.5rem; font-weight: 800; color: #1a1a1a; letter-spacing: -0.5px; }
+        .titulo-sistema span { font-size: 0.85rem; font-weight: 500; color: #666; display: block; }
+
+        .apoios { display: flex; align-items: center; gap: 25px; }
+        .apoios img { 
+            height: 50px; width: auto; 
+            transition: transform 0.3s ease, opacity 0.3s; 
+            filter: grayscale(20%);
+        }
+        .apoios img:hover { transform: scale(1.08); filter: grayscale(0%); opacity: 1; }
+
+        /* --- NAVBAR (CORREÇÃO DE COR) --- */
+        nav { 
+            background: var(--primary); 
+            display: flex; padding: 0 10px; height: 40px; 
+            align-items: center; z-index: 2000; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+        }
+        nav a { 
+            color: #ffffff !important; 
+            text-decoration: none; margin-right: 30px;
+            font-weight: 600; font-size: 0.85rem; 
+            display: flex; align-items: center; gap: 8px;
+            transition: 0.3s; opacity: 0.9; cursor: pointer;
+            text-transform: uppercase;
+        }
+        nav a i { font-size: 1.1rem; color: #ffffff; }
+        nav a:hover { opacity: 1; transform: translateY(-1px); text-shadow: 0 0 10px rgba(255,255,255,0.3); }
+        /*nav a.active { background: rgba(0,0,0,0.15); border-radius: 4px; padding: 4px 10px; }*/
+        nav a.active { border-bottom: 3px solid white; height: 100%; display: flex; align-items: center; opacity: 1; }
+
+
+
+
+        
+        /* --- SIDEBAR & SELECTS --- */
+        #sidebar { 
+            width: 420px; background: #fff; border-right: 1px solid #dee2e6;
+            overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 15px;
+            z-index: 1500;
+        }
+
+        /* Estilo dos Selects para Contraste */
+        .form-select-custom {
+            background-color: var(--primary);
+            color: white !important;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .form-select-custom option { background: white; color: #333; }
+
+        /* Layout Estrutural */
+        #main-container { display: flex; height: calc(100vh - 130px); }
+        #map-area { flex: 1; position: relative; background: #f0f0f0; }
+        #map { height: 100%; width: 100%; }
+
+        /* Componentes UI */
+        
+
+       /* --- CARD KPI COMPACTO --- */
+        .kpi-card { 
+            color: white; border-radius: 12px; padding: 12px 15px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: background 0.4s;
+        }
+        .bg-safe { background: linear-gradient(135deg, #2e7d32, #1b5e20); }
+        .bg-warning { background: linear-gradient(135deg, #fbc02d, #f9a825); color: #212529 !important; }
+        .bg-danger { background: linear-gradient(135deg, #d32f2f, #b71c1c); }
+
+        .kpi-val-small { font-size: 2rem; font-weight: 800; line-height: 1; }
+        .kpi-label { font-size: 0.7rem; text-transform: uppercase; font-weight: 700; opacity: 0.9; }
+        .kpi-title-small { font-size: 1rem; font-weight: 700; display: block; }
+
+        /* --- MINI CARDS --- */
+        .mini-card-container { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+        .mini-card {
+            padding: 8px 4px; border-radius: 8px; text-align: center;
+            border: 1px solid #eee; background: #fff;
+        }
+        .mini-card span { display: block; font-size: 0.6rem; font-weight: 800; text-transform: uppercase; color: #777; }
+        .mini-card b { font-size: 1.1rem; display: block; line-height: 1.2; }
+
+        .chart-container { flex-grow: 1; min-height: 150px; max-height: 180px; }
+
+        .map-overlay-top {
+            position: absolute; top: 20px; right: 20px;
+            background: white; padding: 12px; border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15); z-index: 1000;
+            border-top: 4px solid var(--primary); min-width: 180px;
+        }
+        .leg-item { display: flex; align-items: center; gap: 8px; font-size: 0.75rem; margin-top: 5px; }
+        .leg-color { width: 14px; height: 14px; border-radius: 3px; }
+        .x-small { font-size: 0.7rem; letter-spacing: 0.5px; }
+    
+    
+    /* --- BUSCA SOBRE O MAPA --- */
+        .map-search-wrapper {
+    position: absolute;
+    bottom: 20px;   /* AGORA EMBAIXO */
+    left: 20px;     /* ESQUERDA */
+    z-index: 1050;
+    width: 280px;
+}
+
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: white;
+            padding: 5px 15px;
+            border-radius: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            border: 2px solid transparent;
+            transition: 0.3s;
+        }
+
+        .search-box:focus-within {
+            border-color: var(--primary);
+        }
+
+        .search-box input {
+            border: none;
+            outline: none;
+            padding: 8px;
+            width: 100%;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .search-results-list {
+            position: absolute;
+            bottom: 50px;   /* sobe a lista acima da caixa de busca */
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            max-height: 250px;
+            overflow-y: auto;
+            display: none;
+            z-index: 1100;
+        }
+
+        .search-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 0.85rem;
+            transition: 0.2s;
+        }
+
+        .search-item:hover {
+            background: #e8f5e9;
+            color: var(--primary);
+            font-weight: 600;
+        }
+    
+    
+    
+    
+    
+    
+    
+    </style>
+</head>
+<body>
+
+
+
+    
+<header>
+  <div class="logo-gat">
+    <img src="https://lh3.googleusercontent.com/d/1CjAJykaxRU8iqYiCdiTD9fMkyLFWR7vx" alt="Logo LIRAa Digital">
+        <div class="titulo-sistema">
+            <h1>Vigilância Ambiental</h1>
+            <span>Levantamento Rápido de Índices para Aedes aegypti em Campina Grande - PB</span>
+        </div>
+    </div>
+
+    <div class="apoios">
+        <a href="https://www.instagram.com/pet_saude_digital_ufcg/" target="_blank">
+          <img src="https://lh3.googleusercontent.com/d/1Lvrvq6cCcIJgvLBSdi8u6B1SA75L9V_K" alt="PET-Saúde Digital">
+        </a>
+    
+        <a href="https://gat-5.vercel.app/" target="_blank">
+          <img src="https://lh3.googleusercontent.com/d/1fGEuRXpKXXiNafxDzFd0JDwwrVxKvd-a" alt="GAT-5">
+        </a>
+    
+        <a href="https://saude.campinagrande.pb.gov.br/" target="_blank">
+          <img src="https://lh3.googleusercontent.com/d/1vsaPX967sHVuynqPwLpFfktsO6s-_OZD" alt="Secretaria de Saúde">
+        </a>
+    </div>
+</header>
+
+<nav>
+    <a class="active"><i class="bi bi-grid-1x2-fill"></i> Dashboard</a>
+    <a href="PG2.html"><i class="bi bi-geo-fill"></i> Análise Temporal</a>
+    <a href="relatorio.html"><i class="bi bi-file-earmark-text-fill"></i> Relatórios</a>
+     <a href="sobre.html"><i class="bi bi-question-circle-fill"></i> Sobre</a>
+</nav>
+
+<div id="main-container">
+    <aside id="sidebar">
+        <div class="row g-2">
+            <div class="col-5">
+                <label class="x-small fw-bold text-muted mb-1 text-uppercase">Ano Base</label>
+                <select id="selAno" class="form-select form-select-sm form-select-custom" onchange="initCiclos()"></select>
+            </div>
+            <div class="col-7">
+                <label class="x-small fw-bold text-muted mb-1 text-uppercase">Indicador</label>
+                <select id="selIndice" class="form-select form-select-sm form-select-custom" onchange="mudarIndice(this.value)">
+                    <option value="iip">Infestação Predial (IIP)</option>
+                    <option value="bre">Breteau (IB)</option>
+                    <option value="alb">Aedes Albopictus</option>
+                </select>
+            </div>
+        </div>
+
+        <div>
+            <label class="x-small fw-bold text-muted mb-2 d-block text-uppercase">Ciclo de Levantamento</label>
+            <div id="ciclo-btns" class="btn-group w-100" role="group"></div>
+        </div>
+
+        <div id="kpi-main-card" class="kpi-card bg-safe">
+            <div class="d-flex justify-content-between align-items-center">
+                <div style="flex:1">
+                    <span id="kpi-escopo" class="kpi-label">MUNICÍPIO</span>
+                    <span id="kpi-titulo" class="kpi-title-small text-truncate">Campina Grande</span>
+                    <div id="kpi-val" class="kpi-val-small">0.0</div>
+                </div>
+                <div class="text-end">
+                    <i id="kpi-icon" class="bi bi-shield-check" style="font-size: 2.2rem; opacity: 0.8;"></i>
+                    <div id="kpi-status" class="fw-bold" style="font-size: 0.75rem;">Satisfeito</div>
+                </div>
+            </div>
+            <div id="kpi-periodo" class="mt-1 x-small opacity-75 fw-medium"></div>
+        </div>
+
+
+
+
+        <div class="chart-container">
+            <canvas id="chartLira"></canvas>
+        </div>
+
+        <div class="mini-card-container">
+            <div class="mini-card" style="border-bottom: 3px solid var(--safe)">
+                <span>Satisfeito</span>
+                <b id="count-safe" class="text-success">0</b>
+            </div>
+            <div class="mini-card" style="border-bottom: 3px solid var(--warning)">
+                <span>Alerta</span>
+                <b id="count-warning" class="text-warning">0</b>
+            </div>
+            <div class="mini-card" style="border-bottom: 3px solid var(--danger)">
+                <span>Risco</span>
+                <b id="count-danger" class="text-danger">0</b>
+            </div>
+        </div>
+        
+        <button class="btn btn-sm btn-dark w-100 py-2 fw-bold" onclick="resetFiltro()" style="font-size: 0.7rem;">
+            <i class="bi bi-arrow-counterclockwise"></i> LIMPAR SELEÇÃO DE BAIRRO
+        </button>
+    </aside>
+
+    <main id="map-area">
+        <div class="map-search-wrapper">
+            <div class="search-box">
+                <i class="bi bi-search text-muted"></i>
+                <input type="text" id="inputBusca" placeholder="Pesquisar bairro..." onkeyup="logicaBusca(this.value)">
+            </div>
+            <div id="listaResultados" class="search-results-list"></div>
+        </div>
+
+        <div id="map"></div>
+        <div class="map-overlay-top" id="map-legend"></div>
+    </main>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+<script>
+let state = {
+    dados: {}, meta: {},
+    ano: null, ciclo: 'ANO', indice: 'iip', bairro: null,
+    map: null, layer: null, chart: null
+};
+
+function excelDateToJS(serial) {
+    if(!serial || isNaN(serial)) return serial;
+    let utc_days  = Math.floor(serial - 25569);
+    let date_info = new Date(utc_days * 86400 * 1000);
+    return date_info.toLocaleDateString('pt-BR', {timeZone: 'UTC'});
+}
+
+async function start() {
+    try {
+        const res = await fetch("LIRAa Dados.xlsx");
+        const wb = XLSX.read(await res.arrayBuffer(), { type: "array" });
+        wb.SheetNames.forEach(name => {
+            const ano = name.replace("LIRA_", "");
+            const raw = XLSX.utils.sheet_to_json(wb.Sheets[name], { header: 1 });
+            state.dados[ano] = {}; state.meta[ano] = [];
+            let isPostF = false;
+            raw.slice(1).forEach(row => {
+                if(row[0] === 'F') { isPostF = true; return; }
+                if(!isPostF && row[1]) {
+                    const b = row[1].trim().toUpperCase();
+                    state.dados[ano][b] = [];
+                    for(let i=2; i<row.length; i+=3) {
+                        state.dados[ano][b].push({ iip: parseFloat(row[i]||0), bre: parseFloat(row[i+1]||0), alb: parseFloat(row[i+2]||0) });
+                    }
+                } else if(isPostF && String(row[0]).startsWith('C')) {
+                    state.meta[ano].push({ id: row[0], inicio: excelDateToJS(row[1]), fim: excelDateToJS(row[2]) });
+                }
+            });
+        });
+        const anos = Object.keys(state.dados).sort((a, b) => b - a);
+        const sel = document.getElementById("selAno");
+        anos.forEach(a => sel.add(new Option(a, a)));
+        sel.value = anos[0];
+        initChart();
+        await initMap();
+        initCiclos();
+    } catch(e) { console.error(e); }
+}
+
+async function initMap() {
+    state.map = L.map("map", { minZoom: 11 }).setView([-7.23, -35.88], 12); 
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(state.map);
+    const response = await fetch("bairros_cg.geojson");
+    const g = await response.json();
+    state.layer = L.geoJSON(g, {
+        style: { fillColor: '#e0e0e0', weight: 1.5, color: '#fff', fillOpacity: 0.8 },
+        onEachFeature: (f, l) => {
+            l.on('click', (e) => { L.DomEvent.stopPropagation(e); selectBairro(f.properties.Name.toUpperCase().trim()); });
+        }
+    }).addTo(state.map);
+    state.map.on('click', () => resetFiltro());
+    setTimeout(update, 500);
+}
+
+function initCiclos() {
+    state.ano = document.getElementById("selAno").value;
+    const container = document.getElementById("ciclo-btns");
+    container.innerHTML = '';
+    const btnAno = document.createElement('button');
+    btnAno.className = "btn btn-success fw-bold";
+    btnAno.innerText = "ANO";
+    btnAno.onclick = () => setCiclo('ANO', btnAno);
+    container.appendChild(btnAno);
+    if(state.meta[state.ano]){
+        state.meta[state.ano].forEach((c, idx) => {
+            const btn = document.createElement('button');
+            btn.className = "btn btn-outline-secondary";
+            btn.innerText = c.id;
+            btn.onclick = () => setCiclo(idx, btn);
+            container.appendChild(btn);
+        });
+    }
+    setCiclo('ANO', btnAno);
+}
+
+function setCiclo(c, btn) {
+    state.ciclo = c;
+    document.querySelectorAll('#ciclo-btns .btn').forEach(b => {
+        b.classList.remove('btn-success'); b.classList.add('btn-outline-secondary');
+    });
+    btn.classList.replace('btn-outline-secondary', 'btn-success');
+    update();
+}
+
+function update() {
+    if(!state.dados[state.ano]) return;
+    const bairros = Object.keys(state.dados[state.ano]);
+    let counts = { safe: 0, warn: 0, crit: 0 }, somaGlobal = 0, countB = 0;
+
+    bairros.forEach(b => {
+        const d = state.dados[state.ano][b];
+        let v = 0;
+        if (state.ciclo === 'ANO') {
+            let s = 0; d.forEach(c => s += c[state.indice]);
+            v = state.indice === 'alb' ? s : (s / (d.length || 1));
+        } else { v = d[state.ciclo] ? d[state.ciclo][state.indice] : 0; }
+        if(v < 1) counts.safe++; else if(v < 4) counts.warn++; else counts.crit++;
+        somaGlobal += v; countB++;
+    });
+
+    document.getElementById('count-safe').innerText = counts.safe;
+    document.getElementById('count-warning').innerText = counts.warn;
+    document.getElementById('count-danger').innerText = counts.crit;
+
+    let kpiVal = 0;
+    if (state.bairro) {
+        const d = state.dados[state.ano][state.bairro];
+        if (state.ciclo === 'ANO') {
+            let s = 0; d.forEach(c => s += c[state.indice]);
+            kpiVal = state.indice === 'alb' ? s : (s / (d.length || 1));
+        } else { kpiVal = d[state.ciclo] ? d[state.ciclo][state.indice] : 0; }
+        document.getElementById('kpi-escopo').innerText = "BAIRRO SELECIONADO";
+        document.getElementById('kpi-titulo').innerText = state.bairro;
+    } else {
+        kpiVal = state.indice === 'alb' ? somaGlobal : (somaGlobal / (countB || 1));
+        document.getElementById('kpi-escopo').innerText = "MUNICÍPIO";
+        document.getElementById('kpi-titulo').innerText = "Campina Grande";
+    }
+
+    const card = document.getElementById('kpi-main-card');
+    const status = document.getElementById('kpi-status');
+    const icon = document.getElementById('kpi-icon');
+    card.className = "kpi-card";
+    if(kpiVal < 1) { card.classList.add("bg-safe"); status.innerText = "Satisfeito"; icon.className = "bi bi-shield-check"; }
+    else if(kpiVal < 4) { card.classList.add("bg-warning"); status.innerText = "Alerta"; icon.className = "bi bi-exclamation-triangle"; }
+    else { card.classList.add("bg-danger"); status.innerText = "Risco Surto"; icon.className = "bi bi-virus"; }
+    document.getElementById('kpi-val').innerText = kpiVal.toFixed(1);
+
+    const pld = document.getElementById('kpi-periodo');
+    if (state.ciclo !== 'ANO' && state.meta[state.ano][state.ciclo]) {
+        const m = state.meta[state.ano][state.ciclo];
+        pld.innerHTML = `<i class="bi bi-calendar3"></i> ${m.inicio} - ${m.fim}`;
+    } else { pld.innerHTML = `<i class="bi bi-calendar-check"></i> Anual ${state.ano}`; }
+
+    updateMap(); updateChart(); updateLegend();
+}
+
+function updateMap() {
+    if(!state.layer) return;
+    state.layer.setStyle(f => {
+        const b = f.properties.Name.toUpperCase().trim();
+        const d = state.dados[state.ano][b];
+        let v = 0;
+        if(d) {
+            if(state.ciclo === 'ANO') {
+                let s = 0; d.forEach(c => s += c[state.indice]);
+                v = (state.indice === 'alb') ? s : (s / d.length);
+            } else { v = d[state.ciclo] ? d[state.ciclo][state.indice] : 0; }
+        }
+        return { 
+            fillColor: v === 0 ? '#e0e0e0' : v < 1 ? '#2e7d32' : v < 4 ? '#fbc02d' : '#d32f2f', 
+            fillOpacity: 0.85, weight: state.bairro === b ? 4 : 1, color: state.bairro === b ? '#000' : '#fff'
+        };
+    });
+}
+
+function updateLegend() {
+    const nomes = { iip: "Infestação Predial (IIP)", bre: "Breteau (IB)", alb: "Aedes Albopictus" };
+    document.getElementById('map-legend').innerHTML = `
+        <h6 class="fw-bold m-0" style="font-size:0.75rem">${nomes[state.indice]}</h6>
+        <p class="text-muted mb-2" style="font-size:0.6rem">Classificação de Risco Ministério da Saúde</p>
+        <div class="leg-item"><div class="leg-color" style="background:#2e7d32"></div> Satisfeito (< 1.0)</div>
+        <div class="leg-item"><div class="leg-color" style="background:#fbc02d"></div> Alerta (1.0 - 3.9)</div>
+        <div class="leg-item"><div class="leg-color" style="background:#d32f2f"></div> Risco Surto (≥ 4.0)</div>
+    `;
+}
+function initChart() {
+    state.chart = new Chart(document.getElementById('chartLira'), {
+        type: 'line',
+        data: { labels: [], datasets: [{ label: 'Índice', data: [], borderColor: '#0e945c', tension: 0.3, fill: true, backgroundColor: 'rgba(14,148,92,0.1)' }] },
+        options: { 
+            responsive: true, maintainAspectRatio: false, 
+            layout: { padding: { top: 30 } }, // Espaço para os labels no topo
+            plugins: { 
+                datalabels: { 
+                    display: true, 
+                    align: 'top', 
+                    offset: 5,
+                    font: { weight: 'bold' }, 
+                    formatter: v => v.toFixed(1) 
+                }, 
+                legend: { display: false },
+                // Linhas de Limite (Anatomia do Risco)
+                annotation: {} 
+            },
+            scales: { 
+                y: { 
+                    beginAtZero: true,
+                    suggestedMax: 6, // Garante que o gráfico tenha "teto" para mostrar o label
+                    grid: { color: '#eee' }
+                } 
+            }
+        },
+        plugins: [ChartDataLabels]
+    });
+}
+
+function updateChart() {
+    if(!state.meta[state.ano]) return;
+    let labels = [], valores = [];
+    state.meta[state.ano].forEach((c, idx) => {
+        labels.push(c.id);
+        if (state.bairro) { 
+            const d = state.dados[state.ano][state.bairro];
+            valores.push(d[idx] ? d[idx][state.indice] : 0); 
+        } 
+        else {
+            let s=0, cB=0;
+            Object.values(state.dados[state.ano]).forEach(b => { if(b[idx]) { s += b[idx][state.indice]; cB++; } });
+            valores.push(state.indice === 'alb' ? s : (s/cB));
+        }
+    });
+    state.chart.data.labels = labels;
+    state.chart.data.datasets[0].data = valores;
+    
+    // Ajuste dinâmico do eixo Y para nunca sumir label
+    const maxVal = Math.max(...valores, 5);
+    state.chart.options.scales.y.suggestedMax = maxVal + (maxVal * 0.2);
+    
+    state.chart.update();
+}
+
+function selectBairro(b) { state.bairro = b; update(); }
+function resetFiltro() { state.bairro = null; update(); }
+function mudarIndice(i) { state.indice = i; update(); }
+window.addEventListener('resize', () => state.map.invalidateSize());
+start();
+
+
+function logicaBusca(valor) {
+    const lista = document.getElementById('listaResultados');
+    const input = valor.trim().toUpperCase();
+    
+    // Só mostra resultados se digitar 2 ou mais letras
+    if (input.length < 1) {
+        lista.style.display = 'none';
+        return;
+    }
+
+    // Pega os nomes dos bairros disponíveis nos dados
+    const bairros = Object.keys(state.dados[state.ano]);
+    const filtrados = bairros.filter(b => b.includes(input));
+
+    if (filtrados.length > 0) {
+        lista.innerHTML = filtrados.map(b => 
+            `<div class="search-item" onclick="selecionarBairroBusca('${b}')">
+                <i class="bi bi-geo-alt-fill me-2 text-success"></i> ${b}
+            </div>`
+        ).join('');
+        lista.style.display = 'block';
+    } else {
+        lista.style.display = 'none';
+    }
+}
+
+function selecionarBairroBusca(bairro) {
+    document.getElementById('inputBusca').value = '';
+    document.getElementById('listaResultados').style.display = 'none';
+
+    // Apenas seleciona e destaca
+    selectBairro(bairro);
+}
+
+
+
+
+
+
+</script>
+</body>
+</html>

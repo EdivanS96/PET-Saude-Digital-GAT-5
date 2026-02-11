@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sobre | LIRAa Digital</title>
+
+
+    <link rel="icon" href="https://lh3.googleusercontent.com/d/1CjAJykaxRU8iqYiCdiTD9fMkyLFWR7vx" type="image/png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <style>
+        :root { 
+            --primary: #0e945c; 
+            --primary-dark: #076e43;
+            --danger: #d32f2f; 
+            --warning: #fbc02d; 
+            --safe: #2e7d32; 
+            --bg-light: #f8f9fa;
+        }
+
+        body, html { 
+            height: 100%; margin: 0; font-family: 'Inter', system-ui, -apple-system, sans-serif; background: var(--bg-light); 
+        }
+
+        /* --- CABEÇALHO PROFISSIONAL --- */
+        header { 
+            display: flex; align-items: center; justify-content: space-between; 
+            background: #ffffff; padding: 0 30px; height: 90px; 
+            border-bottom: 4px solid var(--primary); 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            z-index: 2000;
+        }
+        .logo-gat { display: flex; align-items: center; gap: 20px; }
+        .logo-gat img { height: 140px; }
+        .titulo-sistema h1 { margin: 0; font-size: 1.5rem; font-weight: 800; color: #1a1a1a; letter-spacing: -0.5px; }
+        .titulo-sistema span { font-size: 0.85rem; font-weight: 500; color: #666; display: block; }
+
+        .apoios { display: flex; align-items: center; gap: 25px; }
+        .apoios img { height: 50px; width: auto; transition: transform 0.3s ease, opacity 0.3s; filter: grayscale(20%); }
+        .apoios img:hover { transform: scale(1.08); filter: grayscale(0%); opacity: 1; }
+
+        /* --- NAVBAR --- */
+        nav { 
+            background: var(--primary); 
+            display: flex; padding: 0 10px; height: 40px; 
+            align-items: center; z-index: 2000; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+        }
+        nav a { 
+            color: #ffffff !important; 
+            text-decoration: none; margin-right: 30px;
+            font-weight: 600; font-size: 0.85rem; 
+            display: flex; align-items: center; gap: 8px;
+            transition: 0.3s; opacity: 0.9; cursor: pointer;
+            text-transform: uppercase;
+        }
+        nav a i { font-size: 1.1rem; color: #ffffff; }
+        nav a:hover { opacity: 1; transform: translateY(-1px); text-shadow: 0 0 10px rgba(255,255,255,0.3); }
+        nav a.active { border-bottom: 3px solid white; height: 100%; display: flex; align-items: center; opacity: 1; }
+
+        /* --- CONTEÚDO --- */
+        #main-container { display: flex; flex-direction: column; padding: 20px 40px; max-width: 1100px; margin: auto; }
+        h2 { color: var(--primary); margin-top: 30px; }
+        p { text-align: justify; line-height: 1.6; margin-bottom: 1rem; }
+        .apoios-section { margin-top: 40px; display: flex; gap: 30px; flex-wrap: wrap; justify-content: center; }
+        .apoios-section img { height: 60px; }
+    </style>
+</head>
+<body>
+
+<header>
+  <div class="logo-gat">
+    <img src="https://lh3.googleusercontent.com/d/1CjAJykaxRU8iqYiCdiTD9fMkyLFWR7vx" alt="Logo LIRAa Digital">
+    <div class="titulo-sistema">
+        <h1>Vigilância Ambiental</h1>
+        <span>Levantamento Rápido de Índices para Aedes aegypti em Campina Grande - PB</span>
+    </div>
+  </div>
+
+  <div class="apoios">
+      <a href="https://www.instagram.com/pet_saude_digital_ufcg/" target="_blank">
+        <img src="https://lh3.googleusercontent.com/d/1Lvrvq6cCcIJgvLBSdi8u6B1SA75L9V_K" alt="PET-Saúde Digital">
+      </a>
+  
+      <a href="https://gat-5.vercel.app/" target="_blank">
+        <img src="https://lh3.googleusercontent.com/d/1fGEuRXpKXXiNafxDzFd0JDwwrVxKvd-a" alt="GAT-5">
+      </a>
+  
+      <a href="https://saude.campinagrande.pb.gov.br/" target="_blank">
+        <img src="https://lh3.googleusercontent.com/d/1vsaPX967sHVuynqPwLpFfktsO6s-_OZD" alt="Secretaria de Saúde">
+      </a>
+  </div>
+</header>
+
+<nav>
+    <a href="index.html"><i class="bi bi-grid-1x2-fill"></i> Dashboard</a>
+    <a href="PG2.html"><i class="bi bi-geo-fill"></i> Análise Temporal</a>
+    <a href="relatorio.html"><i class="bi bi-file-earmark-text-fill"></i> Relatórios</a>
+    <a class="active"><i class="bi bi-question-circle-fill"></i> Sobre</a>
+</nav>
+
+<div id="main-container">
+
+    <h2>O que é o LIRAa?</h2>
+    <p>
+        O LIRAa (Levantamento Rápido de Índices para Aedes aegypti) foi um método criado 
+        para promover a padronização dos dados obtidos a partir da vigilância epidemiológica 
+        do Aedes aegypti, que se configura como o principal vetor da dengue, zika e 
+        Chikungunya. A partir dos dados organizados, tem-se o objetivo de produzir, de forma 
+        rápida, econômica e com segurança estatística, um banco de informações sobre as 
+        infestações larvárias dos municípios, permitindo identificar áreas de maior risco 
+        e guiar decisões conscientes e eficazes para o controle vetorial.
+    </p>
+
+    <h2>Metodologia</h2>
+    <p>
+        Essa metodologia se baseia na amostragem por conglomerados, na qual a área urbana do município 
+        é dividida em estratos homogêneos, por meio de características socioambientais do local, 
+        e são sorteados imóveis para inspeção. A partir das visitas domiciliares, busca-se larvas 
+        e pupas em recipientes com água para calcular os principais índices de infestação predial.
+    </p>
+    <p>
+        Com os dados obtidos, são calculados os índices mais relevantes. O Índice Predial (IP) expressa 
+        o percentual de imóveis positivos em relação ao total pesquisado, enquanto o Índice de Breteau 
+        (IB) relaciona o número de recipientes positivos ao número de imóveis inspecionados, padronizado 
+        para cada 100 imóveis. Além disso, o LIRAa analisa os índices por tipo de recipiente, identificando 
+        os criadouros predominantes para orientar estratégias de controle específicas.
+    </p>
+
+    <h2>Classificação de Risco</h2>
+    <p>
+        Após a obtenção dos dados de Infestação Predial (IIP), os bairros são classificados quanto ao 
+        risco de proliferação do Aedes aegypti e transmissão de arboviroses:
+    </p>
+    <ul>
+        <li><b>Satisfatório:</b> IIP inferior a 1,0, indicando baixa presença de imóveis com larvas. Ações devem priorizar manutenção preventiva, vigilância contínua e atividades educativas.</li>
+        <li><b>Alerta:</b> IIP entre 1,0 e 3,9, demonstrando circulação significativa do vetor. Necessária intensificação de ações de controle e mobilização comunitária.</li>
+        <li><b>Risco:</b> IIP igual ou superior a 4,0, caracterizando situação crítica. Exige ações imediatas e integradas, como bloqueio de focos, controle químico, ampliação da vigilância e articulação intersetorial.</li>
+    </ul>
+
+    <p>
+        A partir dos dados obtidos no 4º LIRAa de 2025 do Índice de Infestação Predial, é possível 
+        classificar os bairros de Campina Grande segundo o risco de proliferação do mosquito-vetor.
+    </p>
+
+    <h2>LIRAa Digital</h2>
+    <p>
+        O LIRAa Digital foi desenvolvido pelo <b>GAT 5 do PET Saúde Digital da UFCG</b> em parceria 
+        com a <b>Secretaria de Saúde de Campina Grande</b>, com o objetivo de facilitar a visualização 
+        dos dados de infestação predial e apoiar decisões estratégicas para o controle do Aedes aegypti.
+    </p>
+
+    <div class="apoios-section">
+        <a href="https://www.instagram.com/pet_saude_digital_ufcg/" target="_blank">
+            <img src="https://lh3.googleusercontent.com/d/1Lvrvq6cCcIJgvLBSdi8u6B1SA75L9V_K" alt="PET-Saúde Digital">
+        </a>
+        <a href="https://gat-5.vercel.app/" target="_blank">
+            <img src="https://lh3.googleusercontent.com/d/1fGEuRXpKXXiNafxDzFd0JDwwrVxKvd-a" alt="GAT-5">
+        </a>
+        <a href="https://saude.campinagrande.pb.gov.br/" target="_blank">
+            <img src="https://lh3.googleusercontent.com/d/1vsaPX967sHVuynqPwLpFfktsO6s-_OZD" alt="Secretaria de Saúde">
+        </a>
+    </div>
+
+</div>
+
+</body>
+</html>

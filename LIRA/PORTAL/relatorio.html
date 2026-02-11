@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatórios | LIRAa Digital - Campina Grande</title>
+
+
+    <link rel="icon" href="https://lh3.googleusercontent.com/d/1CjAJykaxRU8iqYiCdiTD9fMkyLFWR7vx" type="image/png">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+    <style>
+        :root { 
+            --primary: #0e945c; 
+            --primary-dark: #076e43;
+            --danger: #d32f2f; 
+            --warning: #fbc02d; 
+            --safe: #2e7d32; 
+            --bg-light: #f8f9fa;
+        }
+        
+        body, html { 
+            height: 100vh; margin: 0; overflow: hidden; 
+            font-family: 'Inter', system-ui, -apple-system, sans-serif; 
+            background: var(--bg-light); 
+        }
+
+        header { 
+            display: flex; align-items: center; justify-content: space-between; 
+            background: #ffffff; padding: 0 30px; height: 90px; 
+            border-bottom: 4px solid var(--primary); 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            z-index: 2000;
+        }
+        .logo-gat { display: flex; align-items: center; gap: 20px; }
+        .logo-gat img { height: 140px; }
+        .titulo-sistema h1 { margin: 0; font-size: 1.5rem; font-weight: 800; color: #1a1a1a; letter-spacing: -0.5px; }
+        .titulo-sistema span { font-size: 0.85rem; font-weight: 500; color: #666; display: block; }
+
+        .apoios { display: flex; align-items: center; gap: 25px; }
+        .apoios img { 
+            height: 50px; width: auto; 
+            transition: transform 0.3s ease, opacity 0.3s; 
+            filter: grayscale(20%);
+        }
+        .apoios img:hover { transform: scale(1.08); filter: grayscale(0%); opacity: 1; }
+
+        nav { 
+            background: var(--primary); 
+            display: flex; padding: 0 10px; height: 40px; 
+            align-items: center; z-index: 2000; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+        }
+        nav a { 
+            color: #ffffff !important; 
+            text-decoration: none; margin-right: 30px;
+            font-weight: 600; font-size: 0.85rem; 
+            display: flex; align-items: center; gap: 8px;
+            transition: 0.3s; opacity: 0.9; cursor: pointer;
+            text-transform: uppercase;
+        }
+        nav a i { font-size: 1.1rem; color: #ffffff; }
+        nav a:hover { opacity: 1; transform: translateY(-1px); text-shadow: 0 0 10px rgba(255,255,255,0.3); }
+        /*nav a.active { background: rgba(0,0,0,0.15); border-radius: 4px; padding: 4px 10px; }*/
+        nav a.active { border-bottom: 3px solid white; height: 100%; display: flex; align-items: center; opacity: 1; }
+
+        #main-content { height: calc(100vh - 130px); overflow-y: auto; padding: 20px 30px; }
+
+        .area-filtros {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px; background: white; padding: 15px 25px; border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .relatorio-container {
+    background: white;
+    padding: 20px;
+    border-radius: 16px; /* mais arredondado */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.table-lira {
+    width: 100%;
+    border-collapse: separate; /* IMPORTANTE */
+    border-spacing: 0;
+    font-size: 0.75rem;
+    border-radius: 16px; /* arredonda a tabela */
+    overflow: hidden; /* faz o radius funcionar */
+}
+
+/* Cabeçalho */
+.table-lira th {
+    background: #0e945c !important;
+    color: white !important;
+    border: 1px solid #076e43;
+    padding: 6px 2px;
+    text-align: center;
+}
+
+/* Arredondar topo da tabela */
+.table-lira thead tr:first-child th:first-child {
+    border-top-left-radius: 16px;
+}
+
+.table-lira thead tr:first-child th:last-child {
+    border-top-right-radius: 16px;
+}
+
+/* Corpo */
+.table-lira td {
+    border: 1px solid #ddd;
+    padding: 5px 2px;
+    text-align: center;
+    font-weight: 600;
+}
+
+/* Arredondar base */
+.table-lira tfoot tr td:first-child {
+    border-bottom-left-radius: 16px;
+}
+
+.table-lira tfoot tr td:last-child {
+    border-bottom-right-radius: 16px;
+}
+
+.bairro-cell {
+    text-align: left !important;
+    padding-left: 10px !important;
+    width: 180px;
+    background: #f9f9f9;
+}
+
+.data-ciclo {
+    display: block;
+    font-size: 0.62rem;
+    font-weight: 400;
+    color: #fff;
+    margin-top: 2px;
+}
+
+.v-risco { color: #d32f2f !important; font-weight: 800; }
+.v-alerta { color: #856404 !important; font-weight: 800; }
+.v-safe { color: #155724 !important; }
+
+.bg-media {
+    background-color: #f0f7f3 !important;
+    border-left: 2px solid #0e945c !important;
+}
+
+.footer-media {
+    background: #212529 !important;
+    color: white !important;
+}
+
+
+        #capture-box { width: 1000px; background: white; position: absolute; left: -9999px; padding: 0; }
+        .header-exp { width: 1000px !important; }
+    </style>
+</head>
+<body>
+
+<header id="header-portal">
+    <div class="logo-gat">
+        <img src="https://lh3.googleusercontent.com/d/1CjAJykaxRU8iqYiCdiTD9fMkyLFWR7vx" alt="Logo LIRAa">
+        <div class="titulo-sistema">
+            <h1>Vigilância Ambiental</h1>
+            <span>Levantamento Rápido de Índices para Aedes aegypti em Campina Grande - PB</span>
+        </div>
+    </div>
+    <div class="apoios">
+        <img src="https://lh3.googleusercontent.com/d/1Lvrvq6cCcIJgvLBSdi8u6B1SA75L9V_K">
+        <img src="https://lh3.googleusercontent.com/d/1fGEuRXpKXXiNafxDzFd0JDwwrVxKvd-a">
+        <img src="https://lh3.googleusercontent.com/d/1vsaPX967sHVuynqPwLpFfktsO6s-_OZD">
+    </div>
+</header>
+
+<nav>
+    <a href="index.html"><i class="bi bi-grid-1x2-fill"></i> Dashboard</a>
+    <a href="PG2.html"><i class="bi bi-geo-fill"></i> Análise Temporal</a>
+    <a class="active"><i class="bi bi-file-earmark-text-fill"></i> Relatórios</a>
+    <a href="sobre.html"><i class="bi bi-question-circle-fill"></i> Sobre</a>
+</nav>
+
+<div id="main-content">
+    <div class="area-filtros">
+        <div>
+            <label class="small fw-bold text-uppercase d-block mb-1 text-muted">Filtrar por Ano</label>
+            <select id="selectAno" class="form-select border-success fw-bold" style="width: 160px;"></select>
+        </div>
+        <div>
+            <button class="btn btn-outline-dark me-2" onclick="exportar('png')"><i class="bi bi-image"></i> Baixar PNG</button>
+            <button class="btn btn-outline-success me-2" onclick="exportarExcel()"><i class="bi bi-file-earmark-excel"></i> Planilha XLSX</button>
+            <button class="btn btn-danger" onclick="exportar('pdf')"><i class="bi bi-file-earmark-pdf-fill"></i> Gerar PDF Oficial</button>
+        </div>
+    </div>
+
+    <div class="relatorio-container" id="printable-area">
+        <div class="text-center mb-4">
+            <h4 class="fw-bold text-dark">Relatório Técnico LIRAa - <span id="ano-label"></span></h4>
+        </div>
+        <div class="table-responsive">
+            <table class="table-lira" id="tabela-dados">
+                <thead id="head-lira"></thead>
+                <tbody id="body-lira"></tbody>
+                <tfoot id="foot-lira"></tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div id="capture-box"></div>
+
+<script>
+let state = { dados: {}, meta: {} };
+
+function fmtData(n) {
+    if(!n) return "";
+    const d = new Date(Math.round((n - 25569) * 86400 * 1000));
+    return d.toLocaleDateString('pt-BR', {day: '2-digit', month: '2-digit'});
+}
+
+async function carregar() {
+    const res = await fetch("LIRAa Dados.xlsx");
+    const wb = XLSX.read(await res.arrayBuffer(), { type: "array" });
+    wb.SheetNames.forEach(name => {
+        const ano = name.replace("LIRA_", "");
+        const raw = XLSX.utils.sheet_to_json(wb.Sheets[name], { header: 1 });
+        state.dados[ano] = {}; state.meta[ano] = [];
+        let isF = false;
+        raw.slice(1).forEach(row => {
+            if (row[0] === 'F') { isF = true; return; }
+            if (!isF && row[1]) {
+                const b = row[1].trim().toUpperCase();
+                state.dados[ano][b] = [];
+                for (let i = 2; i < row.length; i += 3) {
+                    state.dados[ano][b].push({ iip: row[i]||0, ib: row[i+1]||0, alb: row[i+2]||0 });
+                }
+            } else if (isF && row[0]) {
+                state.meta[ano].push({ id: row[0], periodo: `${fmtData(row[1])} a ${fmtData(row[2])}` });
+            }
+        });
+    });
+    const anos = Object.keys(state.dados).sort().reverse();
+    const sel = document.getElementById('selectAno');
+    anos.forEach(a => sel.innerHTML += `<option value="${a}">${a}</option>`);
+    sel.onchange = () => render(sel.value);
+    render(anos[0]);
+}
+
+function getCor(v) { return v >= 4 ? 'v-risco' : v >= 1 ? 'v-alerta' : 'v-safe'; }
+
+function render(ano) {
+    document.getElementById('ano-label').textContent = ano;
+    const ciclos = state.meta[ano], bairros = Object.keys(state.dados[ano]).sort();
+    let h = `<tr><th rowspan="2">Nº</th><th rowspan="2" class="bairro-cell">Bairro</th>`;
+    ciclos.forEach(c => h += `<th colspan="3">${c.id}<span class="data-ciclo">${c.periodo}</span></th>`);
+    h += `<th colspan="3">MÉDIA ANUAL</th></tr><tr>`;
+    ciclos.forEach(() => h += `<th>IIP</th><th>IB</th><th>ALB</th>`);
+    h += `<th>IIP</th><th>IB</th><th>ALB</th></tr>`;
+    document.getElementById('head-lira').innerHTML = h;
+
+    let bHtml = '', totais = Array(ciclos.length * 3 + 3).fill(0);
+    bairros.forEach((b, idx) => {
+        let r = `<tr><td>${idx+1}</td><td class="bairro-cell">${b}</td>`, sIIP = 0, sIB = 0, sALB = 0;
+        ciclos.forEach((_, cIdx) => {
+            const d = state.dados[ano][b][cIdx] || {iip:0, ib:0, alb:0};
+            sIIP += d.iip; sIB += d.ib; sALB += d.alb;
+            totais[cIdx*3] += d.iip; totais[cIdx*3+1] += d.ib; totais[cIdx*3+2] += d.alb;
+            r += `<td class="${getCor(d.iip)}">${d.iip.toFixed(1)}</td><td class="${getCor(d.ib)}">${d.ib.toFixed(1)}</td><td>${d.alb.toFixed(1)}</td>`;
+        });
+        const mIIP = sIIP/ciclos.length, mIB = sIB/ciclos.length, mALB = sALB/ciclos.length;
+        totais[totais.length-3] += mIIP; totais[totais.length-2] += mIB; totais[totais.length-1] += mALB;
+        r += `<td class="bg-media ${getCor(mIIP)}">${mIIP.toFixed(1)}</td><td class="bg-media ${getCor(mIB)}">${mIB.toFixed(1)}</td><td class="bg-media">${mALB.toFixed(1)}</td></tr>`;
+        bHtml += r;
+    });
+    document.getElementById('body-lira').innerHTML = bHtml;
+    let fHtml = `<tr class="footer-media"><td>-</td><td class="text-start ps-3">MÉDIA DO MUNICÍPIO</td>`;
+    totais.forEach(t => fHtml += `<td>${(t/bairros.length).toFixed(1)}</td>`);
+    document.getElementById('foot-lira').innerHTML = fHtml + `</tr>`;
+}
+
+async function exportar(tipo) {
+    const box = document.getElementById('capture-box');
+    box.innerHTML = '';
+    
+    const headerClone = document.getElementById('header-portal').cloneNode(true);
+    headerClone.classList.add('header-exp');
+    headerClone.style.boxShadow = 'none';
+    box.appendChild(headerClone);
+
+    const tableClone = document.getElementById('printable-area').cloneNode(true);
+    box.appendChild(tableClone);
+
+    // Captura o cabeçalho institucional e o cabeçalho da tabela separadamente para "repetir" no PDF
+    const headerCanvas = await html2canvas(headerClone, { scale: 2, width: 1000 });
+    const tableHeadCanvas = await html2canvas(document.getElementById('head-lira'), { scale: 2, width: 1000 });
+
+    const canvas = await html2canvas(box, { scale: 2, useCORS: true, width: 1000 });
+    
+    if (tipo === 'png') {
+        const link = document.createElement('a');
+        link.download = `LIRAa_CG_${document.getElementById('selectAno').value}.png`;
+        link.href = canvas.toDataURL();
+        link.click();
+    } else {
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const imgData = canvas.toDataURL('image/png');
+        const headData = headerCanvas.toDataURL('image/png');
+        const thData = tableHeadCanvas.toDataURL('image/png');
+        
+        const pdfW = 210;
+        const pdfH = (canvas.height * pdfW) / canvas.width;
+        const pageH = 297;
+        const thH = (tableHeadCanvas.height * pdfW) / tableHeadCanvas.width;
+        
+        let hLeft = pdfH;
+        let pos = 0;
+        let pNum = 1;
+
+        // FUNÇÃO PARA ENUMERAR NO CANTO INFERIOR DIREITO
+        const addPageNum = (num) => {
+            pdf.setFontSize(8);
+            pdf.setTextColor(100);
+            pdf.text(`Página ${num}`, 200, 290, { align: 'right' });
+        };
+
+        // PRIMEIRA PÁGINA
+        pdf.addImage(imgData, 'PNG', 0, pos, pdfW, pdfH);
+        addPageNum(pNum);
+        hLeft -= pageH;
+
+        // PÁGINAS SEGUINTES
+        while (hLeft > 0) {
+            pNum++;
+            pos = hLeft - pdfH;
+            pdf.addPage();
+            
+            // Reinsere o cabeçalho do portal e o cabeçalho da tabela no topo da nova página
+            pdf.addImage(headData, 'PNG', 0, 0, pdfW, (headerCanvas.height * pdfW) / headerCanvas.width);
+            pdf.addImage(thData, 'PNG', 0, 35, pdfW, thH); // Ajustado para ficar logo abaixo do brasão
+            
+            // Conteúdo da tabela (deslocado para não sobrepor o cabeçalho repetido)
+            pdf.addImage(imgData, 'PNG', 0, pos + 45, pdfW, pdfH);
+            
+            addPageNum(pNum);
+            hLeft -= (pageH - 45); // Desconta o espaço do cabeçalho repetido
+        }
+        pdf.save(`Relatorio_LIRAa_CG_${document.getElementById('selectAno').value}.pdf`);
+    }
+}
+
+function exportarExcel() {
+    XLSX.writeFile(XLSX.utils.table_to_book(document.getElementById("tabela-dados")), `Dados_LIRAa_${document.getElementById('selectAno').value}.xlsx`);
+}
+
+carregar();
+</script>
+</body>
+</html>
