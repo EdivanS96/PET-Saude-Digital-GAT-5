@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Análise Temporal | LIRAa Digital - Campina Grande</title>
 
-
-    <link rel="icon" href="https://lh3.googleusercontent.com/d/1CjAJykaxRU8iqYiCdiTD9fMkyLFWR7vx" type="image/png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -288,10 +286,10 @@
 </header>
 
 <nav>
-    <a href="index.html"><i class="bi bi-grid-1x2-fill"></i> Dashboard</a>
+    <a href="LIRA2026.html"><i class="bi bi-grid-1x2-fill"></i> Dashboard</a>
     <a class="active"><i class="bi bi-geo-fill"></i> Análise Temporal</a>
     <a href="relatorio.html"><i class="bi bi-file-earmark-text-fill"></i> Relatórios</a>
-    <a href="sobre.html"><i class="bi bi-question-circle-fill"></i> Sobre</a>
+    <a><i class="bi bi-question-circle-fill"></i> Sobre</a>
 </nav>
 
 <div id="main-content">
@@ -413,43 +411,46 @@ async function renderMosaico() {
     for (const ano of anosOrdenados) {
         if (!state.dados[ano]) continue;
 
-        // --- CÁLCULOS PARA OS NOVOS DADOS ---
-// --- CÁLCULOS PARA OS NOVOS DADOS (CORRIGIDO) ---
+        const ciclosDoAno = state.meta[ano] || [];
+        const semCiclo = state.ciclo !== 'ANO' && (!ciclosDoAno[state.ciclo]);
+
         let somaIndice = 0;
         let countBairrosComDados = 0;
-        
+
         Object.keys(state.dados[ano]).forEach(bairro => {
-            const d = state.dados[ano][bairro];
-            let v = null;
+    const d = state.dados[ano][bairro];
+    let v = null;
 
-            if (d && d.length > 0) {
-                // Se o bairro existe no Excel para este ano, ele foi VISITADO
-                countBairrosComDados++; 
+    if (!semCiclo && d && d.length > 0) {
+        if (state.ciclo === 'ANO') {
+            let s = 0; d.forEach(c => s += c[state.indice] || 0);
+            v = s / d.length;
+        } else {
+            v = d[state.ciclo] ? d[state.ciclo][state.indice] : null;
+        }
+        if (v !== null) {
+            somaIndice += v;
+            countBairrosComDados++;
+        }
+    }
+});
 
-                if (state.ciclo === 'ANO') {
-                    let s = 0; d.forEach(c => s += c[state.indice] || 0);
-                    v = s / d.length;
-                } else {
-                    v = d[state.ciclo]?.[state.indice] || 0;
-                }
-                somaIndice += v;
-            }
-        });
 
         const mediaAno = countBairrosComDados > 0 ? (somaIndice / countBairrosComDados).toFixed(1) : "0.0";
-        // ------------------------------------
-        // ------------------------------------
 
         const card = document.createElement('div');
         card.className = 'mapa-ano-card';
-        card.style.position = 'relative'; // garante o posicionamento dos badges
+        card.style.position = 'relative';
         card.innerHTML = `
             <div class="mapa-ano-header">${ano}</div>
             
             <div class="valor-indice-badge" style="background: ${getCor(parseFloat(mediaAno))}">${mediaAno}</div>
             
-            <div id="map-${ano}" class="mini-map"></div>
+            <div id="map-${ano}" class="mini-map" style="${semCiclo ? 'filter: blur(3px);' : ''}"></div>
             
+           ${semCiclo ? `<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:red;font-weight:bold;font-size:0.9rem;z-index:1000;">SEM CICLO</div>` : ''}
+
+
             <div class="bairros-visitados-info">Bairros: ${countBairrosComDados}</div>
 
             <div class="resumo-status">
@@ -468,49 +469,62 @@ async function renderMosaico() {
             touchZoom: false
         });
 
-        let safe = 0, alerta = 0, risco = 0;
-        const layer = L.geoJSON(geojson, {
-            style: f => {
-                const b = f.properties.Name?.toUpperCase()?.trim();
-                const d = state.dados[ano]?.[b];
-                let v = null; // Começa como nulo
+        if (!semCiclo) {
+                        let safe = 0, alerta = 0, risco = 0;
+            const layer = L.geoJSON(geojson, {
+                style: f => {
+                    const b = f.properties.Name?.toUpperCase()?.trim();
+                    const d = state.dados[ano]?.[b];
+                    let v = null; // valor do índice
 
-                if (d && d.length > 0) {
-                    if (state.ciclo === 'ANO') {
-                        let s = 0; d.forEach(ciclo => s += ciclo[state.indice] || 0);
-                        v = s / d.length;
-                    } else {
-                        // Verifica se o ciclo existe para esse bairro antes de atribuir
-                        v = d[state.ciclo] ? d[state.ciclo][state.indice] : null;
+                    // --- Verifica se existe ciclo para este ano ---
+                    const ciclosExistem = state.ciclo === 'ANO' || (state.meta[ano] && state.meta[ano][state.ciclo] !== undefined);
+
+                    if (d && d.length > 0 && ciclosExistem) {
+                        if (state.ciclo === 'ANO') {
+                            let s = 0; d.forEach(ciclo => s += ciclo[state.indice] || 0);
+                            v = s / d.length;
+                        } else {
+                            v = d[state.ciclo]?.[state.indice] ?? null;
+                        }
+                    }
+
+                    // Só conta se realmente tiver valor
+                    if (v !== null) {
+                        if (v < 1) safe++;
+                        else if (v < 4) alerta++;
+                        else risco++;
+                    }
+
+                    return {
+                        fillColor: (ciclosExistem ? getCor(v) : '#ccc'), // cinza embassado se não houver ciclo
+                        weight: 0.8,
+                        opacity: 1,
+                        color: '#444',
+                        fillOpacity: ciclosExistem ? 0.85 : 0.4 // embassado
+                    };
+                },
+                onEachFeature: (f, layer) => {
+                    const ciclosExistem = state.ciclo === 'ANO' || (state.meta[ano] && state.meta[ano][state.ciclo] !== undefined);
+                    if (!ciclosExistem) {
+                        layer.bindPopup(`<b>${f.properties.Name}</b><br><span style="color:red; font-weight:bold;">SEM CICLO</span>`);
                     }
                 }
+            }).addTo(map);
 
-                // Só incrementa os contadores se v não for nulo e for > 0 (considerado visitado)
-                if (v !== null && v >= 0) {
-                    if (v < 1) safe++;
-                    else if (v < 4) alerta++;
-                    else if (v >= 4) risco++;
-                }
+            map.fitBounds(layer.getBounds(), { padding: [4, 4] });
 
-                return {
-                    fillColor: (v === null) ? CORES[0] : getCor(v),
-                    weight: 0.8,
-                    opacity: 1,
-                    color: '#444',
-                    fillOpacity: 0.85
-                };
-            }
-        }).addTo(map);
-
-        map.fitBounds(layer.getBounds(), { padding: [4, 4] });
-
-        document.getElementById(`s-${ano}`).textContent = safe;
-        document.getElementById(`a-${ano}`).textContent = alerta;
-        document.getElementById(`r-${ano}`).textContent = risco;
+            document.getElementById(`s-${ano}`).textContent = safe;
+            document.getElementById(`a-${ano}`).textContent = alerta;
+            document.getElementById(`r-${ano}`).textContent = risco;
+        } else {
+            map.setView([ -7.2306, -35.8816 ], 12); // Centraliza Campina Grande
+        }
 
         state.mapas[ano] = map;
     }
 }
+
 
 // Eventos dos botões de indicador
 document.querySelectorAll('#indicador-btns .btn').forEach(btn => {
