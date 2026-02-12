@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sobre | LIRAa Digital</title>
-
+    <title>Sobre | LIRAa Digital - Campina Grande</title>
 
     <link rel="icon" href="https://lh3.googleusercontent.com/d/1CjAJykaxRU8iqYiCdiTD9fMkyLFWR7vx" type="image/png">
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
     <style>
@@ -25,7 +24,7 @@
             height: 100%; margin: 0; font-family: 'Inter', system-ui, -apple-system, sans-serif; background: var(--bg-light); 
         }
 
-        /* --- CABEÇALHO PROFISSIONAL --- */
+        /* --- CABEÇALHO --- */
         header { 
             display: flex; align-items: center; justify-content: space-between; 
             background: #ffffff; padding: 0 30px; height: 90px; 
@@ -39,8 +38,8 @@
         .titulo-sistema span { font-size: 0.85rem; font-weight: 500; color: #666; display: block; }
 
         .apoios { display: flex; align-items: center; gap: 25px; }
-        .apoios img { height: 50px; width: auto; transition: transform 0.3s ease, opacity 0.3s; filter: grayscale(20%); }
-        .apoios img:hover { transform: scale(1.08); filter: grayscale(0%); opacity: 1; }
+        .apoios img { height: 50px; width: auto; transition: transform 0.3s ease; }
+        .apoios img:hover { transform: scale(1.05); }
 
         /* --- NAVBAR --- */
         nav { 
@@ -54,19 +53,55 @@
             text-decoration: none; margin-right: 30px;
             font-weight: 600; font-size: 0.85rem; 
             display: flex; align-items: center; gap: 8px;
-            transition: 0.3s; opacity: 0.9; cursor: pointer;
+            transition: 0.3s; opacity: 0.9;
             text-transform: uppercase;
         }
-        nav a i { font-size: 1.1rem; color: #ffffff; }
-        nav a:hover { opacity: 1; transform: translateY(-1px); text-shadow: 0 0 10px rgba(255,255,255,0.3); }
+        nav a i { font-size: 1.1rem; }
         nav a.active { border-bottom: 3px solid white; height: 100%; display: flex; align-items: center; opacity: 1; }
 
         /* --- CONTEÚDO --- */
-        #main-container { display: flex; flex-direction: column; padding: 20px 40px; max-width: 1100px; margin: auto; }
-        h2 { color: var(--primary); margin-top: 30px; }
-        p { text-align: justify; line-height: 1.6; margin-bottom: 1rem; }
-        .apoios-section { margin-top: 40px; display: flex; gap: 30px; flex-wrap: wrap; justify-content: center; }
-        .apoios-section img { height: 60px; }
+        #main-container { padding: 20px 40px; max-width: 1100px; margin: auto; }
+        h2 { color: var(--primary); margin-top: 35px; font-weight: 700; border-bottom: 2px solid #ddd; padding-bottom: 10px; margin-bottom: 20px; }
+        p { text-align: justify; line-height: 1.6; margin-bottom: 1.2rem; }
+
+        /* --- CARDS DE ÍNDICES --- */
+        .grid-indices {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin: 30px 0;
+        }
+        .card-indice {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #dee2e6;
+            text-align: center;
+        }
+        .card-indice i { font-size: 2.5rem; color: var(--primary); margin-bottom: 15px; display: block; }
+        .card-indice h4 { font-size: 1rem; font-weight: 700; color: #1a1a1a; margin-bottom: 10px; }
+        .card-indice p { font-size: 0.85rem; text-align: center; margin: 0; color: #555; line-height: 1.4; }
+
+        /* --- CLASSIFICAÇÃO DE RISCO --- */
+        .risco-box {
+            display: flex;
+            align-items: flex-start;
+            padding: 20px;
+            border-radius: 8px;
+            background: #fff;
+            border-left: 8px solid;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-bottom: 15px;
+        }
+        .box-verde { border-color: var(--safe); }
+        .box-amarelo { border-color: var(--warning); }
+        .box-vermelho { border-color: var(--danger); }
+        
+        .risco-info b { font-size: 1.1rem; display: block; margin-bottom: 5px; }
+        .risco-info span { font-size: 0.95rem; color: #333; display: block; }
+
+        .apoios-section { margin-top: 50px; display: flex; gap: 40px; flex-wrap: wrap; justify-content: center; padding-bottom: 60px; }
+        .apoios-section img { height: 65px; width: auto; }
     </style>
 </head>
 <body>
@@ -81,23 +116,15 @@
   </div>
 
   <div class="apoios">
-      <a href="https://www.instagram.com/pet_saude_digital_ufcg/" target="_blank">
-        <img src="https://lh3.googleusercontent.com/d/1Lvrvq6cCcIJgvLBSdi8u6B1SA75L9V_K" alt="PET-Saúde Digital">
-      </a>
-  
-      <a href="https://gat-5.vercel.app/" target="_blank">
-        <img src="https://lh3.googleusercontent.com/d/1fGEuRXpKXXiNafxDzFd0JDwwrVxKvd-a" alt="GAT-5">
-      </a>
-  
-      <a href="https://saude.campinagrande.pb.gov.br/" target="_blank">
-        <img src="https://lh3.googleusercontent.com/d/1vsaPX967sHVuynqPwLpFfktsO6s-_OZD" alt="Secretaria de Saúde">
-      </a>
+      <img src="https://lh3.googleusercontent.com/d/1Lvrvq6cCcIJgvLBSdi8u6B1SA75L9V_K" alt="PET-Saúde Digital">
+      <img src="https://lh3.googleusercontent.com/d/1fGEuRXpKXXiNafxDzFd0JDwwrVxKvd-a" alt="GAT-5">
+      <img src="https://lh3.googleusercontent.com/d/1vsaPX967sHVuynqPwLpFfktsO6s-_OZD" alt="Secretaria de Saúde">
   </div>
 </header>
 
 <nav>
     <a href="index.html"><i class="bi bi-grid-1x2-fill"></i> Dashboard</a>
-    <a href="PG2.html"><i class="bi bi-geo-fill"></i> Análise Temporal</a>
+    <a href="analise.html"><i class="bi bi-geo-fill"></i> Análise Temporal</a>
     <a href="relatorio.html"><i class="bi bi-file-earmark-text-fill"></i> Relatórios</a>
     <a class="active"><i class="bi bi-question-circle-fill"></i> Sobre</a>
 </nav>
@@ -123,6 +150,30 @@
         e pupas em recipientes com água para calcular os principais índices de infestação predial.
     </p>
     <p>
+        Durante o ano, são realizados, em média, <b>quatro ciclos de avaliação</b> para obter os índices 
+        técnicos de cada bairro, permitindo um acompanhamento sazonal da infestação e a eficácia das 
+        ações de controle realizadas pela Vigilância Ambiental.
+    </p>
+
+    <div class="grid-indices">
+        <div class="card-indice">
+            <i class="bi bi-building-check"></i>
+            <h4>Infestação Predial (IIP)</h4>
+            <p>Mede a dispersão do mosquito. É o percentual de imóveis com larvas do vetor.</p>
+        </div>
+        <div class="card-indice">
+            <i class="bi bi-droplet-half"></i>
+            <h4>Breteau (IB)</h4>
+            <p>Mede a densidade da infestação. É a relação entre o número de depósitos positivos e o total de imóveis.</p>
+        </div>
+        <div class="card-indice">
+            <i class="bi bi-bucket"></i>
+            <h4>Aedes Albopictus</h4>
+            <p>Monitoramento da presença desta espécie e identificação dos criadouros predominantes.</p>
+        </div>
+    </div>
+
+    <p>
         Com os dados obtidos, são calculados os índices mais relevantes. O Índice Predial (IP) expressa 
         o percentual de imóveis positivos em relação ao total pesquisado, enquanto o Índice de Breteau 
         (IB) relaciona o número de recipientes positivos ao número de imóveis inspecionados, padronizado 
@@ -132,19 +183,29 @@
 
     <h2>Classificação de Risco</h2>
     <p>
-        Após a obtenção dos dados de Infestação Predial (IIP), os bairros são classificados quanto ao 
-        risco de proliferação do Aedes aegypti e transmissão de arboviroses:
+        Com base nos resultados obtidos (IIP e IB), os bairros e estratos são classificados em três níveis de risco para a transmissão de arboviroses:
     </p>
-    <ul>
-        <li><b>Satisfatório:</b> IIP inferior a 1,0, indicando baixa presença de imóveis com larvas. Ações devem priorizar manutenção preventiva, vigilância contínua e atividades educativas.</li>
-        <li><b>Alerta:</b> IIP entre 1,0 e 3,9, demonstrando circulação significativa do vetor. Necessária intensificação de ações de controle e mobilização comunitária.</li>
-        <li><b>Risco:</b> IIP igual ou superior a 4,0, caracterizando situação crítica. Exige ações imediatas e integradas, como bloqueio de focos, controle químico, ampliação da vigilância e articulação intersetorial.</li>
-    </ul>
 
-    <p>
-        A partir dos dados obtidos no 4º LIRAa de 2025 do Índice de Infestação Predial, é possível 
-        classificar os bairros de Campina Grande segundo o risco de proliferação do mosquito-vetor.
-    </p>
+    <div class="risco-box box-verde">
+        <div class="risco-info">
+            <b style="color: var(--safe)">Satisfatório: Índices inferiores a 1,0</b>
+            <span>Situação de baixo risco. Indica que a presença de larvas é controlada. Ações devem focar em manutenção, vigilância contínua e educação em saúde.</span>
+        </div>
+    </div>
+
+    <div class="risco-box box-amarelo">
+        <div class="risco-info">
+            <b style="color: #a67c00">Alerta: Índices entre 1,0 e 3,9</b>
+            <span>Situação de médio risco. Demonstra uma circulação significativa do vetor. Exige intensificação imediata das ações de controle e eliminação de focos.</span>
+        </div>
+    </div>
+
+    <div class="risco-box box-vermelho">
+        <div class="risco-info">
+            <b style="color: var(--danger)">Risco: Índices iguais ou superiores a 4,0</b>
+            <span>Situação crítica. Alto risco de surto ou epidemia. Exige ações emergenciais integradas, como bloqueio de transmissão e controle químico (Fumacê).</span>
+        </div>
+    </div>
 
     <h2>LIRAa Digital</h2>
     <p>
@@ -154,15 +215,9 @@
     </p>
 
     <div class="apoios-section">
-        <a href="https://www.instagram.com/pet_saude_digital_ufcg/" target="_blank">
-            <img src="https://lh3.googleusercontent.com/d/1Lvrvq6cCcIJgvLBSdi8u6B1SA75L9V_K" alt="PET-Saúde Digital">
-        </a>
-        <a href="https://gat-5.vercel.app/" target="_blank">
-            <img src="https://lh3.googleusercontent.com/d/1fGEuRXpKXXiNafxDzFd0JDwwrVxKvd-a" alt="GAT-5">
-        </a>
-        <a href="https://saude.campinagrande.pb.gov.br/" target="_blank">
-            <img src="https://lh3.googleusercontent.com/d/1vsaPX967sHVuynqPwLpFfktsO6s-_OZD" alt="Secretaria de Saúde">
-        </a>
+        <a href="https://www.instagram.com/pet_saude_digital_ufcg/" target="_blank"><img src="https://lh3.googleusercontent.com/d/1Lvrvq6cCcIJgvLBSdi8u6B1SA75L9V_K" alt="PET-Saúde Digital"></a>
+        <a href="https://gat-5.vercel.app/" target="_blank"><img src="https://lh3.googleusercontent.com/d/1fGEuRXpKXXiNafxDzFd0JDwwrVxKvd-a" alt="GAT-5"></a>
+        <a href="https://saude.campinagrande.pb.gov.br/" target="_blank"><img src="https://lh3.googleusercontent.com/d/1vsaPX967sHVuynqPwLpFfktsO6s-_OZD" alt="Secretaria de Saúde"></a>
     </div>
 
 </div>

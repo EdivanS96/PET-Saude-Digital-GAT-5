@@ -289,7 +289,7 @@
     <a href="index.html"><i class="bi bi-grid-1x2-fill"></i> Dashboard</a>
     <a class="active"><i class="bi bi-geo-fill"></i> Análise Temporal</a>
     <a href="relatorio.html"><i class="bi bi-file-earmark-text-fill"></i> Relatórios</a>
-    <a><i class="bi bi-question-circle-fill"></i> Sobre</a>
+    <a href="sobre.html"><i class="bi bi-question-circle-fill"></i> Sobre</a>
 </nav>
 
 <div id="main-content">
@@ -312,8 +312,8 @@
     <div class="mosaico-mapas" id="mosaico"></div>
 
     <div class="download-area">
-        <button class="btn btn-primary me-4 px-4 py-2" id="btnPng"><i class="bi bi-download"></i> Baixar Imagem (PNG)</button>
-        <button class="btn btn-success px-4 py-2" id="btnPdf"><i class="bi bi-file-earmark-pdf-fill"></i> Baixar Relatório (PDF)</button>
+        <button class="btn btn-primary me-4 px-4 py-2" id="btnPng"><i class="bi bi-download"></i> Baixar PNG</button>
+        <button class="btn btn-success px-4 py-2" id="btnPdf"><i class="bi bi-file-earmark-pdf-fill"></i> Baixar PDF</button>
     </div>
 </div>
 
@@ -538,14 +538,23 @@ document.querySelectorAll('#indicador-btns .btn').forEach(btn => {
 
 // --- FUNÇÃO AUXILIAR PARA GERAR O MAPA EM SVG (SEM LEAFLET) ---
 function gerarSvgMapa(ano) {
-    const geojson = state.lastGeojson; // Precisamos guardar o geojson globalmente
+    const geojson = state.lastGeojson;
     if (!geojson) return '';
 
-    // Dimensões do desenho
     const w = 300;
     const h = 250;
-    
-    // Função simples de projeção para centralizar o shape no SVG
+
+    // --- Verificação de Ciclo ---
+    const ciclosDoAno = state.meta[ano] || [];
+    const semCiclo = state.ciclo !== 'ANO' && (!ciclosDoAno[state.ciclo]);
+
+    // Se não houver ciclo, retorna apenas o SVG com a mensagem, sem desenhar os caminhos
+    if (semCiclo) {
+        return `<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg" style="background:#f8f9fa;">
+                    <text x="${w/2}" y="${h/2}" text-anchor="middle" fill="#d32f2f" font-size="20" font-weight="bold">SEM CICLO</text>
+                </svg>`;
+    }
+
     const coords = [];
     geojson.features.forEach(f => {
         if (f.geometry.type === 'Polygon') {
@@ -575,16 +584,14 @@ function gerarSvgMapa(ano) {
         const b = f.properties.Name?.toUpperCase()?.trim();
         const d = state.dados[ano]?.[b];
         let v = 0;
+
         if (d && d.length > 0) {
-            if (state.ciclo === 'ANO') {
-                let s = 0; d.forEach(c => s += c[state.indice] || 0);
-                v = s / d.length;
-            } else {
-                v = d[state.ciclo]?.[state.indice] || 0;
-            }
+            v = state.ciclo === 'ANO'
+                ? d.reduce((a, c) => a + (c[state.indice] || 0), 0) / d.length
+                : (d[state.ciclo]?.[state.indice] || 0);
         }
 
-        const pontos = (f.geometry.type === 'Polygon' ? [f.geometry.coordinates] : f.geometry.coordinates);
+        const pontos = f.geometry.type === 'Polygon' ? [f.geometry.coordinates] : f.geometry.coordinates;
         pontos.forEach(poly => {
             const pathData = poly[0].map(c => mapToSvg(c[0], c[1])).join(' L ');
             caminhos += `<path d="M ${pathData} Z" fill="${getCor(v)}" stroke="#444" stroke-width="0.5" />`;
@@ -593,6 +600,7 @@ function gerarSvgMapa(ano) {
 
     return `<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg" style="background:#f8f9fa;">${caminhos}</svg>`;
 }
+
 
 // --- DOWNLOADS CORRIGIDOS (VERSÃO SVG + AJUSTE DE CICLO) ---
 
@@ -604,6 +612,7 @@ async function prepararCapturaLimpa() {
     exportDiv.style.position = 'absolute';
     exportDiv.style.left = '-9999px';
     document.body.appendChild(exportDiv);
+    
 
     // 1. Cabeçalho (Reduzindo logos para dar mais espaço)
     const headerClone = document.querySelector('header').cloneNode(true);
@@ -642,16 +651,21 @@ async function prepararCapturaLimpa() {
         if (!state.dados[ano]) return;
         
         let soma = 0, contBairros = 0;
-        Object.keys(state.dados[ano]).forEach(b => {
-            const d = state.dados[ano][b];
-            if (d && d.length > 0) {
-                contBairros++; // Conta o bairro se ele existir nos dados, indepentente do valor ser 0
-                let v = (state.ciclo === 'ANO') ? 
-                    (d.reduce((a, b) => a + (b[state.indice] || 0), 0) / d.length) : 
-                    (d[state.ciclo]?.[state.indice] || 0);
-                soma += v;
-            }
-        });
+const ciclosDoAno = state.meta[ano] || [];
+const semCiclo = state.ciclo !== 'ANO' && (!ciclosDoAno[state.ciclo]);
+
+Object.keys(state.dados[ano]).forEach(b => {
+    const d = state.dados[ano][b];
+    if (d && d.length > 0 && !semCiclo) { // só conta se existir ciclo
+        contBairros++;
+        let v = state.ciclo === 'ANO' 
+            ? d.reduce((a, c) => a + (c[state.indice] || 0), 0) / d.length
+            : (d[state.ciclo]?.[state.indice] || 0);
+        soma += v;
+    }
+});
+
+
         const media = contBairros > 0 ? (soma / contBairros).toFixed(1) : "0.0";
 
         const card = document.createElement('div');
@@ -711,4 +725,3 @@ carregarDados();
 </script>
 </body>
 </html>
-
