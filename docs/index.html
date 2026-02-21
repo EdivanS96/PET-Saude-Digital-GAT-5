@@ -201,17 +201,266 @@
     
     
     
+    /*RESPONSIVIDADE*/
+    /* ============================= */
+/* 📱 RESPONSIVIDADE MOBILE */
+/* ============================= */
+/* ============================= */
+/* 📱 RESPONSIVIDADE AJUSTADA */
+/* ============================= */
+
+.mobile-footer {
+    display: none;
+}
+
+@media (max-width: 992px) {
+
+
+    /* MOBILE - LISTA DE BUSCA DESCE PARA BAIXO */
+.search-results-list {
+    position: absolute;
+    top: 100%;        /* começa logo abaixo da search-box */
+    bottom: unset;    /* remove o comportamento de subir */
+    margin-top: 5px;
+    border-radius: 10px;
+    max-height: 200px;
+}
+
+#map-area {
+    overflow: visible;
+}
+
     
+
+    body, html {
+        height: auto;
+        overflow: auto;
+    }
+
+    /* HEADER mantém linha horizontal */
+    header {
+        padding: 10px 15px;
+        height: 70px;
+    }
+
+    .logo-gat {
+        gap: 10px;
+    }
+
+    .logo-gat img {
+        height: 70px;
+    }
+
+    .titulo-sistema h1 {
+        font-size: 1rem;
+    }
+
+    .titulo-sistema span {
+        font-size: 0.65rem;
+        line-height: 1.2;
+    }
+
+    /* Esconde apoios do topo */
+    .apoios {
+        display: none;
+    }
+
     
+
+
+
+    /* Layout coluna */
+    #main-container {
+        flex-direction: column;
+        height: auto;
+    }
+
+    #sidebar {
+        width: 100%;
+        border-right: none;
+    }
+
+    #map-area {
+    height: auto;
+    min-height: 60vh;
+    display: flex;
+    flex-direction: column;
+}
+
+#map {
+    height: 55vh !important;
+    width: 100%;
+}
+
+    /* MINI CARDS continuam 3 colunas */
+    .mini-card-container {
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 6px;
+    }
+
+    .mini-card {
+        padding: 6px 2px;
+    }
+
+    .mini-card span {
+        font-size: 0.55rem;
+    }
+
+    .mini-card b {
+        font-size: 0.9rem;
+    }
+
+    /* KPI menor */
+    .kpi-val-small {
+        font-size: 1.6rem;
+    }
+
+    .kpi-title-small {
+        font-size: 0.85rem;
+    }
+
+    /* FOOTER aparece */
+     .mobile-footer {
+        display: block;
+        background: white;
+        padding: 10px;
+        border-top: 3px solid var(--primary);
+        text-align: center;
+    }
+
+    .apoios-footer {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+    }
+
+    .apoios-footer img {
+        height: 30px;
+        filter: grayscale(20%);
+    }
+
+}
+
+
+
+@media (max-width: 992px) {
+
+    nav {
+        justify-content: space-between;
+        padding: 5px 8px;
+    }
+
+    nav a {
+        font-size: 0.65rem;
+        margin-right: 8px;
+        gap: 4px;
+    }
+
+    nav a i {
+        font-size: 0.9rem;
+    }
+
+    /* MOBILE - BUSCA VIRA BLOCO NORMAL */
+.map-search-wrapper {
+    position: relative !important;
+    bottom: unset !important;
+    left: unset !important;
+    width: 100%;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.search-box {
+    border-radius: 10px;
+    padding: 4px 8px;
+}
+
+.search-box input {
+    font-size: 0.8rem;
+}
+
+
+
+/* MOBILE - LEGENDA ABAIXO DO MAPA */
+.map-overlay-top {
+    position: relative !important;
+    top: unset !important;
+    right: unset !important;
+    margin-top: 10px;
+    width: 100%;
+    padding: 8px;
+    box-shadow: none;
+    border-radius: 8px;
+}
+
+/* reduzir tamanho */
+.map-overlay-top h6 {
+    font-size: 0.7rem;
+}
+
+.map-overlay-top p {
+    font-size: 0.55rem;
+}
+
+.leg-item {
+    font-size: 0.65rem;
+}
+
+#sidebar {
+    order: 1;
+}
+
+#map-area {
+    order: 2;
+}
+
+
+}
+
     
-    
+/* --- BOTÃO ENGRENAGEM (MENOR) --- */
+/* Unificação e Padronização de Botões */
+.map-floating-btn, .leaflet-control-zoom-recenter {
+    width: 38px !important; height: 38px !important;
+    background: #fff !important; border-radius: 10px !important;
+    border: 1px solid #ddd !important; box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+    display: flex !important; align-items: center; justify-content: center;
+    cursor: pointer; transition: all 0.2s; color: #444 !important;
+}
+.map-floating-btn:hover, .leaflet-control-zoom-recenter:hover { 
+    background: #f8f9fa !important; color: var(--primary) !important; transform: scale(1.05);
+}
+
+/* Ajustes de Posição */
+.btn-recenter-container { margin: 20px 0 0 20px !important; border: none !important; background: none !important; }
+.btn-settings { bottom: 20px; right: 20px; position: absolute; z-index: 1100; }
+
+/* Card Compacto */
+.map-settings-card {
+    position: absolute; bottom: 65px; right: 20px; z-index: 1105;
+    background: #fff; width: 200px; padding: 12px;
+    border-radius: 14px; box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+    display: none; border: 1px solid #eee;
+}
+.map-settings-card.active { display: block; animation: slideUp 0.2s ease; }
+.layer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+.layer-option { 
+    cursor: pointer; border: 2px solid #f0f0f0; border-radius: 8px; 
+    overflow: hidden; position: relative; height: 50px; transition: 0.2s;
+}
+.layer-option.active { border-color: var(--primary); }
+.layer-option img { width: 100%; height: 100%; object-fit: cover; }
+.layer-option span { 
+    position: absolute; bottom: 0; width: 100%; background: rgba(255,255,255,0.9); 
+    color: #333; font-size: 0.55rem; text-align: center; font-weight: 700; padding: 2px 0;
+}
+
     </style>
 </head>
+
 <body>
 
 
-
-    
 <header>
   <div class="logo-gat">
     <img src="https://lh3.googleusercontent.com/d/1CjAJykaxRU8iqYiCdiTD9fMkyLFWR7vx" alt="Logo LIRAa Digital">
@@ -318,6 +567,39 @@
 
         <div id="map"></div>
         <div class="map-overlay-top" id="map-legend"></div>
+
+
+
+
+       <div id="settings-btn" class="map-floating-btn btn-settings" onclick="toggleSettings(event)">
+    <i class="bi bi-layers-half" style="font-size: 1.2rem;"></i>
+</div>
+
+<div id="settings-card" class="map-settings-card">
+    <label class="x-small fw-bold text-muted mb-2 d-block text-uppercase" style="font-size: 0.6rem;">Estilos de Mapa</label>
+    <div class="layer-grid">
+        <div class="layer-option active" onclick="changeBaseLayer('light', this)">
+            <img src="https://basemaps.cartocdn.com/light_all/6/19/31.png">
+            <span>Padrão</span>
+        </div>
+        <div class="layer-option" onclick="changeBaseLayer('hybrid', this)">
+            <img src="https://a.tile.opentopomap.org/6/19/31.png">
+            <span>Híbrido</span>
+        </div>
+        <div class="layer-option" onclick="changeBaseLayer('sat', this)">
+            <img src="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/6/31/19">
+            <span>Satélite</span>
+        </div>
+        <div class="layer-option" onclick="changeBaseLayer('sat_hybrid', this)">
+            <img src="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/6/31/19" style="filter: contrast(1.2) brightness(0.8);">
+            <span>Sat. Hib.</span>
+        </div>
+    </div>
+    <div class="d-flex justify-content-between mb-1">
+        <label class="fw-bold text-muted" style="font-size: 0.6rem;">OPACIDADE: <span id="opVal" class="text-primary">90%</span></label>
+    </div>
+    <input type="range" class="form-range form-range-sm" min="0" max="100" value="90" id="rangeOpacity" oninput="changeOpacity(this.value)">
+</div>
     </main>
 </div>
 
@@ -373,18 +655,101 @@ async function start() {
 }
 
 async function initMap() {
-    state.map = L.map("map", { minZoom: 11 }).setView([-7.23, -35.88], 12); 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(state.map);
+    const isMobile = window.matchMedia("(max-width: 992px)").matches;
+
     const response = await fetch("bairros_cg.geojson");
     const g = await response.json();
+
+    // ==========================
+    // 📱 MOBILE → SOMENTE SVG
+    // ==========================
+async function initMap() {
+    const response = await fetch("bairros_cg.geojson");
+    const g = await response.json();
+
+    // Detecta se é mobile
+    const isMobile = window.matchMedia("(max-width: 992px)").matches;
+
+    // Define zoom inicial: desktop = 12, mobile = 11
+    const initialZoom = isMobile ? 11 : 12;
+
+    state.map = L.map("map", { minZoom: 11 }).setView([-7.247, -35.88], initialZoom);
+
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png')
+        .addTo(state.map);
+
+    state.map.zoomControl.remove();
+
+    const zoomControl = L.control({ position: 'topleft' });
+    zoomControl.onAdd = function () {
+    const div = L.DomUtil.create('div', 'leaflet-bar btn-recenter-container');
+    div.innerHTML = '<div class="leaflet-control-zoom-recenter" title="Centralizar Mapa"><i class="bi bi-crosshair"></i></div>';
+    div.firstChild.onclick = (e) => {
+        L.DomEvent.stopPropagation(e);
+        state.map.setView([-7.247, -35.88], isMobile ? 11 : 12);
+    };
+    return div;
+};
+    zoomControl.addTo(state.map);
+
     state.layer = L.geoJSON(g, {
         style: { fillColor: '#e0e0e0', weight: 1.5, color: '#fff', fillOpacity: 0.8 },
         onEachFeature: (f, l) => {
-            l.on('click', (e) => { L.DomEvent.stopPropagation(e); selectBairro(f.properties.Name.toUpperCase().trim()); });
+            l.on('click', (e) => {
+                L.DomEvent.stopPropagation(e);
+                selectBairro(f.properties.Name.toUpperCase().trim());
+            });
         }
     }).addTo(state.map);
+
     state.map.on('click', () => resetFiltro());
-    setTimeout(update, 500);
+
+    setTimeout(() => {
+        state.map.invalidateSize();
+        update();
+    }, 500);
+}
+
+    // ==========================
+    // 💻 DESKTOP → LEAFLET NORMAL
+    // ==========================
+state.map = L.map("map", { minZoom: 11, attributionControl: false }).setView([-7.247, -35.88], 12);
+
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png')
+        .addTo(state.map);
+
+    state.map.zoomControl.remove();
+
+    const zoomControl = L.control({ position: 'topleft' });
+
+    zoomControl.onAdd = function () {
+        const div = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-zoom');
+        div.innerHTML = '<button class="btn btn-light" style="border-radius: 50%; width: 30px; height: 30px; display: flex; justify-content: center; align-items: center; font-size: 1.2rem; box-shadow: none; background-color: transparent; border: none;" title="Recentralizar"><i class="bi bi-arrow-clockwise"></i></button>';
+        div.firstChild.onclick = (e) => {
+            L.DomEvent.stopPropagation(e);
+            state.map.setView([-7.247, -35.88], 12);
+        };
+        return div;
+    };
+
+    zoomControl.addTo(state.map);
+
+    state.layer = L.geoJSON(g, {
+        style: { fillColor: '#e0e0e0', weight: 1.5, color: '#fff', fillOpacity: 0.8 },
+        onEachFeature: (f, l) => {
+            l.on('click', (e) => {
+                L.DomEvent.stopPropagation(e);
+                selectBairro(f.properties.Name.toUpperCase().trim());
+            });
+        }
+    }).addTo(state.map);
+
+    state.map.on('click', () => resetFiltro());
+
+    setTimeout(() => {
+        state.map.invalidateSize();
+        update();
+    }, 500);
 }
 
 function initCiclos() {
@@ -555,26 +920,57 @@ function updateChart() {
     state.chart.update();
 }
 
-function selectBairro(b) { state.bairro = b; update(); }
-function resetFiltro() { state.bairro = null; update(); }
+
+function selectBairro(b) {
+    state.bairro = b;
+
+    // Coloca o nome do bairro na caixa de busca
+    document.getElementById('inputBusca').value = b;
+
+    // Esconde lista se estiver aberta
+    document.getElementById('listaResultados').style.display = 'none';
+
+    update();
+}
+function resetFiltro() {
+    state.bairro = null;
+
+    // Limpa a caixa de busca
+    document.getElementById('inputBusca').value = '';
+
+    // Esconde lista
+    document.getElementById('listaResultados').style.display = 'none';
+
+    update();
+}
 function mudarIndice(i) { state.indice = i; update(); }
 window.addEventListener('resize', () => state.map.invalidateSize());
 start();
 
 
+function normalizarTexto(texto) {
+    return texto
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "") // remove acentos
+        .toUpperCase();
+}
+
+
 function logicaBusca(valor) {
     const lista = document.getElementById('listaResultados');
-    const input = valor.trim().toUpperCase();
-    
-    // Só mostra resultados se digitar 2 ou mais letras
-    if (input.length < 1) {
+    const inputNormalizado = normalizarTexto(valor.trim());
+
+    if (inputNormalizado.length < 1) {
         lista.style.display = 'none';
         return;
     }
 
-    // Pega os nomes dos bairros disponíveis nos dados
     const bairros = Object.keys(state.dados[state.ano]);
-    const filtrados = bairros.filter(b => b.includes(input));
+
+    const filtrados = bairros.filter(b => {
+        const bairroNormalizado = normalizarTexto(b);
+        return bairroNormalizado.startsWith(inputNormalizado);
+    });
 
     if (filtrados.length > 0) {
         lista.innerHTML = filtrados.map(b => 
@@ -582,6 +978,7 @@ function logicaBusca(valor) {
                 <i class="bi bi-geo-alt-fill me-2 text-success"></i> ${b}
             </div>`
         ).join('');
+
         lista.style.display = 'block';
     } else {
         lista.style.display = 'none';
@@ -589,18 +986,97 @@ function logicaBusca(valor) {
 }
 
 function selecionarBairroBusca(bairro) {
-    document.getElementById('inputBusca').value = '';
+
+    // Coloca o nome selecionado na caixa
+    document.getElementById('inputBusca').value = bairro;
+
+    // Fecha lista
     document.getElementById('listaResultados').style.display = 'none';
 
-    // Apenas seleciona e destaca
+    // Seleciona bairro
     selectBairro(bairro);
 }
+document.getElementById('inputBusca').addEventListener('input', function() {
+    if (this.value.trim() === '') {
+        resetFiltro();
+    }
+});
 
+const baseLayers = {
+    light: L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'),
+    hybrid: L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png'),
+    sat: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'),
+    sat_hybrid: L.layerGroup([
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'),
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png')
+    ])
+};
 
+function toggleSettings(e) {
+    if(e) e.stopPropagation();
+    document.getElementById('settings-card').classList.toggle('active');
+}
 
+// Fecha card ao clicar fora
+document.addEventListener('click', (e) => {
+    const card = document.getElementById('settings-card');
+    const btn = document.getElementById('settings-btn');
+    if (card?.classList.contains('active') && !card.contains(e.target) && !btn.contains(e.target)) {
+        card.classList.remove('active');
+    }
+});
 
+function changeBaseLayer(type, element) {
+    Object.values(baseLayers).forEach(l => state.map.removeLayer(l));
+    baseLayers[type].addTo(state.map);
+    document.querySelectorAll('.layer-option').forEach(opt => opt.classList.remove('active'));
+    element.classList.add('active');
+    if(state.layer) state.layer.bringToFront();
+}
 
+function changeOpacity(val) {
+    document.getElementById('opVal').innerText = val + '%';
+    updateMap(); 
+}
 
+function updateMap() {
+    if(!state.layer) return;
+    const currentOpacity = document.getElementById('rangeOpacity').value / 100;
+    state.layer.setStyle(f => {
+        const b = f.properties.Name.toUpperCase().trim();
+        const d = state.dados[state.ano][b];
+        let v = 0;
+        if(d) {
+            if(state.ciclo === 'ANO') {
+                let s = 0; d.forEach(c => s += c[state.indice]);
+                v = (state.indice === 'alb') ? s : (s / d.length);
+            } else { v = d[state.ciclo] ? d[state.ciclo][state.indice] : 0; }
+        }
+        return { 
+            fillColor: v === 0 ? '#e0e0e0' : v < 1 ? '#2e7d32' : v < 4 ? '#fbc02d' : '#d32f2f', 
+            fillOpacity: currentOpacity,
+            weight: state.bairro === b ? 4 : 1, 
+            color: state.bairro === b ? '#000' : '#fff'
+        };
+    });
+}
 </script>
+
+
+<footer class="mobile-footer">
+    <div class="apoios-footer">
+        <a href="https://www.instagram.com/pet_saude_digital_ufcg/" target="_blank">
+            <img src="https://lh3.googleusercontent.com/d/1Lvrvq6cCcIJgvLBSdi8u6B1SA75L9V_K">
+        </a>
+
+        <a href="https://gat-5.vercel.app/" target="_blank">
+            <img src="https://lh3.googleusercontent.com/d/1fGEuRXpKXXiNafxDzFd0JDwwrVxKvd-a">
+        </a>
+
+        <a href="https://saude.campinagrande.pb.gov.br/" target="_blank">
+            <img src="https://lh3.googleusercontent.com/d/1vsaPX967sHVuynqPwLpFfktsO6s-_OZD">
+        </a>
+    </div>
+</footer>
 </body>
 </html>

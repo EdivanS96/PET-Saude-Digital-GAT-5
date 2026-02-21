@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sobre | LIRAa Digital - Campina Grande</title>
+    <title>Sobre | LIRAa Digital</title>
 
     <link rel="icon" href="https://lh3.googleusercontent.com/d/1CjAJykaxRU8iqYiCdiTD9fMkyLFWR7vx" type="image/png">
 
@@ -102,6 +102,158 @@
 
         .apoios-section { margin-top: 50px; display: flex; gap: 40px; flex-wrap: wrap; justify-content: center; padding-bottom: 60px; }
         .apoios-section img { height: 65px; width: auto; }
+    /* 📱 RESPONSIVIDADE MOBILE */
+/* ============================= */
+/* ============================= */
+/* 📱 RESPONSIVIDADE AJUSTADA */
+/* ============================= */
+
+.mobile-footer {
+    display: none;
+}
+
+@media (max-width: 992px) {
+
+    body, html {
+        height: auto;
+        overflow: auto;
+    }
+
+    /* HEADER mantém linha horizontal */
+    header {
+        padding: 10px 15px;
+        height: 70px;
+    }
+
+    .logo-gat {
+        gap: 10px;
+    }
+
+    .logo-gat img {
+        height: 70px;
+    }
+
+    .titulo-sistema h1 {
+        font-size: 1rem;
+    }
+
+    .titulo-sistema span {
+        font-size: 0.65rem;
+        line-height: 1.2;
+    }
+
+    /* Esconde apoios do topo */
+    .apoios {
+        display: none;
+    }
+
+    /* Layout coluna */
+    #main-container {
+        flex-direction: column;
+        height: auto;
+    }
+
+    #sidebar {
+        width: 100%;
+        border-right: none;
+    }
+
+    #map-area {
+        height: 55vh;
+    }
+
+    /* MINI CARDS continuam 3 colunas */
+    .mini-card-container {
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 6px;
+    }
+
+    .mini-card {
+        padding: 6px 2px;
+    }
+
+    .mini-card span {
+        font-size: 0.55rem;
+    }
+
+    .mini-card b {
+        font-size: 0.9rem;
+    }
+
+    /* KPI menor */
+    .kpi-val-small {
+        font-size: 1.6rem;
+    }
+
+    .kpi-title-small {
+        font-size: 0.85rem;
+    }
+
+    /* FOOTER aparece */
+    .mobile-footer {
+        display: block;
+        background: white;
+        padding: 10px;
+        border-top: 3px solid var(--primary);
+        text-align: center;
+    }
+
+    .apoios-footer {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+    }
+
+    .apoios-footer img {
+        height: 30px;
+        filter: grayscale(20%);
+    }
+}
+
+    @media (max-width: 992px) {
+
+    nav {
+        justify-content: space-between;
+        padding: 5px 8px;
+    }
+
+    nav a {
+        font-size: 0.65rem;
+        margin-right: 8px;
+        gap: 4px;
+    }
+
+    nav a i {
+        font-size: 0.9rem;
+    }
+
+
+    /* Grid de índices passa a 1 coluna no mobile */
+    .grid-indices {
+        grid-template-columns: 1fr;   /* 1 card por linha */
+        gap: 15px;
+        margin: 20px 0;
+    }
+
+    /* Reduz tamanho dos cards */
+    .card-indice {
+        padding: 15px;
+    }
+
+    .card-indice i {
+        font-size: 2rem;
+        margin-bottom: 10px;
+    }
+
+    .card-indice h4 {
+        font-size: 0.95rem;
+    }
+
+    .card-indice p {
+        font-size: 0.8rem;
+    }
+}
+
     </style>
 </head>
 <body>

@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Relatórios | LIRAa Digital - Campina Grande</title>
 
-
     <link rel="icon" href="https://lh3.googleusercontent.com/d/1CjAJykaxRU8iqYiCdiTD9fMkyLFWR7vx" type="image/png">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -26,7 +25,7 @@
         }
         
         body, html { 
-            height: 100vh; margin: 0; overflow: hidden; 
+            margin: 0; 
             font-family: 'Inter', system-ui, -apple-system, sans-serif; 
             background: var(--bg-light); 
         }
@@ -70,7 +69,7 @@
         /*nav a.active { background: rgba(0,0,0,0.15); border-radius: 4px; padding: 4px 10px; }*/
         nav a.active { border-bottom: 3px solid white; height: 100%; display: flex; align-items: center; opacity: 1; }
 
-        #main-content { height: calc(100vh - 130px); overflow-y: auto; padding: 20px 30px; }
+        #main-content {  padding: 20px 30px; }
 
         .area-filtros {
             display: flex; justify-content: space-between; align-items: center;
@@ -161,6 +160,126 @@
 
         #capture-box { width: 1000px; background: white; position: absolute; left: -9999px; padding: 0; }
         .header-exp { width: 1000px !important; }
+        /* 📱 RESPONSIVIDADE MOBILE */
+/* ============================= */
+/* ============================= */
+/* 📱 RESPONSIVIDADE AJUSTADA */
+/* ============================= */
+
+.mobile-footer {
+    display: none;
+}
+
+@media (max-width: 992px) {
+
+    body, html {
+        height: auto;
+        overflow: auto;
+    }
+
+    /* HEADER mantém linha horizontal */
+    header {
+        padding: 10px 15px;
+        height: 70px;
+    }
+
+    .logo-gat {
+        gap: 10px;
+    }
+
+    .logo-gat img {
+        height: 70px;
+    }
+
+    .titulo-sistema h1 {
+        font-size: 1rem;
+    }
+
+    .titulo-sistema span {
+        font-size: 0.65rem;
+        line-height: 1.2;
+    }
+
+    /* Esconde apoios do topo */
+    .apoios {
+        display: none;
+    }
+
+    /* FOOTER aparece */
+    .mobile-footer {
+        display: block;
+        background: white;
+        padding: 10px;
+        border-top: 3px solid var(--primary);
+        text-align: center;
+    }
+
+    .apoios-footer {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+    }
+
+    .apoios-footer img {
+        height: 30px;
+        filter: grayscale(20%);
+    }
+}
+
+    @media (max-width: 992px) {
+
+    .area-filtros {
+        flex-direction: row;           /* mantém linha */
+        justify-content: space-between;/* seletor à esquerda, botões à direita */
+        align-items: center;           /* alinhados verticalmente */
+        flex-wrap: nowrap;             /* impede quebrar linha */
+        gap: 10px;
+        padding: 10px 15px;
+    }
+
+    /* Select de ano menor e compacto */
+    #selectAno {
+        width: 120px !important;
+        font-size: 0.7rem;
+        padding: 2px 6px;
+    }
+
+    /* Botões de exportação menores */
+    .area-filtros > div:last-child {
+        display: flex;
+        gap: 5px;
+        flex-wrap: nowrap;             /* força todos na mesma linha */
+    }
+
+    .area-filtros button {
+        font-size: 0.65rem;
+        padding: 3px 6px;
+        min-width: unset;
+        white-space: nowrap;
+    }
+
+
+    
+    
+    
+    
+    
+        nav {
+        justify-content: space-between;
+        padding: 5px 8px;
+    }
+
+    nav a {
+        font-size: 0.65rem;
+        margin-right: 8px;
+        gap: 4px;
+    }
+
+    nav a i {
+        font-size: 0.9rem;
+    }
+}
+
     </style>
 </head>
 <body>
@@ -194,9 +313,9 @@
             <select id="selectAno" class="form-select border-success fw-bold" style="width: 160px;"></select>
         </div>
         <div>
-            <button class="btn btn-outline-dark me-2" onclick="exportar('png')"><i class="bi bi-image"></i> Baixar PNG</button>
-            <button class="btn btn-outline-success me-2" onclick="exportarExcel()"><i class="bi bi-file-earmark-excel"></i> Planilha XLSX</button>
-            <button class="btn btn-danger" onclick="exportar('pdf')"><i class="bi bi-file-earmark-pdf-fill"></i> Gerar PDF Oficial</button>
+            <button class="btn btn-outline-dark me-2" onclick="exportar('png')"><i class="bi bi-image"></i>PNG</button>
+            <button class="btn btn-outline-success me-2" onclick="exportarExcel()"><i class="bi bi-file-earmark-excel"></i>XLSX</button>
+            <button class="btn btn-danger" onclick="exportar('pdf')"><i class="bi bi-file-earmark-pdf-fill"></i>PDF</button>
         </div>
     </div>
 
@@ -362,5 +481,20 @@ function exportarExcel() {
 
 carregar();
 </script>
+
+<footer class="mobile-footer">
+    <div class="apoios-footer">
+        <a href="https://www.instagram.com/pet_saude_digital_ufcg/" target="_blank">
+            <img src="https://lh3.googleusercontent.com/d/1Lvrvq6cCcIJgvLBSdi8u6B1SA75L9V_K">
+        </a>
+
+        <a href="https://gat-5.vercel.app/" target="_blank">
+            <img src="https://lh3.googleusercontent.com/d/1fGEuRXpKXXiNafxDzFd0JDwwrVxKvd-a">
+        </a>
+
+        <a href="https://saude.campinagrande.pb.gov.br/" target="_blank">
+            <img src="https://lh3.googleusercontent.com/d/1vsaPX967sHVuynqPwLpFfktsO6s-_OZD">
+        </a>
+    </div>
 </body>
 </html>

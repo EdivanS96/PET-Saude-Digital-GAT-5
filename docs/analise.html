@@ -24,7 +24,7 @@
         }
         
         body, html { 
-            height: 100vh; margin: 0; overflow: hidden; 
+            margin: 0; 
             font-family: 'Inter', system-ui, -apple-system, sans-serif; 
             background: var(--bg-light); 
         }
@@ -68,10 +68,8 @@
         /*nav a.active { background: rgba(0,0,0,0.15); border-radius: 4px; padding: 4px 10px; }*/
         nav a.active { border-bottom: 3px solid white; height: 100%; display: flex; align-items: center; opacity: 1; }
 
-        #main-content {
-            height: calc(100vh - 130px);
-            overflow-y: auto;
-            padding: 12px 20px; /* reduzido para ganhar espaço */
+        #main-content { 
+            padding: 20px 30px; 
         }
 
         .controles {
@@ -170,14 +168,50 @@
         }
         @media (max-width: 992px) {
             .mosaico-mapas { grid-template-columns: repeat(3, 1fr); }
+            .controles {
+                display: flex;
+                flex-direction: row !important;   /* força lado a lado */
+                justify-content: space-between;
+                align-items: flex-end;
+                gap: 10px;
+                flex-wrap: nowrap;                /* impede quebrar linha */
+                margin: 10px 0 15px;
+            }
+
+            .form-group {
+                flex: 1;                          /* divide igualmente */
+                text-align: center;
+            }
+
+            .form-group label {
+                font-size: 0.65rem;
+                margin-bottom: 4px;
+            }
+
+            /* Reduz tamanho dos botões */
+            #indicador-btns .btn,
+            #ciclo-btns .btn {
+                font-size: 0.65rem;
+                padding: 3px 6px;
+                min-width: unset;
+            }
+
+            /* Faz os grupos ocuparem largura total do container */
+            #indicador-btns,
+            #ciclo-btns {
+                display: flex;
+                justify-content: center;
+                flex-wrap: wrap;
+                gap: 4px;
+            }
+
         }
+
+
+        
         @media (max-width: 768px) {
             .mosaico-mapas { grid-template-columns: repeat(2, 1fr); }
         }
-    
-    
-    
-    
     
     
     
@@ -265,6 +299,90 @@
 }
     
     
+    /* 📱 RESPONSIVIDADE MOBILE */
+/* ============================= */
+/* ============================= */
+/* 📱 RESPONSIVIDADE AJUSTADA */
+/* ============================= */
+
+.mobile-footer {
+    display: none;
+}
+
+@media (max-width: 992px) {
+
+    body, html {
+        height: auto;
+        overflow: auto;
+    }
+
+    /* HEADER mantém linha horizontal */
+    header {
+        padding: 10px 15px;
+        height: 70px;
+    }
+
+    .logo-gat {
+        gap: 10px;
+    }
+
+    .logo-gat img {
+        height: 70px;
+    }
+
+    .titulo-sistema h1 {
+        font-size: 1rem;
+    }
+
+    .titulo-sistema span {
+        font-size: 0.65rem;
+        line-height: 1.2;
+    }
+
+    /* Esconde apoios do topo */
+    .apoios {
+        display: none;
+    }
+
+    /* FOOTER aparece */
+    .mobile-footer {
+        display: block;
+        background: white;
+        padding: 10px;
+        border-top: 3px solid var(--primary);
+        text-align: center;
+    }
+
+    .apoios-footer {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+    }
+
+    .apoios-footer img {
+        height: 30px;
+        filter: grayscale(20%);
+    }
+}
+
+    @media (max-width: 992px) {
+
+    nav {
+        justify-content: space-between;
+        padding: 5px 8px;
+    }
+
+    nav a {
+        font-size: 0.65rem;
+        margin-right: 8px;
+        gap: 4px;
+    }
+
+    nav a i {
+        font-size: 0.9rem;
+    }
+}
+
     </style>
 </head>
 <body>
@@ -312,8 +430,8 @@
     <div class="mosaico-mapas" id="mosaico"></div>
 
     <div class="download-area">
-        <button class="btn btn-primary me-4 px-4 py-2" id="btnPng"><i class="bi bi-download"></i> Baixar PNG</button>
-        <button class="btn btn-success px-4 py-2" id="btnPdf"><i class="bi bi-file-earmark-pdf-fill"></i> Baixar PDF</button>
+        <button class="btn btn-primary me-4 px-4 py-2" id="btnPng"><i class="bi bi-download"></i>PNG</button>
+        <button class="btn btn-success px-4 py-2" id="btnPdf"><i class="bi bi-file-earmark-pdf-fill"></i>PDF</button>
     </div>
 </div>
 
@@ -723,5 +841,20 @@ window.addEventListener('resize', () => {
 
 carregarDados();
 </script>
+
+<footer class="mobile-footer">
+    <div class="apoios-footer">
+        <a href="https://www.instagram.com/pet_saude_digital_ufcg/" target="_blank">
+            <img src="https://lh3.googleusercontent.com/d/1Lvrvq6cCcIJgvLBSdi8u6B1SA75L9V_K">
+        </a>
+
+        <a href="https://gat-5.vercel.app/" target="_blank">
+            <img src="https://lh3.googleusercontent.com/d/1fGEuRXpKXXiNafxDzFd0JDwwrVxKvd-a">
+        </a>
+
+        <a href="https://saude.campinagrande.pb.gov.br/" target="_blank">
+            <img src="https://lh3.googleusercontent.com/d/1vsaPX967sHVuynqPwLpFfktsO6s-_OZD">
+        </a>
+    </div>
 </body>
 </html>
