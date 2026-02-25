@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Análise Temporal | LIRAa Digital - Campina Grande</title>
 
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Análise Temporal | LIRAa Digital - Campina Grande">
+    <meta property="og:description" content="Vigilância Ambiental - Levantamento Rápido de Índices para Aedes aegypti em Campina Grande - PB.">
+    <meta property="og:image" content="https://lh3.googleusercontent.com/d/1CjAJykaxRU8iqYiCdiTD9fMkyLFWR7vx">
+    <meta property="og:locale" content="pt_BR">
+    <meta name="twitter:card" content="summary_large_image">
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -450,10 +457,20 @@ let state = {
 const CORES = { 0: '#e0e0e0', safe: '#2e7d32', alerta: '#fbc02d', risco: '#d32f2f' };
 
 function getCor(v) {
-    if (v === 0 || !v) return CORES[0];
+
+    if (v === null || v === undefined) return CORES[0];
+
+    // 🔵 LÓGICA PARA ALBOPICTUS (presença absoluta)
+    if (state.indice === 'alb') {
+        if (v === 0) return CORES.safe;      // ausência
+        if (v <= 3) return CORES.alerta;    // presença moderada
+        return CORES.risco;                 // alta presença
+    }
+
+    // 🟢 LÓGICA OFICIAL MS (IIP e IB)
+    if (v === 0) return CORES[0];
     return v < 1 ? CORES.safe : v < 4 ? CORES.alerta : CORES.risco;
 }
-
 async function carregarDados() {
     try {
         const res = await fetch("LIRAa Dados.xlsx");
@@ -541,9 +558,10 @@ async function renderMosaico() {
 
     if (!semCiclo && d && d.length > 0) {
         if (state.ciclo === 'ANO') {
-            let s = 0; d.forEach(c => s += c[state.indice] || 0);
-            v = s / d.length;
-        } else {
+    let s = 0; d.forEach(c => s += c[state.indice] || 0);
+    // Se for albopictus, v é a soma total. Se não, é a média.
+    v = (state.indice === 'alb') ? s : (s / d.length);
+} else {
             v = d[state.ciclo] ? d[state.ciclo][state.indice] : null;
         }
         if (v !== null) {
@@ -554,7 +572,12 @@ async function renderMosaico() {
 });
 
 
-        const mediaAno = countBairrosComDados > 0 ? (somaIndice / countBairrosComDados).toFixed(1) : "0.0";
+        // Se for Albopictus, o card mostra a SOMA de todos os bairros. Se não, mostra a MÉDIA.
+const valorFinalCard = (state.indice === 'alb') 
+    ? somaIndice.toFixed(0) 
+    : (countBairrosComDados > 0 ? (somaIndice / countBairrosComDados).toFixed(1) : "0.0");
+
+const mediaAno = valorFinalCard;
 
         const card = document.createElement('div');
         card.className = 'mapa-ano-card';
@@ -572,10 +595,19 @@ async function renderMosaico() {
             <div class="bairros-visitados-info">Bairros: ${countBairrosComDados}</div>
 
             <div class="resumo-status">
-                <div class="status-item status-safe"><div class="numero" id="s-${ano}">0</div><div>Satisfeito</div></div>
-                <div class="status-item status-alerta"><div class="numero" id="a-${ano}">0</div><div>Alerta</div></div>
-                <div class="status-item status-risco"><div class="numero" id="r-${ano}">0</div><div>Risco</div></div>
-            </div>
+    <div class="status-item status-safe">
+        <div class="numero" id="s-${ano}">0</div>
+        <div>${state.indice === 'alb' ? 'Ausência' : 'Satisfatório'}</div>
+    </div>
+    <div class="status-item status-alerta">
+        <div class="numero" id="a-${ano}">0</div>
+        <div>${state.indice === 'alb' ? 'Moderado' : 'Alerta'}</div>
+    </div>
+    <div class="status-item status-risco">
+        <div class="numero" id="r-${ano}">0</div>
+        <div>${state.indice === 'alb' ? 'Alta Presença' : 'Risco'}</div>
+    </div>
+</div>
         `;
         container.appendChild(card);
 
@@ -600,18 +632,25 @@ async function renderMosaico() {
 
                     if (d && d.length > 0 && ciclosExistem) {
                         if (state.ciclo === 'ANO') {
-                            let s = 0; d.forEach(ciclo => s += ciclo[state.indice] || 0);
-                            v = s / d.length;
-                        } else {
+    let s = 0; d.forEach(c => s += c[state.indice] || 0);
+    // Se for albopictus, v é a soma total. Se não, é a média.
+    v = (state.indice === 'alb') ? s : (s / d.length);
+} else {
                             v = d[state.ciclo]?.[state.indice] ?? null;
                         }
                     }
 
                     // Só conta se realmente tiver valor
                     if (v !== null) {
-                        if (v < 1) safe++;
-                        else if (v < 4) alerta++;
-                        else risco++;
+                        if (state.indice === 'alb') {
+                            if (v === 0) safe++;
+                            else if (v <= 3) alerta++;
+                            else risco++;
+                        } else {
+                            if (v < 1) safe++;
+                            else if (v < 4) alerta++;
+                            else risco++;
+                        }
                     }
 
                     return {
@@ -704,9 +743,12 @@ function gerarSvgMapa(ano) {
         let v = 0;
 
         if (d && d.length > 0) {
-            v = state.ciclo === 'ANO'
-                ? d.reduce((a, c) => a + (c[state.indice] || 0), 0) / d.length
-                : (d[state.ciclo]?.[state.indice] || 0);
+            if (state.ciclo === 'ANO') {
+    let s = d.reduce((a, c) => a + (c[state.indice] || 0), 0);
+    v = (state.indice === 'alb') ? s : (s / d.length);
+} else {
+    v = (d[state.ciclo]?.[state.indice] || 0);
+}
         }
 
         const pontos = f.geometry.type === 'Polygon' ? [f.geometry.coordinates] : f.geometry.coordinates;
@@ -776,15 +818,24 @@ Object.keys(state.dados[ano]).forEach(b => {
     const d = state.dados[ano][b];
     if (d && d.length > 0 && !semCiclo) { // só conta se existir ciclo
         contBairros++;
-        let v = state.ciclo === 'ANO' 
-            ? d.reduce((a, c) => a + (c[state.indice] || 0), 0) / d.length
-            : (d[state.ciclo]?.[state.indice] || 0);
+        let v = 0;
+// Se for Albopictus, exibe a soma total de mosquitos. Se não, exibe a média da cidade.
+const valorExibidoCard = (state.indice === 'alb') 
+    ? somaIndice.toFixed(0) 
+    : (countBairrosComDados > 0 ? (somaIndice / countBairrosComDados).toFixed(1) : "0.0");
+
+const mediaAno = valorExibidoCard; // Mantendo o nome da variável para não quebrar o código abaixo
         soma += v;
     }
 });
 
 
-        const media = contBairros > 0 ? (soma / contBairros).toFixed(1) : "0.0";
+        // Garante que o PNG também mostre a SOMA para Albopictus
+const valorFinalExport = (state.indice === 'alb') 
+    ? soma.toFixed(0) 
+    : (contBairros > 0 ? (soma / contBairros).toFixed(1) : "0.0");
+
+const media = valorFinalExport; // Mantendo o nome para compatibilidade com o HTML gerado abaixo
 
         const card = document.createElement('div');
         card.style.cssText = "border:1px solid #ddd; border-radius:8px; overflow:hidden; display:flex; flex-direction:column; position:relative; background:white;";

@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Relatórios | LIRAa Digital - Campina Grande</title>
 
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Relatórios | LIRAa Digital - Campina Grande">
+    <meta property="og:description" content="Vigilância Ambiental - Levantamento Rápido de Índices para Aedes aegypti em Campina Grande - PB.">
+    <meta property="og:image" content="https://lh3.googleusercontent.com/d/1CjAJykaxRU8iqYiCdiTD9fMkyLFWR7vx">
+    <meta property="og:locale" content="pt_BR">
+    <meta name="twitter:card" content="summary_large_image">
+
     <link rel="icon" href="https://lh3.googleusercontent.com/d/1CjAJykaxRU8iqYiCdiTD9fMkyLFWR7vx" type="image/png">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -393,14 +400,20 @@ function render(ano) {
             totais[cIdx*3] += d.iip; totais[cIdx*3+1] += d.ib; totais[cIdx*3+2] += d.alb;
             r += `<td class="${getCor(d.iip)}">${d.iip.toFixed(1)}</td><td class="${getCor(d.ib)}">${d.ib.toFixed(1)}</td><td>${d.alb.toFixed(1)}</td>`;
         });
-        const mIIP = sIIP/ciclos.length, mIB = sIB/ciclos.length, mALB = sALB/ciclos.length;
+        const mIIP = sIIP / ciclos.length;
+        const mIB  = sIB  / ciclos.length;
+        const mALB = sALB; // ALB agora é SOMA, não média
         totais[totais.length-3] += mIIP; totais[totais.length-2] += mIB; totais[totais.length-1] += mALB;
         r += `<td class="bg-media ${getCor(mIIP)}">${mIIP.toFixed(1)}</td><td class="bg-media ${getCor(mIB)}">${mIB.toFixed(1)}</td><td class="bg-media">${mALB.toFixed(1)}</td></tr>`;
         bHtml += r;
     });
     document.getElementById('body-lira').innerHTML = bHtml;
     let fHtml = `<tr class="footer-media"><td>-</td><td class="text-start ps-3">MÉDIA DO MUNICÍPIO</td>`;
-    totais.forEach(t => fHtml += `<td>${(t/bairros.length).toFixed(1)}</td>`);
+    totais.forEach((t, i) => {
+    const isALB = (i % 3 === 2); // posição do ALB dentro de cada trio (IIP, IB, ALB)
+    const valor = isALB ? t : (t / bairros.length);
+    fHtml += `<td>${valor.toFixed(1)}</td>`;
+});
     document.getElementById('foot-lira').innerHTML = fHtml + `</tr>`;
 }
 

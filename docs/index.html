@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LIRAa Digital | Campina Grande</title>
 
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="LIRAa Digital | Campina Grande">
+    <meta property="og:description" content="Vigilância Ambiental - Levantamento Rápido de Índices para Aedes aegypti em Campina Grande - PB.">
+    <meta property="og:image" content="https://lh3.googleusercontent.com/d/1CjAJykaxRU8iqYiCdiTD9fMkyLFWR7vx">
+    <meta property="og:locale" content="pt_BR">
+    <meta name="twitter:card" content="summary_large_image">
+
+
     <link rel="icon" href="https://lh3.googleusercontent.com/d/1CjAJykaxRU8iqYiCdiTD9fMkyLFWR7vx" type="image/png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -417,23 +425,48 @@
 
 }
 
+
+
     
 /* --- BOTÃO ENGRENAGEM (MENOR) --- */
 /* Unificação e Padronização de Botões */
-.map-floating-btn, .leaflet-control-zoom-recenter {
-    width: 38px !important; height: 38px !important;
-    background: #fff !important; border-radius: 10px !important;
-    border: 1px solid #ddd !important; box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
-    display: flex !important; align-items: center; justify-content: center;
-    cursor: pointer; transition: all 0.2s; color: #444 !important;
+.map-floating-btn, 
+.leaflet-control-zoom-recenter {
+    width: 34px !important;   /* 10% menor */
+    height: 34px !important;  /* 10% menor */
+    background: #fff !important;
+    border-radius: 10px !important;
+    border: 1px solid #ddd !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #444 !important;
+    position: absolute;
+    right: 20px;
+    z-index: 1200;
 }
-.map-floating-btn:hover, .leaflet-control-zoom-recenter:hover { 
-    background: #f8f9fa !important; color: var(--primary) !important; transform: scale(1.05);
+
+.map-floating-btn:hover {
+    background: #f8f9fa !important;
+    color: var(--primary) !important;
+    transform: scale(1.05);
+}
+
+.btn-fullscreen {
+    bottom: 20px;
+}
+
+/* 🗂 CAMADAS (em cima do expandir) */
+.btn-settings {
+    bottom: 65px; /* sobe acima do fullscreen */
 }
 
 /* Ajustes de Posição */
 .btn-recenter-container { margin: 20px 0 0 20px !important; border: none !important; background: none !important; }
-.btn-settings { bottom: 20px; right: 20px; position: absolute; z-index: 1100; }
+
 
 /* Card Compacto */
 .map-settings-card {
@@ -453,6 +486,28 @@
 .layer-option span { 
     position: absolute; bottom: 0; width: 100%; background: rgba(255,255,255,0.9); 
     color: #333; font-size: 0.55rem; text-align: center; font-weight: 700; padding: 2px 0;
+}
+
+
+
+
+/* ============================= */
+/* BOTÃO FULLSCREEN */
+/* ============================= */
+
+
+/* Quando estiver em fullscreen */
+#map-area.fullscreen-mode {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 9999 !important;
+    background: #fff;
+}
+
+#map-area.fullscreen-mode #map {
+    height: 100vh !important;
 }
 
     </style>
@@ -572,8 +627,13 @@
 
 
        <div id="settings-btn" class="map-floating-btn btn-settings" onclick="toggleSettings(event)">
-    <i class="bi bi-layers-half" style="font-size: 1.2rem;"></i>
-</div>
+    <i class="bi bi-layers-half" style="font-size: 1rem;"></i>
+        </div>
+
+        <div id="fullscreen-btn" class="map-floating-btn btn-fullscreen" onclick="toggleFullscreen()" title="Expandir mapa">
+            <i id="fullscreen-icon" class="bi bi-arrows-fullscreen" style="font-size: 1rem;"></i>
+        </div>
+
 
 <div id="settings-card" class="map-settings-card">
     <label class="x-small fw-bold text-muted mb-2 d-block text-uppercase" style="font-size: 0.6rem;">Estilos de Mapa</label>
@@ -835,6 +895,7 @@ function update() {
     updateMap(); updateChart(); updateLegend();
 }
 
+
 function updateMap() {
     if(!state.layer) return;
     state.layer.setStyle(f => {
@@ -855,13 +916,65 @@ function updateMap() {
 }
 
 function updateLegend() {
-    const nomes = { iip: "Infestação Predial (IIP)", bre: "Breteau (IB)", alb: "Aedes Albopictus" };
+
+    const nomes = { 
+        iip: "Infestação Predial (IIP)", 
+        bre: "Breteau (IB)", 
+        alb: "Aedes Albopictus" 
+    };
+
+    let subtitulo = "";
+    let linhas = "";
+
+    if (state.indice === "alb") {
+
+        // 🔵 LEGENDA PARA ALBOPICTUS (PRESENÇA VETORIAL)
+        subtitulo = "Indicador de Presença Vetorial (critério operacional local)";
+
+        linhas = `
+            <div class="leg-item">
+                <div class="leg-color" style="background:#2e7d32"></div> 
+                Ausência (< 1 foco)
+            </div>
+            <div class="leg-item">
+                <div class="leg-color" style="background:#fbc02d"></div> 
+                Presença Moderada (1 - 3 focos)
+            </div>
+            <div class="leg-item">
+                <div class="leg-color" style="background:#d32f2f"></div> 
+                Alta Presença (≥ 4 focos)
+            </div>
+        `;
+
+    } else {
+
+        // 🟢 LEGENDA OFICIAL MS (IIP e IB)
+        subtitulo = "Classificação de Risco – Ministério da Saúde";
+
+        linhas = `
+            <div class="leg-item">
+                <div class="leg-color" style="background:#2e7d32"></div> 
+                Satisfatório (< 1.0)
+            </div>
+            <div class="leg-item">
+                <div class="leg-color" style="background:#fbc02d"></div> 
+                Alerta (1.0 - 3.9)
+            </div>
+            <div class="leg-item">
+                <div class="leg-color" style="background:#d32f2f"></div> 
+                Risco (≥ 4.0)
+            </div>
+        `;
+    }
+
     document.getElementById('map-legend').innerHTML = `
-        <h6 class="fw-bold m-0" style="font-size:0.75rem">${nomes[state.indice]}</h6>
-        <p class="text-muted mb-2" style="font-size:0.6rem">Classificação de Risco Ministério da Saúde</p>
-        <div class="leg-item"><div class="leg-color" style="background:#2e7d32"></div> Satisfeito (< 1.0)</div>
-        <div class="leg-item"><div class="leg-color" style="background:#fbc02d"></div> Alerta (1.0 - 3.9)</div>
-        <div class="leg-item"><div class="leg-color" style="background:#d32f2f"></div> Risco Surto (≥ 4.0)</div>
+        <h6 class="fw-bold m-0" style="font-size:0.75rem">
+            ${nomes[state.indice]}
+        </h6>
+        <p class="text-muted mb-2" style="font-size:0.6rem">
+            ${subtitulo}
+        </p>
+        ${linhas}
     `;
 }
 function initChart() {
@@ -1041,24 +1154,64 @@ function changeOpacity(val) {
 
 function updateMap() {
     if(!state.layer) return;
-    const currentOpacity = document.getElementById('rangeOpacity').value / 100;
     state.layer.setStyle(f => {
         const b = f.properties.Name.toUpperCase().trim();
         const d = state.dados[state.ano][b];
-        let v = 0;
+        let v = null; // Começamos com null (sem dado)
+
         if(d) {
             if(state.ciclo === 'ANO') {
                 let s = 0; d.forEach(c => s += c[state.indice]);
                 v = (state.indice === 'alb') ? s : (s / d.length);
-            } else { v = d[state.ciclo] ? d[state.ciclo][state.indice] : 0; }
+            } else { 
+                // Verifica se o ciclo existe no array antes de pegar o valor
+                v = (d[state.ciclo] !== undefined) ? d[state.ciclo][state.indice] : null; 
+            }
         }
+
+        // --- LÓGICA DE CORES REVISADA ---
+        let cor;
+        if (v === null || v === undefined) {
+            cor = '#e0e0e0'; // CINZA: Realmente não tem dado
+        } else if (v < 1) {
+            cor = '#2e7d32'; // VERDE: Inclui o 0.0 até 0.9
+        } else if (v < 4) {
+            cor = '#fbc02d'; // AMARELO: Alerta
+        } else {
+            cor = '#d32f2f'; // VERMELHO: Risco
+        }
+
         return { 
-            fillColor: v === 0 ? '#e0e0e0' : v < 1 ? '#2e7d32' : v < 4 ? '#fbc02d' : '#d32f2f', 
-            fillOpacity: currentOpacity,
+            fillColor: cor, 
+            fillOpacity: 0.85, 
             weight: state.bairro === b ? 4 : 1, 
             color: state.bairro === b ? '#000' : '#fff'
         };
     });
+}
+
+
+
+
+
+
+function toggleFullscreen() {
+    const mapArea = document.getElementById("map-area");
+    const icon = document.getElementById("fullscreen-icon");
+
+    if (!mapArea.classList.contains("fullscreen-mode")) {
+        mapArea.classList.add("fullscreen-mode");
+        icon.classList.remove("bi-arrows-fullscreen");
+        icon.classList.add("bi-fullscreen-exit");
+    } else {
+        mapArea.classList.remove("fullscreen-mode");
+        icon.classList.remove("bi-fullscreen-exit");
+        icon.classList.add("bi-arrows-fullscreen");
+    }
+
+    setTimeout(() => {
+        if (state.map) state.map.invalidateSize();
+    }, 300);
 }
 </script>
 
