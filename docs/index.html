@@ -470,7 +470,7 @@
 
 /* Card Compacto */
 .map-settings-card {
-    position: absolute; bottom: 65px; right: 20px; z-index: 1105;
+    position: absolute; bottom: 110px; right: 20px; z-index: 1105;
     background: #fff; width: 200px; padding: 12px;
     border-radius: 14px; box-shadow: 0 8px 25px rgba(0,0,0,0.2);
     display: none; border: 1px solid #eee;
@@ -896,24 +896,43 @@ function update() {
 }
 
 
-function updateMap() {
-    if(!state.layer) return;
-    state.layer.setStyle(f => {
-        const b = f.properties.Name.toUpperCase().trim();
-        const d = state.dados[state.ano][b];
-        let v = 0;
-        if(d) {
-            if(state.ciclo === 'ANO') {
-                let s = 0; d.forEach(c => s += c[state.indice]);
-                v = (state.indice === 'alb') ? s : (s / d.length);
-            } else { v = d[state.ciclo] ? d[state.ciclo][state.indice] : 0; }
-        }
-        return { 
-            fillColor: v === 0 ? '#e0e0e0' : v < 1 ? '#2e7d32' : v < 4 ? '#fbc02d' : '#d32f2f', 
-            fillOpacity: 0.85, weight: state.bairro === b ? 4 : 1, color: state.bairro === b ? '#000' : '#fff'
-        };
-    });
-}
+   function updateMap(currentOpacity = null) { // Adicione um parâmetro para a opacidade
+       if(!state.layer) return;
+       const finalOpacity = currentOpacity!== null? (currentOpacity / 100) : (document.getElementById('rangeOpacity')?.value / 100) || 0.85; // Prioriza o argumento, senão lê do DOM ou usa default 0.85
+
+       state.layer.setStyle(f => {
+           const b = f.properties.Name.toUpperCase().trim();
+           const d = state.dados[state.ano][b];
+           let v = null;
+
+           if(d) {
+               if(state.ciclo === 'ANO') {
+                   let s = 0; d.forEach(c => s += c[state.indice]);
+                   v = (state.indice === 'alb')? s : (s / d.length);
+               } else {
+                   v = (d[state.ciclo]!== undefined)? d[state.ciclo][state.indice] : null;
+               }
+           }
+
+           let cor;
+           if (v === null || v === undefined) {
+               cor = '#e0e0e0';
+           } else if (v < 1) {
+               cor = '#2e7d32';
+           } else if (v < 4) {
+               cor = '#fbc02d';
+           } else {
+               cor = '#d32f2f';
+           }
+
+           return {
+               fillColor: cor,
+               fillOpacity: finalOpacity, // AQUI está o pulo do gato!
+               weight: state.bairro === b? 4 : 1,
+               color: state.bairro === b? '#000' : '#fff'
+           };
+       });
+   }
 
 function updateLegend() {
 
@@ -1147,10 +1166,14 @@ function changeBaseLayer(type, element) {
     if(state.layer) state.layer.bringToFront();
 }
 
-function changeOpacity(val) {
-    document.getElementById('opVal').innerText = val + '%';
-    updateMap(); 
-}
+   function changeOpacity(val) {
+       document.getElementById('opVal').innerText = val + '%';
+       state.layer.eachLayer(layer => { // Isso vai aplicar a opacidade a cada polígono individualmente
+           layer.setStyle({fillOpacity: val / 100});
+       });
+       // A chamada original que estava causando o problema:
+       // updateMap(); // Com o ajuste acima, se você chamar updateMap() aqui, ele irá resetar a opacidade para o valor padrão novamente ou o que estiver no rangeOpacity
+   }
 
 function updateMap() {
     if(!state.layer) return;
