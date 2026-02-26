@@ -12,6 +12,7 @@
     <meta property="og:locale" content="pt_BR">
     <meta name="twitter:card" content="summary_large_image">
 
+    <link rel="icon" href="https://lh3.googleusercontent.com/d/129d-MAaUr_Hj6uu0TLBtUxKrn-t6Oc0z" type="image/png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -139,24 +140,34 @@
             flex: 1 1 auto;
             height: 100%;
             min-height: 160px;            /* menor mínimo para telas pequenas */
-            background: #f8f9fa;
+            background: #ffffff;
         }
 
         .resumo-status {
-            padding: 6px 8px;
+            padding: 6px 0; /* Removi o padding lateral para não empurrar os itens */
             display: flex;
-            justify-content: space-around;
-            font-size: 0.8rem;
+            justify-content: center; /* Centraliza o grupo */
+            align-items: center;
+            font-size: 0.75rem;
             border-top: 1px solid #eee;
             background: #fcfcfc;
+            width: 100%;
         }
 
-        .status-item { text-align: center; }
-        .status-item .numero {
-            font-size: 1.25rem;
-            font-weight: bold;
-            line-height: 1.1;
+        .status-item { 
+            flex: 1; /* Força cada um (S, A, R) a ter exatamente 1/3 da largura do card */
+            text-align: center; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
+
+        .status-item .numero {
+            font-size: 1.1rem; /* Ajuste leve para não quebrar layout */
+            font-weight: bold;
+            line-height: 1.2;
+        }
+
         .status-safe   { color: var(--safe); }
         .status-alerta { color: var(--warning); }
         .status-risco  { color: var(--danger); }
@@ -293,7 +304,7 @@
 /* Info de Bairros no canto inferior esquerdo */
 .bairros-visitados-info {
     position: absolute;
-    bottom: 50px; /* acima do rodapé de status */
+    bottom: 55px; /* acima do rodapé de status */
     left: 8px;
     z-index: 1000;
     font-size: 0.7rem;
@@ -390,6 +401,13 @@
     }
 }
 
+
+.leaflet-container svg path {
+    shape-rendering: geometricPrecision !important;
+    stroke-width: 0.6px !important; /* <--- LINHA DE CONTORNO DO MAPA! */
+}
+
+
     </style>
 </head>
 <body>
@@ -405,7 +423,7 @@
 
     <div class="apoios">
         <a href="https://www.instagram.com/pet_saude_digital_ufcg/" target="_blank"><img src="https://lh3.googleusercontent.com/d/1Lvrvq6cCcIJgvLBSdi8u6B1SA75L9V_K" alt="PET-Saúde Digital"></a>
-        <a href="https://gat-5.vercel.app/" target="_blank"><img src="https://lh3.googleusercontent.com/d/1fGEuRXpKXXiNafxDzFd0JDwwrVxKvd-a" alt="GAT-5"></a>
+        <a href="https://www.instagram.com/arboviroses_cg/" target="_blank"><img src="https://lh3.googleusercontent.com/d/1fGEuRXpKXXiNafxDzFd0JDwwrVxKvd-a" alt="GAT-5"></a>
         <a href="https://saude.campinagrande.pb.gov.br/" target="_blank"><img src="https://lh3.googleusercontent.com/d/1vsaPX967sHVuynqPwLpFfktsO6s-_OZD" alt="Secretaria de Saúde"></a>
     </div>
 </header>
@@ -453,6 +471,28 @@ let state = {
     ciclo: 'ANO',
     mapas: {}
 };
+
+
+
+
+async function esperarImagensCarregarem(elemento) {
+    const imagens = elemento.querySelectorAll("img");
+    const promessas = [];
+
+    imagens.forEach(img => {
+        if (!img.complete) {
+            promessas.push(new Promise(resolve => {
+                img.onload = img.onerror = resolve;
+            }));
+        }
+    });
+
+    await Promise.all(promessas);
+}
+
+
+
+
 
 const CORES = { 0: '#e0e0e0', safe: '#2e7d32', alerta: '#fbc02d', risco: '#d32f2f' };
 
@@ -616,52 +656,56 @@ const mediaAno = valorFinalCard;
             attributionControl: false,
             dragging: false,
             scrollWheelZoom: false,
-            touchZoom: false
+            touchZoom: false,
+            doubleClickZoom: false, // ADICIONADO ZOOM FIXO
+            boxZoom: false          // ADICIONADO ZOOM FIXO
         });
 
         if (!semCiclo) {
                         let safe = 0, alerta = 0, risco = 0;
             const layer = L.geoJSON(geojson, {
                 style: f => {
-                    const b = f.properties.Name?.toUpperCase()?.trim();
-                    const d = state.dados[ano]?.[b];
-                    let v = null; // valor do índice
+    const b = f.properties.Name?.toUpperCase()?.trim();
+    const d = state.dados[ano]?.[b];
+    let v = null;
 
-                    // --- Verifica se existe ciclo para este ano ---
-                    const ciclosExistem = state.ciclo === 'ANO' || (state.meta[ano] && state.meta[ano][state.ciclo] !== undefined);
+    const ciclosExistem = state.ciclo === 'ANO' || 
+        (state.meta[ano] && state.meta[ano][state.ciclo] !== undefined);
 
-                    if (d && d.length > 0 && ciclosExistem) {
-                        if (state.ciclo === 'ANO') {
-    let s = 0; d.forEach(c => s += c[state.indice] || 0);
-    // Se for albopictus, v é a soma total. Se não, é a média.
-    v = (state.indice === 'alb') ? s : (s / d.length);
-} else {
-                            v = d[state.ciclo]?.[state.indice] ?? null;
-                        }
-                    }
+    if (d && d.length > 0 && ciclosExistem) {
+        if (state.ciclo === 'ANO') {
+            let s = 0;
+            d.forEach(c => s += c[state.indice] || 0);
+            v = (state.indice === 'alb') ? s : (s / d.length);
+        } else {
+            v = d[state.ciclo]?.[state.indice] ?? null;
+        }
+    }
 
-                    // Só conta se realmente tiver valor
-                    if (v !== null) {
-                        if (state.indice === 'alb') {
-                            if (v === 0) safe++;
-                            else if (v <= 3) alerta++;
-                            else risco++;
-                        } else {
-                            if (v < 1) safe++;
-                            else if (v < 4) alerta++;
-                            else risco++;
-                        }
-                    }
+    // ✅ CONTADOR RESTAURADO (COM VERIFICAÇÃO DE CICLO)
+    if (v !== null && ciclosExistem) {
+        if (state.indice === 'alb') {
+            if (v === 0) safe++;
+            else if (v <= 3) alerta++;
+            else risco++;
+        } else {
+            if (v < 1) safe++;
+            else if (v < 4) alerta++;
+            else risco++;
+        }
+    }
 
-                    return {
-                        fillColor: (ciclosExistem ? getCor(v) : '#ccc'), // cinza embassado se não houver ciclo
-                        weight: 0.8,
-                        opacity: 1,
-                        color: '#444',
-                        fillOpacity: ciclosExistem ? 0.85 : 0.4 // embassado
-                    };
-                },
+    return {
+        fillColor: (ciclosExistem ? getCor(v) : '#ccc'),
+        weight: 1,              // contorno mais nítido
+        opacity: 1,
+        color: '#444',
+        fillOpacity: ciclosExistem ? 0.85 : 0.4,
+        smoothFactor: 0         // 🔥 mantém contorno perfeito
+    };
+},
                 onEachFeature: (f, layer) => {
+                    // ... mantém seu onEachFeature como está ...
                     const ciclosExistem = state.ciclo === 'ANO' || (state.meta[ano] && state.meta[ano][state.ciclo] !== undefined);
                     if (!ciclosExistem) {
                         layer.bindPopup(`<b>${f.properties.Name}</b><br><span style="color:red; font-weight:bold;">SEM CICLO</span>`);
@@ -669,7 +713,8 @@ const mediaAno = valorFinalCard;
                 }
             }).addTo(map);
 
-            map.fitBounds(layer.getBounds(), { padding: [4, 4] });
+            // O animate: false evita que o mapa "trema" ou distorça ao carregar
+            map.fitBounds(layer.getBounds(), { padding: [2, 2], animate: false });
 
             document.getElementById(`s-${ano}`).textContent = safe;
             document.getElementById(`a-${ano}`).textContent = alerta;
@@ -707,7 +752,7 @@ function gerarSvgMapa(ano) {
 
     // Se não houver ciclo, retorna apenas o SVG com a mensagem, sem desenhar os caminhos
     if (semCiclo) {
-        return `<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg" style="background:#f8f9fa;">
+        return `<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg" style="background:#ffffff;">
                     <text x="${w/2}" y="${h/2}" text-anchor="middle" fill="#d32f2f" font-size="20" font-weight="bold">SEM CICLO</text>
                 </svg>`;
     }
@@ -758,29 +803,54 @@ function gerarSvgMapa(ano) {
         });
     });
 
-    return `<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg" style="background:#f8f9fa;">${caminhos}</svg>`;
+    return `<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg" style="background:#ffffff;">${caminhos}</svg>`;
 }
 
 
+// --- DOWNLOADS CORRIGIDOS (VERSÃO SVG + AJUSTE DE CICLO) ---
 // --- DOWNLOADS CORRIGIDOS (VERSÃO SVG + AJUSTE DE CICLO) ---
 
 async function prepararCapturaLimpa() {
     const exportDiv = document.createElement('div');
     exportDiv.style.width = '1200px';
-    exportDiv.style.padding = '30px'; // Reduzi um pouco o padding global
+    exportDiv.style.padding = '30px';
     exportDiv.style.background = 'white';
     exportDiv.style.position = 'absolute';
     exportDiv.style.left = '-9999px';
     document.body.appendChild(exportDiv);
-    
 
-    // 1. Cabeçalho (Reduzindo logos para dar mais espaço)
+    // 1. Cabeçalho
     const headerClone = document.querySelector('header').cloneNode(true);
-    headerClone.style.boxShadow = 'none';
-    headerClone.style.height = '80px'; // Levemente menor
+
+    // 🔥 FORÇA LAYOUT DESKTOP
+    headerClone.style.width = "1200px";
+    headerClone.style.height = "90px";
+    headerClone.style.padding = "0 30px";
+    headerClone.style.display = "flex";
+    headerClone.style.alignItems = "center";
+    headerClone.style.justifyContent = "space-between";
+    headerClone.style.boxShadow = "none";
+
+    // 🔥 FORÇA MOSTRAR LOGOS DE APOIO
+    const apoios = headerClone.querySelector('.apoios');
+    if (apoios) {
+        apoios.style.display = "flex";
+    }
+
+    // 🔥 RESTAURA TAMANHO DAS LOGOS
+    headerClone.querySelectorAll('.logo-gat img').forEach(img => {
+        img.style.height = "140px";
+        img.crossOrigin = "anonymous";
+    });
+
+    headerClone.querySelectorAll('.apoios img').forEach(img => {
+        img.style.height = "50px";
+        img.crossOrigin = "anonymous";
+    });
+
     exportDiv.appendChild(headerClone);
 
-    // 2. Título (FONTE AJUSTADA PARA NÃO QUEBRAR)
+    // 2. Título Dinâmico
     const nomesIndicadores = { 
         'iip': 'Infestação Predial (IIP)', 
         'bre': 'Índice de Breteau (IB)', 
@@ -788,93 +858,133 @@ async function prepararCapturaLimpa() {
     };
     
     const titulo = document.createElement('h2');
-    titulo.style.textAlign = 'center';
-    titulo.style.margin = '25px 0'; // Menos margem vertical
-    titulo.style.color = '#0e945c';
-    titulo.style.fontSize = '1.4rem'; // Fonte reduzida para caber em uma linha
-    titulo.style.fontWeight = '700';
-    titulo.style.whiteSpace = 'nowrap'; // Garante que tente ficar em uma linha só
+    titulo.style.cssText = "text-align:center; margin:25px 0; color:#0e945c; font-size:1.4rem; font-weight:700;";
     
-    // Ajuste do Ciclo: Exibindo como C1, C2...
-    const textoCiclo = state.ciclo === 'ANO' ? '' : ` – Ciclo: C${Number(state.ciclo) + 1}`;
+    const textoCiclo = state.ciclo === 'ANO' ? ' (Consolidado Anual)' : ` (Ciclo: C${Number(state.ciclo) + 1})`;
     titulo.textContent = `Análise Espacial: ${nomesIndicadores[state.indice]}${textoCiclo}`;
     exportDiv.appendChild(titulo);
 
-    // 3. Mosaico de Mapas (Matriz 5x2)
+    // 3. Mosaico
     const mosaico = document.createElement('div');
     mosaico.style.display = 'grid';
     mosaico.style.gridTemplateColumns = 'repeat(5, 1fr)';
     mosaico.style.gap = '12px';
 
     const anosOrdenados = ['2015','2016','2017','2018','2019','2021','2022','2023','2024','2025'];
+    
     anosOrdenados.forEach(ano => {
         if (!state.dados[ano]) return;
         
-        let soma = 0, contBairros = 0;
-const ciclosDoAno = state.meta[ano] || [];
-const semCiclo = state.ciclo !== 'ANO' && (!ciclosDoAno[state.ciclo]);
+        let somaLocal = 0;
+        let contBairrosLocal = 0;
+        const ciclosDoAno = state.meta[ano] || [];
+        const semCiclo = state.ciclo !== 'ANO' && (!ciclosDoAno[state.ciclo]);
 
-Object.keys(state.dados[ano]).forEach(b => {
-    const d = state.dados[ano][b];
-    if (d && d.length > 0 && !semCiclo) { // só conta se existir ciclo
-        contBairros++;
-        let v = 0;
-// Se for Albopictus, exibe a soma total de mosquitos. Se não, exibe a média da cidade.
-const valorExibidoCard = (state.indice === 'alb') 
-    ? somaIndice.toFixed(0) 
-    : (countBairrosComDados > 0 ? (somaIndice / countBairrosComDados).toFixed(1) : "0.0");
+        // Cálculo dos valores para o Card de Exportação
+        Object.keys(state.dados[ano]).forEach(b => {
+            const d = state.dados[ano][b];
+            if (d && d.length > 0 && !semCiclo) {
+                let v = 0;
+                if (state.ciclo === 'ANO') {
+                    let s = d.reduce((acc, curr) => acc + (curr[state.indice] || 0), 0);
+                    v = (state.indice === 'alb') ? s : (s / d.length);
+                } else {
+                    v = d[state.ciclo] ? (d[state.ciclo][state.indice] || 0) : 0;
+                }
+                somaLocal += v;
+                contBairrosLocal++;
+            }
+        });
 
-const mediaAno = valorExibidoCard; // Mantendo o nome da variável para não quebrar o código abaixo
-        soma += v;
-    }
-});
-
-
-        // Garante que o PNG também mostre a SOMA para Albopictus
-const valorFinalExport = (state.indice === 'alb') 
-    ? soma.toFixed(0) 
-    : (contBairros > 0 ? (soma / contBairros).toFixed(1) : "0.0");
-
-const media = valorFinalExport; // Mantendo o nome para compatibilidade com o HTML gerado abaixo
+        const valorFinal = (state.indice === 'alb') 
+            ? somaLocal.toFixed(0) 
+            : (contBairrosLocal > 0 ? (somaLocal / contBairrosLocal).toFixed(1) : "0.0");
 
         const card = document.createElement('div');
         card.style.cssText = "border:1px solid #ddd; border-radius:8px; overflow:hidden; display:flex; flex-direction:column; position:relative; background:white;";
         
-        const resumo = document.getElementById(`s-${ano}`).parentElement.parentElement.cloneNode(true);
-        resumo.style.fontSize = '0.7rem';
+        // Clonar rodapé de status da tela original
+        // --- CÓDIGO CORRIGIDO PARA CENTRALIZAÇÃO ---
+        
+        // 1. Localiza o original e clona
+        const resumoOrigem = document.getElementById(`s-${ano}`);
+        const resumoClone = resumoOrigem ? resumoOrigem.parentElement.parentElement.cloneNode(true) : document.createElement('div');
+        
+        // 2. Força o container pai a distribuir os itens em linha e centralizar
+        resumoClone.style.display = 'flex';
+        resumoClone.style.flexDirection = 'row';
+        resumoClone.style.justifyContent = 'space-around';
+        resumoClone.style.alignItems = 'center';
+        resumoClone.style.width = '100%';
+        resumoClone.style.padding = '5px 0';
+        resumoClone.style.fontSize = '0.65rem';
+        resumoClone.style.background = '#fcfcfc';
+
+        // 3. Força cada item (Satisfatório, Alerta, Risco) a centralizar seu conteúdo interno
+        resumoClone.querySelectorAll('.status-item').forEach(item => {
+            item.style.flex = '1';              // Cada um ganha o mesmo espaço
+            item.style.display = 'flex';
+            item.style.flexDirection = 'column';
+            item.style.alignItems = 'center';    // Centraliza horizontalmente
+            item.style.textAlign = 'center';
+        });
+
+        // 4. Garante que os números grandes também estejam centralizados
+        resumoClone.querySelectorAll('.numero').forEach(num => {
+            num.style.fontSize = '1.1rem';
+            num.style.lineHeight = '1';
+            num.style.marginBottom = '2px';
+        });
+        
+        // --- FIM DA CORREÇÃO ---
 
         card.innerHTML = `
             <div style="background:#0e945c; color:white; text-align:center; font-weight:bold; padding:4px; font-size: 0.9rem;">${ano}</div>
-            <div style="position:absolute; top:35px; right:5px; background:${getCor(parseFloat(media))}; color:white; padding:2px 6px; border-radius:4px; font-weight:800; font-size:0.9rem; z-index:10;">${media}</div>
-            <div style="height:180px; display:flex; align-items:center; justify-content:center; background:#f8f9fa;">
+            
+            <div style="position:absolute; top:35px; right:5px; background:${getCor(parseFloat(valorFinal))}; color:white; padding:2px 6px; border-radius:4px; font-weight:800; font-size:0.9rem; z-index:10;">
+                ${valorFinal}
+            </div>
+            
+            <div style="height:180px; display:flex; align-items:center; justify-content:center; background:#ffffff;">
                 ${gerarSvgMapa(ano)}
             </div>
-            <div style="position:absolute; bottom:45px; left:5px; font-size:0.6rem; font-weight:bold; background:rgba(255,255,255,0.7); padding:1px 3px;">Bairros: ${contBairros}</div>
+            
+            <div style="position:absolute; bottom:65px; left:5px; font-size:0.6rem; font-weight:bold; background:rgba(255,255,255,0.7); padding:1px 3px;">
+                Bairros: ${contBairrosLocal}
+            </div>
         `;
-        card.appendChild(resumo);
+        card.appendChild(resumoClone); // Adiciona o clone já estilizado
         mosaico.appendChild(card);
     });
 
     exportDiv.appendChild(mosaico);
 
+    await esperarImagensCarregarem(exportDiv);
+
     const canvas = await html2canvas(exportDiv, { 
-        scale: 2, 
-        useCORS: true,
-        logging: false 
-    });
+    scale: 2,
+    useCORS: true,
+    logging: false,
+    windowWidth: 1400
+});
     document.body.removeChild(exportDiv);
     return canvas;
 }
 
 document.getElementById('btnPng').onclick = async () => {
+    const btn = document.getElementById('btnPng');
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Processando...';
     const canvas = await prepararCapturaLimpa();
     const link = document.createElement('a');
-    link.download = `Mapa_LIRAa_${state.indice}.png`;
+    link.download = `Mapa_LIRAa_${state.indice}_Ciclo_${state.ciclo}.png`;
     link.href = canvas.toDataURL('image/png');
     link.click();
+    btn.innerHTML = '<i class="bi bi-download"></i> PNG';
 };
 
 document.getElementById('btnPdf').onclick = async () => {
+    const btn = document.getElementById('btnPdf');
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Gerando PDF...';
     const canvas = await prepararCapturaLimpa();
     const imgData = canvas.toDataURL('image/png');
     const pdf = new jsPDF('l', 'mm', 'a4');
@@ -884,8 +994,10 @@ document.getElementById('btnPdf').onclick = async () => {
 
     pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
     pdf.save(`Relatorio_LIRAa_${state.indice}.pdf`);
+    btn.innerHTML = '<i class="bi bi-file-earmark-pdf-fill"></i> PDF';
 };
 
+// Listener para redimensionamento e carregamento inicial
 window.addEventListener('resize', () => {
     Object.values(state.mapas).forEach(m => m && m.invalidateSize());
 });
@@ -899,7 +1011,7 @@ carregarDados();
             <img src="https://lh3.googleusercontent.com/d/1Lvrvq6cCcIJgvLBSdi8u6B1SA75L9V_K">
         </a>
 
-        <a href="https://gat-5.vercel.app/" target="_blank">
+        <a href="https://www.instagram.com/arboviroses_cg/" target="_blank">
             <img src="https://lh3.googleusercontent.com/d/1fGEuRXpKXXiNafxDzFd0JDwwrVxKvd-a">
         </a>
 

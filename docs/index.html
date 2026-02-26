@@ -8,12 +8,12 @@
     <meta property="og:type" content="website">
     <meta property="og:title" content="LIRAa Digital | Campina Grande">
     <meta property="og:description" content="Vigilância Ambiental - Levantamento Rápido de Índices para Aedes aegypti em Campina Grande - PB.">
-    <meta property="og:image" content="https://lh3.googleusercontent.com/d/1CjAJykaxRU8iqYiCdiTD9fMkyLFWR7vx">
+    <meta property="og:image" content="https://private-user-images.githubusercontent.com/164213518/554693339-c5cb6d17-eaa2-43d7-bf69-c830704f0dec.png?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NzIwODIwNTYsIm5iZiI6MTc3MjA4MTc1NiwicGF0aCI6Ii8xNjQyMTM1MTgvNTU0NjkzMzM5LWM1Y2I2ZDE3LWVhYTItNDNkNy1iZjY5LWM4MzA3MDRmMGRlYy5wbmc_WC1BbXotQWxnb3JpdGhtPUFXUzQtSE1BQy1TSEEyNTYmWC1BbXotQ3JlZGVudGlhbD1BS0lBVkNPRFlMU0E1M1BRSzRaQSUyRjIwMjYwMjI2JTJGdXMtZWFzdC0xJTJGczMlMkZhd3M0X3JlcXVlc3QmWC1BbXotRGF0ZT0yMDI2MDIyNlQwNDU1NTZaJlgtQW16LUV4cGlyZXM9MzAwJlgtQW16LVNpZ25hdHVyZT04Yzg5ODYzZTBjZDcxZWRhNjhmMjg0OTQ1MzYzYjU2NTAwNDZlNzgwYWU2NjNiM2Q5YWJmZWE0OTkzNTk2ZGVkJlgtQW16LVNpZ25lZEhlYWRlcnM9aG9zdCJ9.Cvwy8UhynbVZV_gxBsNJQuNj5cEO0gz2NFyvILajOCI">
     <meta property="og:locale" content="pt_BR">
     <meta name="twitter:card" content="summary_large_image">
 
 
-    <link rel="icon" href="https://lh3.googleusercontent.com/d/1CjAJykaxRU8iqYiCdiTD9fMkyLFWR7vx" type="image/png">
+    <link rel="icon" href="https://lh3.googleusercontent.com/d/129d-MAaUr_Hj6uu0TLBtUxKrn-t6Oc0z" type="image/png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -530,7 +530,7 @@
           <img src="https://lh3.googleusercontent.com/d/1Lvrvq6cCcIJgvLBSdi8u6B1SA75L9V_K" alt="PET-Saúde Digital">
         </a>
     
-        <a href="https://gat-5.vercel.app/" target="_blank">
+        <a href="https://www.instagram.com/arboviroses_cg/" target="_blank">
           <img src="https://lh3.googleusercontent.com/d/1fGEuRXpKXXiNafxDzFd0JDwwrVxKvd-a" alt="GAT-5">
         </a>
     
@@ -669,6 +669,7 @@
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
 <script>
+    
 let state = {
     dados: {}, meta: {},
     ano: null, ciclo: 'ANO', indice: 'iip', bairro: null,
@@ -753,7 +754,7 @@ async function initMap() {
     zoomControl.addTo(state.map);
 
     state.layer = L.geoJSON(g, {
-        style: { fillColor: '#e0e0e0', weight: 1.5, color: '#fff', fillOpacity: 0.8 },
+            style: { fillColor: '#e0e0e0', weight: 1.5, color: '#fff', fillOpacity: (document.getElementById('rangeOpacity')?.value / 100) || 0.9 },
         onEachFeature: (f, l) => {
             l.on('click', (e) => {
                 L.DomEvent.stopPropagation(e);
@@ -896,43 +897,47 @@ function update() {
 }
 
 
-   function updateMap(currentOpacity = null) { // Adicione um parâmetro para a opacidade
-       if(!state.layer) return;
-       const finalOpacity = currentOpacity!== null? (currentOpacity / 100) : (document.getElementById('rangeOpacity')?.value / 100) || 0.85; // Prioriza o argumento, senão lê do DOM ou usa default 0.85
+        function updateMap() {
+        if(!state.layer) return;
+        // Pega o valor atual do slider, divide por 100 pra ter a proporção (0.0 a 1.0)
+        // Se o slider ainda não estiver disponível por algum motivo, usa 0.9 como padrão (90%)
+        const currentOpacity = (document.getElementById('rangeOpacity')?.value / 100) || 0.9; // <--- AQUI!
 
-       state.layer.setStyle(f => {
-           const b = f.properties.Name.toUpperCase().trim();
-           const d = state.dados[state.ano][b];
-           let v = null;
+        state.layer.setStyle(f => {
+            const b = f.properties.Name.toUpperCase().trim();
+            const d = state.dados[state.ano][b];
+            let v = null; // Começamos com null (sem dado)
 
-           if(d) {
-               if(state.ciclo === 'ANO') {
-                   let s = 0; d.forEach(c => s += c[state.indice]);
-                   v = (state.indice === 'alb')? s : (s / d.length);
-               } else {
-                   v = (d[state.ciclo]!== undefined)? d[state.ciclo][state.indice] : null;
-               }
-           }
+            if(d) {
+                if(state.ciclo === 'ANO') {
+                    let s = 0; d.forEach(c => s += c[state.indice]);
+                    v = (state.indice === 'alb')? s : (s / d.length);
+                } else {
+                    // Verifica se o ciclo existe no array antes de pegar o valor
+                    v = (d[state.ciclo]!== undefined)? d[state.ciclo][state.indice] : null;
+                }
+            }
 
-           let cor;
-           if (v === null || v === undefined) {
-               cor = '#e0e0e0';
-           } else if (v < 1) {
-               cor = '#2e7d32';
-           } else if (v < 4) {
-               cor = '#fbc02d';
-           } else {
-               cor = '#d32f2f';
-           }
+            // --- LÓGICA DE CORES REVISADA ---
+            let cor;
+            if (v === null || v === undefined) {
+                cor = '#e0e0e0'; // CINZA: Realmente não tem dado
+            } else if (v < 1) {
+                cor = '#2e7d32'; // VERDE: Inclui o 0.0 até 0.9
+            } else if (v < 4) {
+                cor = '#fbc02d'; // AMARELO: Alerta
+            } else {
+                cor = '#d32f2f'; // VERMELHO: Risco
+            }
 
-           return {
-               fillColor: cor,
-               fillOpacity: finalOpacity, // AQUI está o pulo do gato!
-               weight: state.bairro === b? 4 : 1,
-               color: state.bairro === b? '#000' : '#fff'
-           };
-       });
-   }
+            return {
+                fillColor: cor,
+                fillOpacity: currentOpacity, // <--- AGORA ELE PEGA O VALOR DO SLIDER AQUI!
+                weight: state.bairro === b? 4 : 1,
+                color: state.bairro === b? '#000' : '#fff'
+            };
+        });
+    }
 
 function updateLegend() {
 
@@ -1166,14 +1171,10 @@ function changeBaseLayer(type, element) {
     if(state.layer) state.layer.bringToFront();
 }
 
-   function changeOpacity(val) {
-       document.getElementById('opVal').innerText = val + '%';
-       state.layer.eachLayer(layer => { // Isso vai aplicar a opacidade a cada polígono individualmente
-           layer.setStyle({fillOpacity: val / 100});
-       });
-       // A chamada original que estava causando o problema:
-       // updateMap(); // Com o ajuste acima, se você chamar updateMap() aqui, ele irá resetar a opacidade para o valor padrão novamente ou o que estiver no rangeOpacity
-   }
+    function changeOpacity(val) {
+        document.getElementById('opVal').innerText = val + '%';
+        updateMap(); // Chama updateMap para redesenhar com a nova opacidade
+    }
 
 function updateMap() {
     if(!state.layer) return;
@@ -1206,15 +1207,12 @@ function updateMap() {
 
         return { 
             fillColor: cor, 
-            fillOpacity: 0.85, 
+            fillOpacity: (document.getElementById('rangeOpacity')?.value / 100) || 0.9,
             weight: state.bairro === b ? 4 : 1, 
             color: state.bairro === b ? '#000' : '#fff'
         };
     });
 }
-
-
-
 
 
 
@@ -1245,7 +1243,7 @@ function toggleFullscreen() {
             <img src="https://lh3.googleusercontent.com/d/1Lvrvq6cCcIJgvLBSdi8u6B1SA75L9V_K">
         </a>
 
-        <a href="https://gat-5.vercel.app/" target="_blank">
+        <a href="https://www.instagram.com/arboviroses_cg/" target="_blank">
             <img src="https://lh3.googleusercontent.com/d/1fGEuRXpKXXiNafxDzFd0JDwwrVxKvd-a">
         </a>
 
