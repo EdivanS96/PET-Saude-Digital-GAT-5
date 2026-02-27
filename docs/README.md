@@ -1,9 +1,11 @@
 <p align="center">
-  <img 
-    src="https://github.com/user-attachments/assets/c5cb6d17-eaa2-43d7-bf69-c830704f0dec" 
-    alt="LIRAa Digital"
-    width="200"
-  />
+  <a href="https://edivans96.github.io/PET-Saude-Digital-GAT-5/index.html">
+    <img 
+      src="https://github.com/user-attachments/assets/c5cb6d17-eaa2-43d7-bf69-c830704f0dec" 
+      alt="LIRAa Digital"
+      width="200"
+    />
+  </a>
 </p>
 
 # LIRAa Digital | Campina Grande
@@ -114,3 +116,4 @@ Conheça as instituições por trás deste projeto:
 Se você deseja explorar o código ou contribuir, siga os passos abaixo para configurar o ambiente local:
 
 1. **Clone o repositório:**
+
