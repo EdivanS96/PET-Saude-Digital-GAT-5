@@ -89,6 +89,38 @@
         .card-indice h4 { font-size: 1rem; font-weight: 700; color: #1a1a1a; margin-bottom: 10px; }
         .card-indice p { font-size: 0.85rem; text-align: center; margin: 0; color: #555; line-height: 1.4; }
 
+        /* --- GALERIA FIXA E COMPACTA DE FOTOS (ACEs) --- */
+        .secao-galeria-aces {
+            margin: 20px 0;
+            background: #ffffff;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #dee2e6;
+        }
+        .grid-fotos-aces {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+        .foto-ace-item {
+            height: 140px;
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+        }
+        .foto-ace-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .creditos-discretos {
+            font-size: 0.7rem;
+            color: #999;
+            text-align: right;
+            margin-top: 8px;
+            font-style: italic;
+        }
+
         /* --- CLASSIFICAÇÃO DE RISCO --- */
         .risco-box {
             display: flex;
@@ -107,161 +139,200 @@
         .risco-info b { font-size: 1.1rem; display: block; margin-bottom: 5px; }
         .risco-info span { font-size: 0.95rem; color: #333; display: block; }
 
-        .apoios-section { margin-top: 50px; display: flex; gap: 40px; flex-wrap: wrap; justify-content: center; padding-bottom: 60px; }
-        .apoios-section img { height: 65px; width: auto; }
+        /* Rodapé de Logos com Ajuste Proporcional */
+        .apoios-section { 
+            margin-top: 50px; 
+            display: flex; 
+            gap: 30px; 
+            flex-wrap: wrap; 
+            justify-content: center; 
+            align-items: center;
+            padding-bottom: 60px; 
+        }
+        .apoios-section img { 
+            height: 65px; 
+            max-width: 100%; 
+            object-fit: contain; 
+        }
+
     /* 📱 RESPONSIVIDADE MOBILE */
-/* ============================= */
-/* ============================= */
-/* 📱 RESPONSIVIDADE AJUSTADA */
-/* ============================= */
+    /* ============================= */
+    /* ============================= */
+    /* 📱 RESPONSIVIDADE AJUSTADA */
+    /* ============================= */
 
-.mobile-footer {
-    display: none;
-}
-
-@media (max-width: 992px) {
-
-    body, html {
-        height: auto;
-        overflow: auto;
-    }
-
-    /* HEADER mantém linha horizontal */
-    header {
-        padding: 10px 15px;
-        height: 70px;
-    }
-
-    .logo-gat {
-        gap: 10px;
-    }
-
-    .logo-gat img {
-        height: 70px;
-    }
-
-    .titulo-sistema h1 {
-        font-size: 1rem;
-    }
-
-    .titulo-sistema span {
-        font-size: 0.65rem;
-        line-height: 1.2;
-    }
-
-    /* Esconde apoios do topo */
-    .apoios {
+    .mobile-footer {
         display: none;
     }
 
-    /* Layout coluna */
-    #main-container {
-        flex-direction: column;
-        height: auto;
+    @media (max-width: 992px) {
+
+        body, html {
+            height: auto;
+            overflow: auto;
+        }
+
+        /* HEADER mantém linha horizontal */
+        header {
+            padding: 10px 15px;
+            height: 70px;
+        }
+
+        .logo-gat {
+            gap: 10px;
+        }
+
+        .logo-gat img {
+            height: 70px;
+        }
+
+        .titulo-sistema h1 {
+            font-size: 1rem;
+        }
+
+        .titulo-sistema span {
+            font-size: 0.65rem;
+            line-height: 1.2;
+        }
+
+        /* Esconde apoios do topo */
+        .apoios {
+            display: none;
+        }
+
+        /* Layout coluna */
+        #main-container {
+            flex-direction: column;
+            height: auto;
+        }
+
+        #sidebar {
+            width: 100%;
+            border-right: none;
+        }
+
+        #map-area {
+            height: 55vh;
+        }
+
+        /* MINI CARDS continuam 3 colunas */
+        .mini-card-container {
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 6px;
+        }
+
+        .mini-card {
+            padding: 6px 2px;
+        }
+
+        .mini-card span {
+            font-size: 0.55rem;
+        }
+
+        .mini-card b {
+            font-size: 0.9rem;
+        }
+
+        /* KPI menor */
+        .kpi-val-small {
+            font-size: 1.6rem;
+        }
+
+        .kpi-title-small {
+            font-size: 0.85rem;
+        }
+
+        /* Galeria em 2 colunas para telas menores */
+        .grid-fotos-aces {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+        .foto-ace-item {
+            height: 120px;
+        }
+
+        /* FOOTER aparece */
+        .mobile-footer {
+            display: block;
+            background: white;
+            padding: 10px;
+            border-top: 3px solid var(--primary);
+            text-align: center;
+        }
+
+        .apoios-footer {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .apoios-footer img {
+            height: 30px;
+            filter: grayscale(20%);
+        }
     }
 
-    #sidebar {
-        width: 100%;
-        border-right: none;
+    /* Ajuste fino focado em telas extremamente pequenas (320px) */
+    @media (max-width: 400px) {
+        .secao-galeria-aces {
+            padding: 8px;
+        }
+        .grid-fotos-aces {
+            gap: 6px;
+        }
+        .foto-ace-item {
+            height: 95px;
+        }
+        .apoios-section {
+            gap: 20px;
+        }
+        .apoios-section img {
+            height: 48px; /* Reduz altura de forma proporcional sem quebrar bordas */
+        }
     }
-
-    #map-area {
-        height: 55vh;
-    }
-
-    /* MINI CARDS continuam 3 colunas */
-    .mini-card-container {
-        grid-template-columns: 1fr 1fr 1fr;
-        gap: 6px;
-    }
-
-    .mini-card {
-        padding: 6px 2px;
-    }
-
-    .mini-card span {
-        font-size: 0.55rem;
-    }
-
-    .mini-card b {
-        font-size: 0.9rem;
-    }
-
-    /* KPI menor */
-    .kpi-val-small {
-        font-size: 1.6rem;
-    }
-
-    .kpi-title-small {
-        font-size: 0.85rem;
-    }
-
-    /* FOOTER aparece */
-    .mobile-footer {
-        display: block;
-        background: white;
-        padding: 10px;
-        border-top: 3px solid var(--primary);
-        text-align: center;
-    }
-
-    .apoios-footer {
-        display: flex;
-        justify-content: center;
-        gap: 20px;
-    }
-
-    .apoios-footer img {
-        height: 30px;
-        filter: grayscale(20%);
-    }
-}
 
     @media (max-width: 992px) {
 
-    nav {
-        justify-content: space-between;
-        padding: 5px 8px;
+        nav {
+            justify-content: space-between;
+            padding: 5px 8px;
+        }
+
+        nav a {
+            font-size: 0.65rem;
+            margin-right: 8px;
+            gap: 4px;
+        }
+
+        nav a i {
+            font-size: 0.9rem;
+        }
+
+        /* Grid de índices passa a 1 coluna no mobile */
+        .grid-indices {
+            grid-template-columns: 1fr;   /* 1 card por linha */
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        /* Reduz tamanho dos cards */
+        .card-indice {
+            padding: 15px;
+        }
+
+        .card-indice i {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .card-indice h4 {
+            font-size: 0.95rem;
+        }
+
+        .card-indice p {
+            font-size: 0.8rem;
+        }
     }
-
-    nav a {
-        font-size: 0.65rem;
-        margin-right: 8px;
-        gap: 4px;
-    }
-
-    nav a i {
-        font-size: 0.9rem;
-    }
-
-
-    /* Grid de índices passa a 1 coluna no mobile */
-    .grid-indices {
-        grid-template-columns: 1fr;   /* 1 card por linha */
-        gap: 15px;
-        margin: 20px 0;
-    }
-
-    /* Reduz tamanho dos cards */
-    .card-indice {
-        padding: 15px;
-    }
-
-    .card-indice i {
-        font-size: 2rem;
-        margin-bottom: 10px;
-    }
-
-    .card-indice h4 {
-        font-size: 0.95rem;
-    }
-
-    .card-indice p {
-        font-size: 0.8rem;
-    }
-}
-
-
     </style>
 </head>
 <body>
@@ -284,7 +355,7 @@
 
 <nav>
     <a href="index.html"><i class="bi bi-grid-1x2-fill"></i> Dashboard</a>
-    <a href="analise.html"><i class="bi bi-geo-fill"></i> Análise Temporal</a>
+    <a href="analise.html"><i class="bi bi-geo-fill"></i> Análise</a>
     <a href="relatorio.html"><i class="bi bi-file-earmark-text-fill"></i> Relatórios</a>
     <a class="active"><i class="bi bi-question-circle-fill"></i> Sobre</a>
 </nav>
@@ -293,20 +364,41 @@
 
     <h2>O que é o LIRAa?</h2>
     <p>
-        O LIRAa (Levantamento Rápido de Índices para Aedes aegypti) foi um método criado 
-        para promover a padronização dos dados obtidos a partir da vigilância epidemiológica 
-        do Aedes aegypti, que se configura como o principal vetor da dengue, zika e 
-        Chikungunya. A partir dos dados organizados, tem-se o objetivo de produzir, de forma 
-        rápida, econômica e com segurança estatística, um banco de informações sobre as 
-        infestações larvárias dos municípios, permitindo identificar áreas de maior risco 
-        e guiar decisões conscientes e eficazes para o controle vetorial.
+        O LIRAa (Levantamento Rápido de Índices para Aedes aegypti) é uma metodologia essencial de amostragem que funciona como uma ferramenta de diagnóstico rápido da infestação pelo mosquito. Ele foi criado para promover a padronização dos dados obtidos a partir da vigilância epidemiológica do Aedes aegypti, que se configura como o principal vetor da dengue, zika e Chikungunya. 
     </p>
+    <p>
+        As informações coletadas pelo LIRAa ajudam a subsidiar a tomada de decisões, o direcionamento estratégico das atividades de controle vetorial e o planejamento de ações preventivas nas áreas mapeadas com maior vulnerabilidade e focos de calor. A partir dos dados organizados, tem-se o objetivo de produzir, de forma rápida, econômica e com segurança estatística, um banco de informações sobre as infestações larvárias dos municípios, permitindo identificar áreas de maior risco e guiar decisões conscientes e eficazes para o controle vetorial.
+    </p>
+
+    <h2>Trabalho de Campo e Coleta de Dados</h2>
+    <p>
+        Em Campina Grande, os dados que alimentam este monitoramento são levantados em visitas domiciliares pelos <b>Agentes de Combate às Endemias (ACEs)</b> da <b>Secretaria Municipal de Saúde</b>, cujo trabalho em campo é fundamental para identificar e eliminar os focos do vetor.
+    </p>
+
+    <!-- GALERIA COMPACTA DE IMAGENS LADO A LADO -->
+    <div class="secao-galeria-aces">
+        <div class="grid-fotos-aces">
+            <div class="foto-ace-item">
+                <img src="https://campinagrande.pb.gov.br/wp-content/uploads/2025/11/IMG-20251112-WA0039-1536x1018.jpg" alt="ACE em atividade">
+            </div>
+            <div class="foto-ace-item">
+                <img src="https://campinagrande.pb.gov.br/wp-content/uploads/2025/02/IMG-20250205-WA0023.jpg" alt="Visita domiciliar ACE">
+            </div>
+            <div class="foto-ace-item">
+                <img src="https://campinagrande.pb.gov.br/wp-content/uploads/2025/02/IMG-20250205-WA0022.jpg" alt="Combate a arboviroses">
+            </div>
+            <div class="foto-ace-item">
+                <img src="https://campinagrande.pb.gov.br/wp-content/uploads/2025/02/IMG-20250205-WA0025.jpg" alt="Trabalho preventivo ACE">
+            </div>
+        </div>
+        <div class="creditos-discretos">Imagens: Secretaria Municipal de Saúde de Campina Grande</div>
+    </div>
 
     <h2>Metodologia</h2>
     <p>
         Essa metodologia se baseia na amostragem por conglomerados, na qual a área urbana do município 
         é dividida em estratos homogêneos, por meio de características socioambientais do local, 
-        e são sorteados imóveis para inspeção. A partir das visitas domiciliares, busca-se larvas 
+        e são sorteados imóveis para inspection. A partir das visitas domiciliares, busca-se larvas 
         e pupas em recipientes com água para calcular os principais índices de infestação predial.
     </p>
     <p>
@@ -369,14 +461,13 @@
 
     <h2>LIRAa Digital</h2>
     <p>
-        O LIRAa Digital foi desenvolvido pelo <b>GAT 5 do PET Saúde Digital da UFCG</b> em parceria 
-        com a <b>Secretaria de Saúde de Campina Grande</b>, com o objetivo de facilitar a visualização 
-        dos dados de infestação predial e apoiar decisões estratégicas para o controle do Aedes aegypti.
-    </p>
+    O <b>LIRAa Digital</b> foi desenvolvido pelo <b>GAT 5 – PET Saúde Digital da UFCG</b>, cujo tema é <b>"Inovação no Mapeamento e Monitoramento das Arboviroses em Campina Grande - PB"</b>, em parceria com a <b>Secretaria Municipal de Saúde de Campina Grande</b>. A plataforma tem como objetivo facilitar a visualização e a análise dos dados do Levantamento Rápido de Índices para Aedes aegypti (LIRAa), apoiando a vigilância em saúde e subsidiando a tomada de decisões estratégicas para o controle do <i>Aedes aegypti</i> e das arboviroses no município.
+</p>
 
+    <!-- Lembrar de Corrigido o Link do GAT-5 para redirecionar para o Instagram correto(NÃO ESQUECER) -->
     <div class="apoios-section">
         <a href="https://www.instagram.com/pet_saude_digital_ufcg/" target="_blank"><img src="https://lh3.googleusercontent.com/d/1Lvrvq6cCcIJgvLBSdi8u6B1SA75L9V_K" alt="PET-Saúde Digital"></a>
-        <a href="https://gat-5.vercel.app/" target="_blank"><img src="https://lh3.googleusercontent.com/d/1fGEuRXpKXXiNafxDzFd0JDwwrVxKvd-a" alt="GAT-5"></a>
+        <a href="https://www.instagram.com/arboviroses_cg/" target="_blank"><img src="https://lh3.googleusercontent.com/d/1fGEuRXpKXXiNafxDzFd0JDwwrVxKvd-a" alt="GAT-5"></a>
         <a href="https://saude.campinagrande.pb.gov.br/" target="_blank"><img src="https://lh3.googleusercontent.com/d/1vsaPX967sHVuynqPwLpFfktsO6s-_OZD" alt="Secretaria de Saúde"></a>
     </div>
 
