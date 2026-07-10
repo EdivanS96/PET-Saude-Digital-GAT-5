@@ -13,10 +13,10 @@
     <meta name="twitter:card" content="summary_large_image">
 
     <link rel="icon" href="https://lh3.googleusercontent.com/d/129d-MAaUr_Hj6uu0TLBtUxKrn-t6Oc0z" type="image/png">
-
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
@@ -37,6 +37,7 @@
             background: var(--bg-light); 
         }
 
+        /* --- CABEÇALHO --- */
         header { 
             display: flex; align-items: center; justify-content: space-between; 
             background: #ffffff; padding: 0 30px; height: 90px; 
@@ -47,16 +48,15 @@
         .logo-gat { display: flex; align-items: center; gap: 20px; }
         .logo-gat img { height: 140px; }
         .titulo-sistema h1 { margin: 0; font-size: 1.5rem; font-weight: 800; color: #1a1a1a; letter-spacing: -0.5px; }
-        .titulo-sistema span { font-size: 0.85rem; font-weight: 500; color: #666; display: block; }
+        .titulo-sistema span { font-size: 0.85rem; font-weight: 500; color: #666; display: block; margin-top: 2px; }
 
         .apoios { display: flex; align-items: center; gap: 25px; }
-        .apoios img { 
-            height: 50px; width: auto; 
-            transition: transform 0.3s ease, opacity 0.3s; 
-            filter: grayscale(20%);
-        }
-        .apoios img:hover { transform: scale(1.08); filter: grayscale(0%); opacity: 1; }
+        .apoios a { display: inline-block; transition: transform 0.3s ease, opacity 0.3s; cursor: pointer; }
+        .apoios a:hover { transform: scale(1.08); }
+        .apoios img { height: 50px; width: auto; filter: grayscale(20%); }
+        .apoios a:hover img { filter: grayscale(0%); }
 
+        /* --- NAVBAR --- */
         nav { 
             background: var(--primary); 
             display: flex; padding: 0 10px; height: 40px; 
@@ -64,229 +64,193 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
         }
         nav a { 
-            color: #ffffff !important; 
-            text-decoration: none; margin-right: 30px;
-            font-weight: 600; font-size: 0.85rem; 
-            display: flex; align-items: center; gap: 8px;
-            transition: 0.3s; opacity: 0.9; cursor: pointer;
-            text-transform: uppercase;
+            color: #ffffff !important; text-decoration: none; margin-right: 30px;
+            font-weight: 600; font-size: 0.85rem; display: flex; align-items: center; gap: 8px;
+            text-transform: uppercase; cursor: pointer; opacity: 0.9; transition: 0.3s;
         }
-        nav a i { font-size: 1.1rem; color: #ffffff; }
+        nav a i { font-size: 1.1rem; }
         nav a:hover { opacity: 1; transform: translateY(-1px); text-shadow: 0 0 10px rgba(255,255,255,0.3); }
-        /*nav a.active { background: rgba(0,0,0,0.15); border-radius: 4px; padding: 4px 10px; }*/
         nav a.active { border-bottom: 3px solid white; height: 100%; display: flex; align-items: center; opacity: 1; }
 
-        #main-content {  padding: 20px 30px; }
+        #main-content { padding: 20px 30px; }
 
         .area-filtros {
-            display: flex; justify-content: space-between; align-items: center;
+            display: flex; justify-content: space-between; align-items: flex-end;
             margin-bottom: 20px; background: white; padding: 15px 25px; border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05); flex-wrap: wrap; gap: 15px;
         }
 
-        .relatorio-container {
-    background: white;
-    padding: 20px;
-    border-radius: 16px; /* mais arredondado */
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-}
+        .filtros-botoes-wrapper { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 
-.table-lira {
-    width: 100%;
-    border-collapse: separate; /* IMPORTANTE */
-    border-spacing: 0;
-    font-size: 0.75rem;
-    border-radius: 16px; /* arredonda a tabela */
-    overflow: hidden; /* faz o radius funcionar */
-}
+        .relatorio-container { background: white; padding: 20px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
 
-/* Cabeçalho */
-.table-lira th {
-    background: #0e945c !important;
-    color: white !important;
-    border: 1px solid #076e43;
-    padding: 6px 2px;
-    text-align: center;
-}
+        .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .table-lira { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 0.75rem; border-radius: 16px; overflow: hidden; min-width: 800px; }
+        .table-lira th { background: #0e945c !important; color: white !important; border: 1px solid #076e43; padding: 6px 2px; text-align: center; }
+        .table-lira thead tr:first-child th:first-child { border-top-left-radius: 16px; }
+        .table-lira thead tr:first-child th:last-child { border-top-right-radius: 16px; }
+        .table-lira td { border: 1px solid #ddd; padding: 5px 2px; text-align: center; font-weight: 600; }
+        .table-lira tfoot tr td:first-child { border-bottom-left-radius: 16px; }
+        .table-lira tfoot tr td:last-child { border-bottom-right-radius: 16px; }
+        
+        .bairro-cell { text-align: left !important; padding-left: 10px !important; width: 180px; background: #f9f9f9; }
+        .data-ciclo { display: block; font-size: 0.62rem; font-weight: 400; color: #fff; margin-top: 2px; }
 
-/* Arredondar topo da tabela */
-.table-lira thead tr:first-child th:first-child {
-    border-top-left-radius: 16px;
-}
+        .v-risco { color: #d32f2f !important; font-weight: 800; }
+        .v-alerta { color: #856404 !important; font-weight: 800; }
+        .v-safe { color: #155724 !important; }
+        .bg-media { background-color: #f0f7f3 !important; border-left: 2px solid #0e945c !important; }
+        .footer-media { background: #212529 !important; color: white !important; }
 
-.table-lira thead tr:first-child th:last-child {
-    border-top-right-radius: 16px;
-}
+        .kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px; }
+        .kpi-card { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border-bottom: 4px solid #ddd; }
+        .kpi-card h6 { font-size: 0.7rem; font-weight: 800; color: #70757a; text-transform: uppercase; margin-bottom: 5px; }
+        .kpi-card .value { font-size: 1.6rem; font-weight: 800; color: #1a1a1a; }
+        .kpi-card .trend-label { font-size: 0.75rem; color: #666; font-weight: 600; }
 
-/* Corpo */
-.table-lira td {
-    border: 1px solid #ddd;
-    padding: 5px 2px;
-    text-align: center;
-    font-weight: 600;
-}
+        .report-section { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); }
+        .section-title { border-left: 5px solid var(--primary); padding-left: 12px; margin-bottom: 15px; }
+        .section-title h2 { font-size: 1.1rem; font-weight: 800; margin: 0; }
+        .chart-container-box { position: relative; height: 230px; width: 100%; }
 
-/* Arredondar base */
-.table-lira tfoot tr td:first-child {
-    border-bottom-left-radius: 16px;
-}
+        .ranking-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+        .ranking-column { background: #f8f9fa; border-radius: 10px; padding: 12px; border: 1px solid #eee; }
+        .ranking-header { padding: 8px; border-radius: 6px; color: white; font-weight: 800; font-size: 0.8rem; text-align: center; margin-bottom: 10px; text-transform: uppercase; }
+        .ranking-list { list-style: none; padding: 0; margin: 0; }
+        .ranking-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; background: white; margin-bottom: 5px; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.01); font-size: 0.8rem; }
+        .ranking-item.highlight-bairro { background: #e8f5e9 !important; border: 2px solid var(--primary) !important; box-shadow: 0 2px 6px rgba(14,148,92,0.15); }
+        .rank-pos { font-weight: 800; color: #999; width: 25px; }
+        .rank-name { flex: 1; font-weight: 600; color: #444; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .rank-val { font-weight: 800; margin-left: 8px; }
 
-.table-lira tfoot tr td:last-child {
-    border-bottom-right-radius: 16px;
-}
+        .risco-box-pdf { display: flex; flex-direction: column; gap: 8px; margin-top: 15px; font-family: sans-serif; }
+        .risco-item-pdf { background: #ffffff; padding: 10px 15px; border-radius: 8px; border-left: 6px solid #ddd; box-shadow: 0 1px 3px rgba(0,0,0,0.05); text-align: left; }
+        .risco-item-pdf.r-verde { border-left-color: var(--safe); }
+        .risco-item-pdf.r-amarelo { border-left-color: var(--warning); }
+        .risco-item-pdf.r-vermelho { border-left-color: var(--danger); }
+        .risco-item-pdf b { display: block; font-size: 0.85rem; margin-bottom: 2px; }
+        .risco-item-pdf span { display: block; font-size: 0.75rem; color: #444; line-height: 1.3; text-align: justify; }
 
-.bairro-cell {
-    text-align: left !important;
-    padding-left: 10px !important;
-    width: 180px;
-    background: #f9f9f9;
-}
+        #capture-box { width: 1000px; background: white; position: absolute; top: 0; left: -9999px; padding: 0; z-index: -1; pointer-events: none; }
+        .bi-spin { display: inline-block; animation: spin-loading 1s linear infinite; }
+        @keyframes spin-loading { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-.data-ciclo {
-    display: block;
-    font-size: 0.62rem;
-    font-weight: 400;
-    color: #fff;
-    margin-top: 2px;
-}
+        .mobile-footer { display: none; }
 
-.v-risco { color: #d32f2f !important; font-weight: 800; }
-.v-alerta { color: #856404 !important; font-weight: 800; }
-.v-safe { color: #155724 !important; }
+        /* 📱 RESPONSIVIDADE MOBILE ESPELHADA DA PÁGINA SOBRE */
+        @media (max-width: 992px) {
+            body, html {
+                height: auto;
+                overflow: auto;
+            }
 
-.bg-media {
-    background-color: #f0f7f3 !important;
-    border-left: 2px solid #0e945c !important;
-}
+            header {
+                padding: 10px 15px;
+                height: 70px;
+            }
 
-.footer-media {
-    background: #212529 !important;
-    color: white !important;
-}
+            .logo-gat {
+                gap: 10px;
+            }
 
+            .logo-gat img {
+                height: 70px;
+            }
 
-        #capture-box { width: 1000px; background: white; position: absolute; left: -9999px; padding: 0; }
-        .header-exp { width: 1000px !important; }
-        /* 📱 RESPONSIVIDADE MOBILE */
-/* ============================= */
-/* ============================= */
-/* 📱 RESPONSIVIDADE AJUSTADA */
-/* ============================= */
+            .titulo-sistema h1 {
+                font-size: 1rem;
+            }
 
-.mobile-footer {
-    display: none;
-}
+            .titulo-sistema span {
+                font-size: 0.65rem;
+                line-height: 1.2;
+            }
 
-@media (max-width: 992px) {
+            .apoios {
+                display: none;
+            }
 
-    body, html {
-        height: auto;
-        overflow: auto;
-    }
+            /* Estilo do menu idêntico ao Sobre */
+            nav {
+                justify-content: space-between;
+                padding: 5px 8px;
+            }
 
-    /* HEADER mantém linha horizontal */
-    header {
-        padding: 10px 15px;
-        height: 70px;
-    }
+            nav a {
+                font-size: 0.65rem;
+                margin-right: 8px;
+                gap: 4px;
+            }
 
-    .logo-gat {
-        gap: 10px;
-    }
+            nav a i {
+                font-size: 0.9rem;
+            }
 
-    .logo-gat img {
-        height: 70px;
-    }
+            /* Redução dos filtros e contêineres */
+            .area-filtros {
+                flex-direction: column;
+                align-items: stretch;
+                padding: 12px;
+                gap: 10px;
+            }
 
-    .titulo-sistema h1 {
-        font-size: 1rem;
-    }
+            .filtros-botoes-wrapper {
+                flex-direction: column;
+                align-items: stretch;
+                width: 100%;
+                gap: 8px;
+            }
 
-    .titulo-sistema span {
-        font-size: 0.65rem;
-        line-height: 1.2;
-    }
+            .filtros-botoes-wrapper > div, 
+            .filtros-botoes-wrapper select, 
+            .filtros-botoes-wrapper .btn-group {
+                width: 100% !important;
+            }
 
-    /* Esconde apoios do topo */
-    .apoios {
-        display: none;
-    }
+            /* Diminuição dos botões seletores no celular */
+            .btn-group .btn {
+                padding: 5px 10px !important;
+                font-size: 0.75rem !important;
+            }
 
-    /* FOOTER aparece */
-    .mobile-footer {
-        display: block;
-        background: white;
-        padding: 10px;
-        border-top: 3px solid var(--primary);
-        text-align: center;
-    }
+            /* Redução do tamanho do gráfico para caber na tela sem rolagem gigante */
+            .chart-container-box {
+                height: 170px;
+            }
 
-    .apoios-footer {
-        display: flex;
-        justify-content: center;
-        gap: 20px;
-    }
+            /* Ocultação dos blocos de download no celular */
+            #actions-bairros, #actions-geral {
+                display: none !important;
+            }
 
-    .apoios-footer img {
-        height: 30px;
-        filter: grayscale(20%);
-    }
-}
+            .kpi-grid, .ranking-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
 
-    @media (max-width: 992px) {
+            #main-content {
+                padding: 15px;
+            }
 
-    .area-filtros {
-        flex-direction: row;           /* mantém linha */
-        justify-content: space-between;/* seletor à esquerda, botões à direita */
-        align-items: center;           /* alinhados verticalmente */
-        flex-wrap: nowrap;             /* impede quebrar linha */
-        gap: 10px;
-        padding: 10px 15px;
-    }
+            .mobile-footer {
+                display: block;
+                background: white;
+                padding: 10px;
+                border-top: 3px solid var(--primary);
+                text-align: center;
+            }
 
-    /* Select de ano menor e compacto */
-    #selectAno {
-        width: 120px !important;
-        font-size: 0.7rem;
-        padding: 2px 6px;
-    }
+            .apoios-footer {
+                display: flex;
+                justify-content: center;
+                gap: 20px;
+            }
 
-    /* Botões de exportação menores */
-    .area-filtros > div:last-child {
-        display: flex;
-        gap: 5px;
-        flex-wrap: nowrap;             /* força todos na mesma linha */
-    }
-
-    .area-filtros button {
-        font-size: 0.65rem;
-        padding: 3px 6px;
-        min-width: unset;
-        white-space: nowrap;
-    }
-
-
-    
-    
-    
-    
-    
-        nav {
-        justify-content: space-between;
-        padding: 5px 8px;
-    }
-
-    nav a {
-        font-size: 0.65rem;
-        margin-right: 8px;
-        gap: 4px;
-    }
-
-    nav a i {
-        font-size: 0.9rem;
-    }
-}
-
+            .apoios-footer img {
+                height: 30px;
+                filter: grayscale(20%);
+            }
+        }
     </style>
 </head>
 <body>
@@ -307,43 +271,159 @@
 </header>
 
 <nav>
-    <a href="index.html"><i class="bi bi-grid-1x2-fill"></i> Dashboard</a>
-    <a href="analise.html"><i class="bi bi-geo-fill"></i> Análise</a>
-    <a class="active"><i class="bi bi-file-earmark-text-fill"></i> Relatórios</a>
-    <a href="sobre.html"><i class="bi bi-question-circle-fill"></i> Sobre</a>
+    <a id="nav-dash" href="index.html"><i class="bi bi-grid-1x2-fill"></i> Dashboard</a>
+    <a id="nav-analise" href="analise.html"><i class="bi bi-geo-fill"></i> Análise</a>
+    <a id="nav-relat" class="active"><i class="bi bi-file-earmark-text-fill"></i> Relatórios</a>
+    <a id="nav-sobre" href="sobre.html"><i class="bi bi-question-circle-fill"></i> Sobre</a>
 </nav>
 
 <div id="main-content">
     <div class="area-filtros">
-        <div>
-            <label class="small fw-bold text-uppercase d-block mb-1 text-muted">Filtrar por Ano</label>
-            <select id="selectAno" class="form-select border-success fw-bold" style="width: 160px;"></select>
+        <div class="filtros-botoes-wrapper">
+            <div>
+                <label class="small fw-bold text-uppercase d-block mb-1 text-muted">Visualização</label>
+                <div class="btn-group" role="group">
+                    <button type="button" id="btnModeBairros" class="btn btn-success fw-bold text-sm px-3" onclick="mudarModoInterface('bairros')">BAIRROS</button>
+                    <button type="button" id="btnModeGeral" class="btn btn-outline-success fw-bold text-sm px-3" onclick="mudarModoInterface('geral')">DADOS</button>
+                </div>
+            </div>
+            
+            <div id="box-bairro-select">
+                <label class="small fw-bold text-uppercase d-block mb-1 text-muted">Localidade</label>
+                <select id="selectBairroFoco" class="form-select border-success fw-bold" style="width: 250px;"></select>
+            </div>
+
+            <div id="box-filtro-ano" style="display: none;">
+                <label class="small fw-bold text-uppercase d-block mb-1 text-muted">Filtrar por Ano</label>
+                <select id="selectAno" class="form-select border-success fw-bold" style="width: 150px;"></select>
+            </div>
+
+            <div class="box-periodo-bairros">
+                <label class="small fw-bold text-uppercase d-block mb-1 text-muted">De Ano</label>
+                <select id="selectDeAno" class="form-select border-success fw-bold" style="width: 100px;"></select>
+            </div>
+            <div class="box-periodo-bairros">
+                <label class="small fw-bold text-uppercase d-block mb-1 text-muted">Até Ano</label>
+                <select id="selectAteAno" class="form-select border-success fw-bold" style="width: 100px;"></select>
+            </div>
+            <div class="box-periodo-bairros">
+                <label class="small fw-bold text-uppercase d-block mb-1 text-muted">Ciclo</label>
+                <select id="selectCicloFiltro" class="form-select border-success fw-bold" style="width: 140px;">
+                    <option value="TODOS">Todos os Ciclos</option>
+                    <option value="1">Ciclo 1</option>
+                    <option value="2">Ciclo 2</option>
+                    <option value="3">Ciclo 3</option>
+                    <option value="4">Ciclo 4</option>
+                    <option value="5">Ciclo 5</option>
+                </select>
+            </div>
         </div>
-        <div>
-            <button class="btn btn-outline-dark me-2" onclick="exportar('png')"><i class="bi bi-image"></i>PNG</button>
-            <button class="btn btn-outline-success me-2" onclick="exportarExcel()"><i class="bi bi-file-earmark-excel"></i>XLSX</button>
-            <button class="btn btn-danger" onclick="exportar('pdf')"><i class="bi bi-file-earmark-pdf-fill"></i>PDF</button>
+
+        <div class="d-flex gap-2">
+            <div id="actions-bairros">
+                <button id="btnPdfBairros" class="btn btn-danger text-uppercase fw-bold text-nowrap" onclick="exportarLayoutOficialBairros()"><i id="iconPdfBairros" class="bi bi-file-earmark-pdf-fill me-1"></i>PDF</button>
+            </div>
+            <div id="actions-geral" style="display: none; gap: 8px;">
+                <button id="btnExcelGeral" class="btn btn-outline-success fw-bold text-uppercase text-nowrap" onclick="exportarExcelGeralComSpinner()"><i id="iconExcelGeral" class="bi bi-file-earmark-excel me-1"></i>XLSX</button>
+                <button id="btnPdfGeral" class="btn btn-danger fw-bold text-uppercase text-nowrap" onclick="exportarLayoutOficialGeral()"><i id="iconPdfGeral" class="bi bi-file-earmark-pdf-fill me-1"></i>PDF</button>
+            </div>
         </div>
     </div>
 
-    <div class="relatorio-container" id="printable-area">
-        <div class="text-center mb-4">
-            <h4 class="fw-bold text-dark">Relatório Técnico LIRAa - <span id="ano-label"></span></h4>
+    <div id="view-bairros-content">
+        <div class="kpi-grid" id="kpi-cards-bairros">
+            <div class="kpi-card" style="border-bottom-color: var(--danger);">
+                <h6>Maior Pico IIP no Período</h6>
+                <div id="kpi-iip" class="value">0.0%</div>
+                <div id="kpi-iip-ref" class="trend-label">---</div>
+            </div>
+            <div class="kpi-card" style="border-bottom-color: var(--warning);">
+                <h6>Maior Pico IB no Período</h6>
+                <div id="kpi-ib" class="value">0.0</div>
+                <div id="kpi-ib-ref" class="trend-label">---</div>
+            </div>
+            <div class="kpi-card" style="border-bottom-color: var(--primary);">
+                <h6>Maior Pico Albopictus no Período</h6>
+                <div id="kpi-alb" class="value">0.0</div>
+                <div id="kpi-alb-ref" class="trend-label">---</div>
+            </div>
         </div>
-        <div class="table-responsive">
-            <table class="table-lira" id="tabela-dados">
-                <thead id="head-lira"></thead>
-                <tbody id="body-lira"></tbody>
-                <tfoot id="foot-lira"></tfoot>
-            </table>
+
+        <div class="report-section">
+            <div class="section-title">
+                <h2>Evolução Temporal: Índice de Infestação Predial (IIP)</h2>
+                <p class="text-muted small m-0">Linha tracejada indica a média local calculada para o intervalo selecionado.</p>
+            </div>
+            <div class="chart-container-box">
+                <canvas id="chart-iip"></canvas>
+            </div>
+        </div>
+
+        <div class="report-section">
+            <div class="section-title">
+                <h2>Correlação: Índice de Breteau vs. Aedes Albopictus</h2>
+                <p class="text-muted small m-0">Comparativo volumétrico com linha de tendência média de Breteau.</p>
+            </div>
+            <div class="chart-container-box">
+                <canvas id="chart-dual"></canvas>
+            </div>
+        </div>
+
+        <div class="report-section">
+            <div class="section-title">
+                <h2>Rankings de Criticidade Geográfica Relativos ao Período (Top 10)</h2>
+            </div>
+            <div class="ranking-grid">
+                <div class="ranking-column">
+                    <div class="ranking-header" style="background: var(--danger);">Maior IIP Médio</div>
+                    <div id="rank-iip-list" class="ranking-list"></div>
+                </div>
+                <div class="ranking-column">
+                    <div class="ranking-header" style="background: var(--warning); color: #333;">Maior IB Médio</div>
+                    <div id="rank-ib-list" class="ranking-list"></div>
+                </div>
+                <div class="ranking-column">
+                    <div class="ranking-header" style="background: var(--primary);">Presença Albopictus</div>
+                    <div id="rank-alb-list" class="ranking-list"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="view-geral-content" style="display: none;">
+        <div class="relatorio-container" id="printable-area">
+            <div class="text-center mb-4">
+                <h4 class="fw-bold text-dark">Relatório Técnico LIRAa - <span id="ano-label"></span></h4>
+            </div>
+            <div class="table-responsive">
+                <table class="table-lira" id="tabela-dados">
+                    <thead id="head-lira"></thead>
+                    <tbody id="body-lira"></tbody>
+                    <tfoot id="foot-lira"></tfoot>
+                </table>
+            </div>
         </div>
     </div>
 </div>
 
 <div id="capture-box"></div>
 
+<footer class="mobile-footer">
+    <div class="apoios-footer">
+        <a href="https://www.instagram.com/pet_saude_digital_ufcg/" target="_blank">
+            <img src="https://lh3.googleusercontent.com/d/1Lvrvq6cCcIJgvLBSdi8u6B1SA75L9V_K">
+        </a>
+        <a href="https://www.instagram.com/arboviroses_cg/" target="_blank">
+            <img src="https://lh3.googleusercontent.com/d/1fGEuRXpKXXiNafxDzFd0JDwwrVxKvd-a">
+        </a>
+        <a href="https://saude.campinagrande.pb.gov.br/" target="_blank">
+            <img src="https://lh3.googleusercontent.com/d/1vsaPX967sHVuynqPwLpFfktsO6s-_OZD">
+        </a>
+    </div>
+</footer>
+
 <script>
-let state = { dados: {}, meta: {} };
+let state = { dados: {}, meta: {}, bairros: [], charts: {}, anos: [] };
 
 function fmtData(n) {
     if(!n) return "";
@@ -352,31 +432,89 @@ function fmtData(n) {
 }
 
 async function carregar() {
-    const res = await fetch("LIRAa Dados.xlsx");
-    const wb = XLSX.read(await res.arrayBuffer(), { type: "array" });
-    wb.SheetNames.forEach(name => {
-        const ano = name.replace("LIRA_", "");
-        const raw = XLSX.utils.sheet_to_json(wb.Sheets[name], { header: 1 });
-        state.dados[ano] = {}; state.meta[ano] = [];
-        let isF = false;
-        raw.slice(1).forEach(row => {
-            if (row[0] === 'F') { isF = true; return; }
-            if (!isF && row[1]) {
-                const b = row[1].trim().toUpperCase();
-                state.dados[ano][b] = [];
-                for (let i = 2; i < row.length; i += 3) {
-                    state.dados[ano][b].push({ iip: row[i]||0, ib: row[i+1]||0, alb: row[i+2]||0 });
+    try {
+        const res = await fetch("LIRAa Dados.xlsx");
+        const wb = XLSX.read(await res.arrayBuffer(), { type: "array" });
+        wb.SheetNames.forEach(name => {
+            const ano = name.replace("LIRA_", "");
+            if(!state.anos.includes(ano)) state.anos.push(ano);
+            const raw = XLSX.utils.sheet_to_json(wb.Sheets[name], { header: 1 });
+            state.dados[ano] = {}; state.meta[ano] = [];
+            let isF = false;
+            raw.slice(1).forEach(row => {
+                if (row[0] === 'F') { isF = true; return; }
+                if (!isF && row[1]) {
+                    const b = row[1].trim().toUpperCase();
+                    if(!state.bairros.includes(b)) state.bairros.push(b);
+                    state.dados[ano][b] = [];
+                    for (let i = 2; i < row.length; i += 3) {
+                        state.dados[ano][b].push({ iip: row[i]||0, ib: row[i+1]||0, alb: row[i+2]||0 });
+                    }
+                } else if (isF && row[0]) {
+                    state.meta[ano].push({ id: row[0], periodo: `${fmtData(row[1])} a ${fmtData(row[2])}` });
                 }
-            } else if (isF && row[0]) {
-                state.meta[ano].push({ id: row[0], periodo: `${fmtData(row[1])} a ${fmtData(row[2])}` });
-            }
+            });
         });
-    });
-    const anos = Object.keys(state.dados).sort().reverse();
-    const sel = document.getElementById('selectAno');
-    anos.forEach(a => sel.innerHTML += `<option value="${a}">${a}</option>`);
-    sel.onchange = () => render(sel.value);
-    render(anos[0]);
+        
+        state.anos.sort((a,b)=>b-a);
+        
+        const selGeral = document.getElementById('selectAno');
+        const selDe = document.getElementById('selectDeAno');
+        const selAte = document.getElementById('selectAteAno');
+        const selBairro = document.getElementById('selectBairroFoco');
+
+        state.anos.forEach(a => {
+            selGeral.innerHTML += `<option value="${a}">${a}</option>`;
+            selDe.innerHTML += `<option value="${a}">${a}</option>`;
+            selAte.innerHTML += `<option value="${a}">${a}</option>`;
+        });
+
+        selDe.value = state.anos[state.anos.length - 1];
+        selAte.value = state.anos[0];
+
+        selBairro.add(new Option("MUNICÍPIO DE CAMPINA GRANDE (CONSOLIDADO)", "MUNICIPIO"));
+        state.bairros.sort().forEach(b => selBairro.add(new Option(b, b)));
+
+        selGeral.onchange = () => render(selGeral.value);
+        selBairro.onchange = selDe.onchange = selAte.onchange = document.getElementById('selectCicloFiltro').onchange = processarDossieBairros;
+
+        render(state.anos[0]);
+        processarDossieBairros();
+    } catch (e) {
+        console.error("Erro ao processar planilha:", e);
+    }
+}
+
+function mudarModoInterface(modo) {
+    const btnB = document.getElementById('btnModeBairros');
+    const btnG = document.getElementById('btnModeGeral');
+    const pBairros = document.querySelectorAll('.box-periodo-bairros');
+    
+    if(modo === 'bairros') {
+        btnB.className = "btn btn-success fw-bold text-sm px-3";
+        btnG.className = "btn btn-outline-success fw-bold text-sm px-3";
+        document.getElementById('view-bairros-content').style.display = 'block';
+        document.getElementById('view-geral-content').style.display = 'none';
+        document.getElementById('box-bairro-select').style.display = 'block';
+        document.getElementById('box-filtro-ano').style.display = 'none';
+        pBairros.forEach(el => el.style.display = 'block');
+        document.getElementById('actions-bairros').style.display = 'block';
+        document.getElementById('actions-geral').style.display = 'none';
+        processarDossieBairros();
+    } else {
+        btnB.className = "btn btn-outline-success fw-bold text-sm px-3";
+        btnG.className = "btn btn-success fw-bold text-sm px-3";
+        document.getElementById('view-bairros-content').style.display = 'none';
+        document.getElementById('view-geral-content').style.display = 'block';
+        document.getElementById('box-bairro-select').style.display = 'none';
+        document.getElementById('box-filtro-ano').style.display = 'block';
+        pBairros.forEach(el => el.style.display = 'none');
+        document.getElementById('actions-bairros').style.display = 'none';
+        if (window.innerWidth > 992) {
+            document.getElementById('actions-geral').style.display = 'flex';
+        }
+        render(document.getElementById('selectAno').value);
+    }
 }
 
 function getCor(v) { return v >= 4 ? 'v-risco' : v >= 1 ? 'v-alerta' : 'v-safe'; }
@@ -384,6 +522,7 @@ function getCor(v) { return v >= 4 ? 'v-risco' : v >= 1 ? 'v-alerta' : 'v-safe';
 function render(ano) {
     document.getElementById('ano-label').textContent = ano;
     const ciclos = state.meta[ano], bairros = Object.keys(state.dados[ano]).sort();
+    if(!ciclos) return;
     let h = `<tr><th rowspan="2">Nº</th><th rowspan="2" class="bairro-cell">Bairro</th>`;
     ciclos.forEach(c => h += `<th colspan="3">${c.id}<span class="data-ciclo">${c.periodo}</span></th>`);
     h += `<th colspan="3">MÉDIA ANUAL</th></tr><tr>`;
@@ -400,9 +539,7 @@ function render(ano) {
             totais[cIdx*3] += d.iip; totais[cIdx*3+1] += d.ib; totais[cIdx*3+2] += d.alb;
             r += `<td class="${getCor(d.iip)}">${d.iip.toFixed(1)}</td><td class="${getCor(d.ib)}">${d.ib.toFixed(1)}</td><td>${d.alb.toFixed(1)}</td>`;
         });
-        const mIIP = sIIP / ciclos.length;
-        const mIB  = sIB  / ciclos.length;
-        const mALB = sALB; // ALB agora é SOMA, não média
+        const mIIP = sIIP / ciclos.length; const mIB  = sIB  / ciclos.length; const mALB = sALB; 
         totais[totais.length-3] += mIIP; totais[totais.length-2] += mIB; totais[totais.length-1] += mALB;
         r += `<td class="bg-media ${getCor(mIIP)}">${mIIP.toFixed(1)}</td><td class="bg-media ${getCor(mIB)}">${mIB.toFixed(1)}</td><td class="bg-media">${mALB.toFixed(1)}</td></tr>`;
         bHtml += r;
@@ -410,248 +547,390 @@ function render(ano) {
     document.getElementById('body-lira').innerHTML = bHtml;
     let fHtml = `<tr class="footer-media"><td>-</td><td class="text-start ps-3">MÉDIA DO MUNICÍPIO</td>`;
     totais.forEach((t, i) => {
-    const isALB = (i % 3 === 2); // posição do ALB dentro de cada trio (IIP, IB, ALB)
-    const valor = isALB ? t : (t / bairros.length);
-    fHtml += `<td>${valor.toFixed(1)}</td>`;
-});
+        const isALB = (i % 3 === 2); 
+        fHtml += `<td>${isALB ? t.toFixed(1) : (t / bairros.length).toFixed(1)}</td>`;
+    });
     document.getElementById('foot-lira').innerHTML = fHtml + `</tr>`;
 }
 
+function obterSerieTemporalAvancada(tipo, local) {
+    let l = [], v = [];
+    const deAno = parseInt(document.getElementById('selectDeAno').value);
+    const ateAno = parseInt(document.getElementById('selectAteAno').value);
+    const cicloFiltro = document.getElementById('selectCicloFiltro').value;
+    const listaAnosOrdenados = [...state.anos].map(x=>parseInt(x)).sort((a,b)=>a-b);
 
+    listaAnosOrdenados.forEach(anoNum => {
+        if(anoNum < deAno || anoNum > ateAno) return;
+        const ano = anoNum.toString();
+        if(!state.dados[ano] || ano === '2020') return;
+
+        for(let c=0; c<6; c++){
+            if(cicloFiltro !== 'TODOS' && (c+1).toString() !== cicloFiltro) continue;
+            let s=0, count=0;
+            const targets = local === 'MUNICIPIO' ? Object.keys(state.dados[ano]) : [local];
+            targets.forEach(b => {
+                if(state.dados[ano][b] && state.dados[ano][b][c]) { s += state.dados[ano][b][c][tipo]; count++; }
+            });
+            if(count>0) { l.push(`${ano}.C${c+1}`); v.push(s/count); }
+        }
+    });
+    return { l, v };
+}
+
+function processarDossieBairros() {
+    const b = document.getElementById('selectBairroFoco').value;
+    const sIIP = obterSerieTemporalAvancada('iip', b);
+    const sIB = obterSerieTemporalAvancada('ib', b);
+    const sALB = obterSerieTemporalAvancada('alb', b);
+
+    if (sIIP.v.length === 0) return;
+
+    const maxIIP = Math.max(...sIIP.v);
+    document.getElementById('kpi-iip').innerText = maxIIP.toFixed(1) + "%";
+    document.getElementById('kpi-iip-ref').innerText = "Pico: " + sIIP.l[sIIP.v.indexOf(maxIIP)];
+
+    const maxIB = Math.max(...sIB.v);
+    document.getElementById('kpi-ib').innerText = maxIB.toFixed(1);
+    document.getElementById('kpi-ib-ref').innerText = "Pico: " + sIB.l[sIB.v.indexOf(maxIB)];
+
+    const maxALB = Math.max(...sALB.v);
+    document.getElementById('kpi-alb').innerText = maxALB.toFixed(1);
+    document.getElementById('kpi-alb-ref').innerText = "Pico: " + sALB.l[sALB.v.indexOf(maxALB)];
+
+    const meanIIP = sIIP.v.reduce((a,b)=>a+b,0) / sIIP.v.length;
+    const meanIB = sIB.v.reduce((a,b)=>a+b,0) / sIB.v.length;
+
+    if(state.charts.iip) state.charts.iip.destroy();
+    state.charts.iip = new Chart(document.getElementById('chart-iip'), {
+        type: 'line',
+        data: {
+            labels: sIIP.l,
+            datasets: [
+                { label: 'IIP %', data: sIIP.v, borderColor: '#d32f2f', backgroundColor: '#d32f2f11', fill: true, tension: 0.2, borderWidth: 3, pointRadius: 3 },
+                { label: 'Média do Período', data: Array(sIIP.v.length).fill(meanIIP), borderColor: '#7f8c8d', borderDash: [6, 4], pointRadius: 0, fill: false, borderWidth: 2 }
+            ]
+        },
+        options: { maintainAspectRatio: false, animation: false }
+    });
+
+    if(state.charts.dual) state.charts.dual.destroy();
+    state.charts.dual = new Chart(document.getElementById('chart-dual'), {
+        type: 'bar',
+        data: {
+            labels: sIB.l,
+            datasets: [
+                { type: 'line', label: 'Índice de Breteau (IB)', data: sIB.v, borderColor: '#f9a825', yAxisID: 'y', borderWidth: 2.5 },
+                { type: 'line', label: 'Média IB', data: Array(sIB.v.length).fill(meanIB), borderColor: '#b53f00', borderDash: [4, 4], pointRadius: 0, yAxisID: 'y', borderWidth: 1.5 },
+                { type: 'bar', label: 'Aedes Albopictus', data: sALB.v, backgroundColor: '#0e945c88', yAxisID: 'y1' }
+            ]
+        },
+        options: {
+            maintainAspectRatio: false, animation: false,
+            scales: {
+                y: { type: 'linear', position: 'left', title: { display: true, text: 'IB' } },
+                y1: { type: 'linear', position: 'right', title: { display: true, text: 'Albopictus' }, grid: { drawOnChartArea: false } }
+            }
+        }
+    });
+
+    renderizarRankingsLongitudinais();
+}
+
+function renderizarRankingsLongitudinais() {
+    const deAno = parseInt(document.getElementById('selectDeAno').value);
+    const ateAno = parseInt(document.getElementById('selectAteAno').value);
+    const cicloFiltro = document.getElementById('selectCicloFiltro').value;
+    const bairroSelecionado = document.getElementById('selectBairroFoco').value;
+
+    let scores = [];
+    state.bairros.forEach(b => {
+        let siip=0, sib=0, salb=0, ciip=0, cib=0, calb=0;
+        state.anos.forEach(a => {
+            const anoNum = parseInt(a);
+            if(anoNum >= deAno && anoNum <= ateAno && state.dados[a] && state.dados[a][b]){
+                state.dados[a][b].forEach((c, cIdx) => {
+                    if(cicloFiltro !== 'TODOS' && (cIdx+1).toString() !== cicloFiltro) return;
+                    siip += c.iip; ciip++;
+                    sib += c.ib; cib++;
+                    salb += c.alb; calb++;
+                });
+            }
+        });
+        if(ciip > 0) {
+            scores.push({ name: b, iip: siip/ciip, ib: sib/cib, alb: salb/calb });
+        }
+    });
+
+    const drawRelative = (id, field, color) => {
+        let sorted = [...scores].sort((a,b) => b[field] - a[field]);
+        let outputList = [];
+
+        if (bairroSelecionado === 'MUNICIPIO') {
+            outputList = sorted.slice(0, 10).map((x, i) => ({ ...x, rank: i + 1, highlight: false }));
+        } else {
+            let userIdx = sorted.findIndex(x => x.name === bairroSelecionado);
+            if (userIdx !== -1) {
+                if (userIdx < 10) {
+                    outputList = sorted.slice(0, 10).map((x, i) => ({ ...x, rank: i + 1, highlight: x.name === bairroSelecionado }));
+                } else {
+                    outputList = sorted.slice(0, 9).map((x, i) => ({ ...x, rank: i + 1, highlight: false }));
+                    outputList.push({ ...sorted[userIdx], rank: userIdx + 1, highlight: true });
+                }
+            } else {
+                outputList = sorted.slice(0, 10).map((x, i) => ({ ...x, rank: i + 1, highlight: false }));
+            }
+        }
+
+        document.getElementById(id).innerHTML = outputList.map(x => `
+            <li class="ranking-item ${x.highlight ? 'highlight-bairro' : ''}">
+                <span class="rank-pos">${x.rank}º</span>
+                <span class="rank-name">${x.name}</span>
+                <span class="rank-val" style="color:${x.highlight ? 'var(--primary)' : color}">${x[field].toFixed(1)}</span>
+            </li>
+        `).join('');
+    };
+
+    drawRelative('rank-iip-list', 'iip', 'var(--danger)');
+    drawRelative('rank-ib-list', 'ib', '#a57c00');
+    drawRelative('rank-alb-list', 'alb', 'var(--primary)');
+}
+
+function exportarExcelGeralComSpinner() {
+    const icon = document.getElementById('iconExcelGeral');
+    icon.className = "bi bi-arrow-clockwise bi-spin me-1";
+    setTimeout(() => { 
+        XLSX.writeFile(XLSX.utils.table_to_book(document.getElementById("tabela-dados")), `Dados_LIRAa_${document.getElementById('selectAno').value}.xlsx`); 
+        icon.className = "bi bi-file-earmark-excel me-1"; 
+    }, 250);
+}
 
 async function esperarImagensCarregarem(elemento) {
     const imagens = elemento.querySelectorAll("img");
     const promessas = [];
-
     imagens.forEach(img => {
         if (!img.complete) {
-            promessas.push(new Promise(resolve => {
-                img.onload = img.onerror = resolve;
-            }));
+            promessas.push(new Promise(resolve => { img.onload = img.onerror = resolve; }));
         }
     });
-
     await Promise.all(promessas);
 }
 
-
-
-
-
-
-async function exportar(tipo) {
-    const box = document.getElementById('capture-box');
-    box.innerHTML = '';
-
-    // 1️⃣ Cabeçalho institucional
-
-
+async function prepararCloneHeaderFiel() {
     const headerClone = document.getElementById('header-portal').cloneNode(true);
-
-// Força layout desktop mesmo em mobile
-headerClone.style.display = 'flex';
-headerClone.style.flexDirection = 'row';
-headerClone.style.alignItems = 'center';
-headerClone.style.justifyContent = 'space-between';
-headerClone.style.width = '1000px';
-headerClone.style.height = '90px';
-headerClone.style.padding = '0 30px';
-
-// Força os logos de apoio visíveis
-headerClone.querySelectorAll('.apoios').forEach(a => a.style.display = 'flex');
-
-// Remove restrições de tamanho das imagens que vinham do mobile
-headerClone.querySelectorAll('img').forEach(img => {
-    img.style.height = ''; 
-    img.style.width = 'auto';
-    img.crossOrigin = "anonymous";
-});
-
-box.appendChild(headerClone);
-
-    // 2️⃣ Título do relatório
-    const tituloClone = document.querySelector('#printable-area .text-center').cloneNode(true);
-    box.appendChild(tituloClone);
-
-    // 3️⃣ Cabeçalho da tabela
-    const tableHeadClone = document.getElementById('head-lira').cloneNode(true);
-    const tempTableHead = document.createElement('table');
-    tempTableHead.className = 'table-lira';
-    tempTableHead.appendChild(tableHeadClone);
-    box.appendChild(tempTableHead);
-
-    // 4️⃣ Espera imagens carregarem
-    await esperarImagensCarregarem(box);
-
-
-
-
-    if (tipo === 'png') {
-    // Limpa o capture-box
-    const box = document.getElementById('capture-box');
-    box.innerHTML = '';
-
-    // 1️⃣ Clona o header
-    const headerClone = document.getElementById('header-portal').cloneNode(true);
-    headerClone.style.width = "1000px";
-    headerClone.style.height = "90px";
-    headerClone.style.padding = "0 30px";
-    headerClone.style.display = "flex";
-    headerClone.style.alignItems = "center";
-    headerClone.style.justifyContent = "space-between";
-    const imgsHeader = headerClone.querySelectorAll("img");
-    imgsHeader.forEach(img => img.crossOrigin = "anonymous");
-    box.appendChild(headerClone);
-
-    // 2️⃣ Clona o título
-    const tituloClone = document.querySelector('#printable-area .text-center').cloneNode(true);
-    box.appendChild(tituloClone);
-
-    // 3️⃣ Clona a tabela inteira (thead + tbody + tfoot)
-    const tableClone = document.getElementById('tabela-dados').cloneNode(true);
-    tableClone.style.width = "1000px";
-    tableClone.style.borderCollapse = "separate";
-    box.appendChild(tableClone);
-
-    // 4️⃣ Espera todas as imagens carregarem
-    await esperarImagensCarregarem(box);
-
-    // 5️⃣ Gera o canvas da tabela inteira
-    const canvas = await html2canvas(box, {
-        scale: 2,
-        width: 1000,
-        windowWidth: 1200,
-        useCORS: true
+    headerClone.style.display = 'flex';
+    headerClone.style.flexDirection = 'row';
+    headerClone.style.alignItems = 'center';
+    headerClone.style.justifyContent = 'space-between';
+    headerClone.style.width = '1000px';
+    headerClone.style.height = '90px';
+    headerClone.style.padding = '0 30px';
+    headerClone.style.background = '#ffffff';
+    headerClone.style.borderBottom = '4px solid #0e945c';
+    headerClone.querySelectorAll('.apoios').forEach(a => a.style.display = 'flex');
+    headerClone.querySelectorAll('img').forEach(img => {
+        img.style.height = img.alt === "Logo LIRAa" ? '140px' : '50px'; 
+        img.style.width = 'auto';
+        img.style.filter = 'grayscale(0%)';
+        img.crossOrigin = "anonymous";
     });
-
-    // 6️⃣ Gera o download
-    const link = document.createElement('a');
-    link.download = `LIRAa_CG_${document.getElementById('selectAno').value}.png`;
-    link.href = canvas.toDataURL();
-    link.click();
-
-    box.innerHTML = ''; // limpa o capture-box
-    return;
+    return headerClone;
 }
 
-    // 5️⃣ Exportar PDF
-    const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF('p', 'mm', 'a4');
-    const pdfW = 210;
-    const pageH = 297;
+async function exportarLayoutOficialBairros() {
+    const icon = document.getElementById('iconPdfBairros');
+    icon.className = "bi bi-arrow-clockwise bi-spin me-1";
 
-    // canvas do cabeçalho, título e thead
-    const headerCanvas = await html2canvas(headerClone, { scale: 2, width: 1000, windowWidth: 1200, useCORS: true });
-    const headerData = headerCanvas.toDataURL('image/png');
-    const headerH = (headerCanvas.height * pdfW) / headerCanvas.width;
+    setTimeout(async () => {
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const pdfW = 210; const pageH = 297;
+        
+        const lSel = document.getElementById('selectBairroFoco').value;
+        const anoInicial = document.getElementById('selectDeAno').value;
+        const anoFinal = document.getElementById('selectAteAno').value;
+        const cicloFiltro = document.getElementById('selectCicloFiltro').value;
+        
+        let textoCiclo = cicloFiltro !== "TODOS" ? ` (Ciclo ${cicloFiltro})` : "";
+        let tituloDinamico = `Relatório Técnico Histórico (${anoInicial} - ${anoFinal})${textoCiclo} - ${lSel}`;
 
-    const tituloCanvas = await html2canvas(tituloClone, { scale: 2, width: 1000, windowWidth: 1200, useCORS: true });
-    const tituloData = tituloCanvas.toDataURL('image/png');
-    const tituloH = (tituloCanvas.height * pdfW) / tituloCanvas.width;
+        const box = document.getElementById('capture-box');
+        box.innerHTML = '';
 
-    const theadCanvas = await html2canvas(tempTableHead, { scale: 2, width: 1000, windowWidth: 1200, useCORS: true });
-    const theadData = theadCanvas.toDataURL('image/png');
-    const theadH = (theadCanvas.height * pdfW) / theadCanvas.width;
+        const headerClone = await prepararCloneHeaderFiel();
+        box.appendChild(headerClone);
 
-    // 6️⃣ Linhas do tbody
-    const rows = Array.from(document.querySelectorAll('#body-lira tr'));
-    const rowsPorPagina = 38; // ajuste fino para caber no A4 considerando header, título e thead
-    const totalPaginas = Math.ceil(rows.length / rowsPorPagina);
-    let pagina = 1;
+        const titDiv = document.createElement('div');
+        titDiv.className = 'text-center my-3';
+        titDiv.innerHTML = `<h4 class="fw-bold text-dark" style="font-family:sans-serif; margin-bottom: 5px; font-size: 1.15rem; line-height: 1.3;">${tituloDinamico}</h4>`;
+        box.appendChild(titDiv);
 
-    for (let i = 0; i < rows.length; i += rowsPorPagina) {
-        if (i > 0) pdf.addPage();
+        await esperarImagensCarregarem(box);
 
-        let yOffset = 0;
+        const headerCanvas = await html2canvas(box, { scale: 2, width: 1000, windowWidth: 1200, useCORS: true });
+        const headerData = headerCanvas.toDataURL('image/png');
+        const headerH = (headerCanvas.height * pdfW) / headerCanvas.width;
 
-        // Adiciona cabeçalho
-        pdf.addImage(headerData, 'PNG', 0, yOffset, pdfW, headerH);
-        yOffset += headerH + 2;
+        pdf.addImage(headerData, 'PNG', 0, 0, pdfW, headerH);
+        let currentY = headerH + 4;
 
-        // Adiciona título só na primeira página
-        if (pagina === 1) {
-            pdf.addImage(tituloData, 'PNG', 0, yOffset, pdfW, tituloH);
-            yOffset += tituloH + 2;
+        const kpiClone = document.getElementById('kpi-cards-bairros').cloneNode(true);
+        kpiClone.style.width = "1000px";
+        kpiClone.style.display = "grid";
+        kpiClone.style.gridTemplateColumns = "repeat(3, 1fr)";
+        kpiClone.style.gap = "15px";
+        kpiClone.style.marginBottom = "0px";
+        kpiClone.style.padding = "0 10px";
+        
+        box.innerHTML = ''; 
+        box.appendChild(kpiClone);
+        const kpiCanvas = await html2canvas(box, { scale: 2, width: 1000, windowWidth: 1200, useCORS: true });
+        const kpiH = (kpiCanvas.height * (pdfW - 24)) / kpiCanvas.width;
+        pdf.addImage(kpiCanvas.toDataURL('image/png'), 'PNG', 12, currentY, pdfW - 24, kpiH);
+        currentY += kpiH + 5;
+
+        pdf.setFont("helvetica", "bold"); pdf.setFontSize(9); pdf.setTextColor(14, 148, 92);
+        pdf.text("Evolução Temporal: Índice de Infestação Predial (IIP %)", 12, currentY);
+        currentY += 2;
+        pdf.addImage(state.charts.iip.toBase64Image(), 'PNG', 12, currentY, pdfW - 24, 42);
+        currentY += 46;
+
+        pdf.text("Correlação Vetorial: Índice de Breteau vs. Aedes Albopictus", 12, currentY);
+        currentY += 2;
+        pdf.addImage(state.charts.dual.toBase64Image(), 'PNG', 12, currentY, pdfW - 24, 42);
+        currentY += 46;
+
+        pdf.text("Rankings Comparativos de Criticidade Geográfica no Período Selecionado", 12, currentY);
+        currentY += 3;
+        
+        const containerRankERisco = document.createElement('div');
+        containerRankERisco.style.width = "1000px";
+        containerRankERisco.style.background = "#ffffff";
+        
+        const rGridClone = document.querySelector('.ranking-grid').cloneNode(true);
+        rGridClone.style.width = "1000px";
+        rGridClone.style.display = "grid";
+        rGridClone.style.gridTemplateColumns = "repeat(3, 1fr)";
+        rGridClone.style.gap = "15px";
+        containerRankERisco.appendChild(rGridClone);
+
+        const riscoDiv = document.createElement('div');
+        riscoDiv.className = "risco-box-pdf";
+        riscoDiv.innerHTML = `
+            <div class="risco-item-pdf r-verde">
+                <b style="color: var(--safe)">Satisfatório: Índices inferiores a 1,0</b>
+                <span>Situação de baixo risco. Indica que a presença de larvas é controlada. Ações devem focar em manutenção, vigilância contínua e educação em saúde.</span>
+            </div>
+            <div class="risco-item-pdf r-amarelo">
+                <b style="color: #a67c00">Alerta: Índices entre 1,0 e 3,9</b>
+                <span>Situação de médio risco. Demonstra uma circulação significativa do vetor. Exige intensificação imediata das ações de controle e eliminação de focos.</span>
+            </div>
+            <div class="risco-item-pdf r-vermelho">
+                <b style="color: var(--danger)">Risco: Índices iguais ou superiores a 4,0</b>
+                <span>Situação crítica. Alto risco de surto ou epidemia. Exige ações emergenciais integradas, como bloqueio de transmissão e controle químico (Fumacê).</span>
+            </div>
+        `;
+        containerRankERisco.appendChild(riscoDiv);
+
+        box.innerHTML = '';
+        box.appendChild(containerRankERisco);
+
+        const comboCanvas = await html2canvas(box, { scale: 2, width: 1000, windowWidth: 1200, useCORS: true });
+        const comboWidthMM = pdfW - 24;
+        const comboHeightMM = (comboCanvas.height * comboWidthMM) / comboCanvas.width;
+        
+        if (currentY + comboHeightMM > pageH - 15) {
+            pdf.addPage();
+            currentY = 15;
         }
 
-        // Adiciona thead da tabela
-        // 🔹 Cria tabela temporária completa (thead + tbody + tfoot)
-const tempTable = document.createElement('table');
-tempTable.className = 'table-lira';
+        pdf.addImage(comboCanvas.toDataURL('image/png'), 'PNG', 12, currentY, comboWidthMM, comboHeightMM);
 
-// Clona thead completo
-tempTable.appendChild(document.getElementById('head-lira').cloneNode(true));
+        pdf.setFont("helvetica", "normal"); pdf.setFontSize(7.5); pdf.setTextColor(100);
+        pdf.text(`LIRAa - Levantamento Rápido de Índices para Aedes aegypti em Campina Grande - PB, para a localidade: ${lSel}`, 10, pageH - 10);
+        pdf.text(`Página 1 de 1`, pdfW - 10, pageH - 10, { align: 'right' });
 
-// Adiciona linhas do tbody dessa página
-const tempBody = document.createElement('tbody');
-rows.slice(i, i + rowsPorPagina).forEach(r => tempBody.appendChild(r.cloneNode(true)));
-tempTable.appendChild(tempBody);
-
-// Adiciona tfoot completo só na última página
-if (i + rowsPorPagina >= rows.length) {
-    const tfootClone = document.getElementById('foot-lira').cloneNode(true);
-    tempTable.appendChild(tfootClone);
+        pdf.save(`Relatorio_Tecnico_Historico_${lSel}.pdf`);
+        icon.className = "bi bi-file-earmark-pdf-fill";
+        box.innerHTML = '';
+    }, 250);
 }
 
-// Coloca no div temporário
-const tempDiv = document.createElement('div');
-tempDiv.style.width = "1000px";
-tempDiv.style.padding = "0";
-tempDiv.style.margin = "0";
-tempDiv.appendChild(tempTable);
-document.body.appendChild(tempDiv);
+async function exportarLayoutOficialGeral() {
+    const icon = document.getElementById('iconPdfGeral');
+    icon.className = "bi bi-arrow-clockwise bi-spin me-1";
 
-// Captura o canvas da tabela inteira
-const blocoCanvas = await html2canvas(tempDiv, { scale: 2, width: 1000, windowWidth: 1200, useCORS: true });
-const blocoData = blocoCanvas.toDataURL('image/png');
-const blocoH = (blocoCanvas.height * pdfW) / blocoCanvas.width;
-
-// Adiciona no PDF
-pdf.addImage(blocoData, 'PNG', 0, yOffset, pdfW, blocoH);
-
-// Remove temporário
-document.body.removeChild(tempDiv);
-        // Rodapé de página
-        pdf.setFontSize(8);
-        pdf.setTextColor(100);
-
-        // 🔹 Texto à esquerda
+    setTimeout(async () => {
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const pdfW = 210; const pageH = 297;
         const anoSelecionado = document.getElementById('selectAno').value;
-        pdf.text(`LIRAa - Levantamento Rápido de Índices para Aedes aegypti em Campina Grande - PB – ${anoSelecionado}`, 10, pageH - 10);
+        const rows = Array.from(document.querySelectorAll('#body-lira tr'));
+        const linhasPorPagina = 40;
+        const paginasTotais = Math.ceil(rows.length / linhasPorPagina);
+        let nPagina = 1;
 
-        // 🔹 Número da página à direita
-        pdf.text(`Página ${pagina} de ${totalPaginas}`, pdfW - 10, pageH - 10, { align: 'right' });
+        const box = document.getElementById('capture-box');
+        box.innerHTML = '';
 
-        pagina++;
-    }
+        const headerClone = await prepararCloneHeaderFiel();
+        box.appendChild(headerClone);
 
-    pdf.save(`Relatorio_LIRAa_CG_${document.getElementById('selectAno').value}.pdf`);
+        const titDiv = document.createElement('div');
+        titDiv.className = 'text-center my-3';
+        titDiv.innerHTML = `<h4 class="fw-bold text-dark" style="font-family:sans-serif;">Relatório Técnico LIRAa - <span>${anoSelecionado}</span></h4>`;
+        box.appendChild(titDiv);
 
+        await esperarImagensCarregarem(box);
 
-    
-}
+        const topCanvas = await html2canvas(box, { scale: 2, width: 1000, windowWidth: 1200, useCORS: true });
+        const topData = topCanvas.toDataURL('image/png');
+        const topH = (topCanvas.height * pdfW) / topCanvas.width;
+        box.innerHTML = '';
 
+        for (let idx = 0; idx < rows.length; idx += linhasPorPagina) {
+            if (idx > 0) pdf.addPage();
+            
+            pdf.addImage(topData, 'PNG', 0, 0, pdfW, topH);
+            let yOffset = topH + 2;
 
-function exportarExcel() {
-    XLSX.writeFile(XLSX.utils.table_to_book(document.getElementById("tabela-dados")), `Dados_LIRAa_${document.getElementById('selectAno').value}.xlsx`);
+            const containerTemp = document.createElement('table');
+            containerTemp.className = 'table-lira'; 
+            containerTemp.style.width = "1000px";
+            containerTemp.style.borderCollapse = "separate";
+            containerTemp.appendChild(document.getElementById('head-lira').cloneNode(true));
+            
+            const corpoTemp = document.createElement('tbody');
+            rows.slice(idx, idx + linhasPorPagina).forEach(r => corpoTemp.appendChild(r.cloneNode(true)));
+            containerTemp.appendChild(corpoTemp);
+
+            if (idx + linhasPorPagina >= rows.length) {
+                containerTemp.appendChild(document.getElementById('foot-lira').cloneNode(true));
+            }
+
+            const frameInvisivel = document.createElement('div');
+            frameInvisivel.style.width = "1000px"; frameInvisivel.style.position = "absolute"; frameInvisivel.style.left = "-9999px";
+            frameInvisivel.appendChild(containerTemp); document.body.appendChild(frameInvisivel);
+
+            const renderCanvas = await html2canvas(frameInvisivel, { scale: 2, width: 1000, windowWidth: 1200, useCORS: true });
+            const imgDataTable = renderCanvas.toDataURL('image/png');
+            const hCalculadaMM = (renderCanvas.height * (pdfW - 20)) / renderCanvas.width;
+
+            pdf.addImage(imgDataTable, 'PNG', 10, yOffset, pdfW - 20, hCalculadaMM);
+            document.body.removeChild(frameInvisivel);
+
+            pdf.setFont("helvetica", "normal"); pdf.setFontSize(8); pdf.setTextColor(100);
+            pdf.text(`LIRAa - Levantamento Rápido de Índices para Aedes aegypti em Campina Grande - PB – ${anoSelecionado}`, 10, pageH - 10);
+            pdf.text(`Página ${nPagina} de ${paginasTotais}`, pdfW - 10, pageH - 10, { align: 'right' });
+            nPagina++;
+        }
+        
+        pdf.save(`Relatorio_LIRAa_CG_${anoSelecionado}.pdf`);
+        icon.className = "bi bi-file-earmark-pdf-fill";
+    }, 250);
 }
 
 carregar();
 </script>
-
-<footer class="mobile-footer">
-    <div class="apoios-footer">
-        <a href="https://www.instagram.com/pet_saude_digital_ufcg/" target="_blank">
-            <img src="https://lh3.googleusercontent.com/d/1Lvrvq6cCcIJgvLBSdi8u6B1SA75L9V_K">
-        </a>
-
-        <a href="https://www.instagram.com/arboviroses_cg/" target="_blank">
-            <img src="https://lh3.googleusercontent.com/d/1fGEuRXpKXXiNafxDzFd0JDwwrVxKvd-a">
-        </a>
-
-        <a href="https://saude.campinagrande.pb.gov.br/" target="_blank">
-            <img src="https://lh3.googleusercontent.com/d/1vsaPX967sHVuynqPwLpFfktsO6s-_OZD">
-        </a>
-    </div>
 </body>
 </html>

@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Análise Temporal | LIRAa Digital - Campina Grande</title>
+    <title>Análise | LIRAa Digital - Campina Grande</title>
+
+    
 
     <meta property="og:type" content="website">
     <meta property="og:title" content="Análise Temporal | LIRAa Digital - Campina Grande">
@@ -18,10 +20,38 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
     <!-- html2canvas + jsPDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script> 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script> 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/@sgratzl/chartjs-chart-boxplot@4"></script> 
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation"></script>
 
     <style>
+
+
+        /* Classes de controle visual */
+        @media (min-width: 993px) {
+            .mobile-controls { display: none !important; }
+            .desktop-controls { display: flex !important; }
+        }
+
+        @media (max-width: 992px) {
+            .desktop-controls { display: none !important; }
+            .mobile-controls { display: block !important; width: 100%; }
+            
+            #main-content { padding: 15px 20px; } /* Garante margem lateral no mobile */
+            
+            .controles {
+                flex-direction: column !important; /* Empilha os seletores no mobile */
+                align-items: stretch;
+                gap: 12px;
+                margin-bottom: 25px;
+            }
+            .form-group { width: 100%; text-align: left; }
+            .form-group label { font-size: 0.75rem; margin-bottom: 2px; }
+        }
+
+
         :root { 
             --primary: #0e945c; 
             --primary-dark: #076e43;
@@ -77,9 +107,10 @@
         nav a.active { border-bottom: 3px solid white; height: 100%; display: flex; align-items: center; opacity: 1; }
 
         #main-content { 
-            padding: 20px 30px; 
-        }
-
+        padding: 20px 4%; /* Margem relativa em vez de pixels fixos */
+        max-width: 1500px; /* Evita que o mosaico fique gigante em monitores ultrawide */
+        margin: 0 auto;    /* Centraliza tudo na tela */
+    }
         .controles {
             display: flex;
             justify-content: center;
@@ -435,29 +466,88 @@
     <a href="sobre.html"><i class="bi bi-question-circle-fill"></i> Sobre</a>
 </nav>
 
-<div id="main-content">
-    <div class="controles">
-        <div class="form-group">
-            <label>Indicador</label>
-            <div id="indicador-btns" class="btn-group btn-group-sm" role="group">
-                <button type="button" class="btn btn-outline-success active" data-value="iip">Infestação Predial (IIP)</button>
-                <button type="button" class="btn btn-outline-success" data-value="bre">Breteau (IB)</button>
-                <button type="button" class="btn btn-outline-success" data-value="alb">Aedes Albopictus</button>
+<div class="controles">
+    <div class="form-group">
+        <label>Tipo de Análise</label>
+        <div id="tipo-analise-btns" class="btn-group btn-group-sm desktop-controls" role="group">
+            <button type="button" class="btn btn-outline-success active" data-value="espacial">Espacial</button>
+            <button type="button" class="btn btn-outline-success" data-value="temporal">Temporal</button>
+            <button type="button" class="btn btn-outline-success" data-value="estatistica">Estatística</button>
+        </div>
+        <select id="tipo-analise-select" class="form-select form-select-sm mobile-controls">
+            <option value="espacial" selected>Espacial</option>
+            <option value="temporal">Temporal</option>
+            <option value="estatistica">Estatística</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Indicador</label>
+        <div id="indicador-btns" class="btn-group btn-group-sm desktop-controls" role="group">
+            <button type="button" class="btn btn-outline-success active" data-value="iip">Infestação Predial (IIP)</button>
+            <button type="button" class="btn btn-outline-success" data-value="bre">Breteau (IB)</button>
+            <button type="button" class="btn btn-outline-success" data-value="alb">Aedes Albopictus</button>
+        </div>
+        <select id="indicador-select" class="form-select form-select-sm mobile-controls">
+            <option value="iip" selected>Infestação Predial (IIP)</option>
+            <option value="bre">Breteau (IB)</option>
+            <option value="alb">Aedes Albopictus</option>
+        </select>
+    </div>
+
+    <div class="form-group" id="grupo-ciclos">
+        <label>Ciclo de Levantamento</label>
+        <div id="ciclo-btns" class="btn-group btn-group-sm desktop-controls" role="group"></div>
+        <select id="ciclo-select" class="form-select form-select-sm mobile-controls"></select>
+    </div>
+</div>
+
+<div id="container-espacial">
+    <div class="mosaico-mapas" id="mosaico"></div>
+</div>
+
+<div id="container-temporal" style="display: none; background: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 20px;">
+    
+    <div style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 20px;">
+        <h4 style="text-align: center; color: #333; font-size: 1.1rem; font-weight: bold;">Série Temporal Histórica (Todos os Ciclos)</h4>
+        <div style="height: 350px; width: 100%;">
+            <canvas id="graficoST"></canvas>
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+        
+        <div style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+            <h4 style="text-align: center; color: #333; font-size: 1.1rem; font-weight: bold;">Distribuição por Ciclo (Boxplot)</h4>
+            <div style="height: 300px; width: 100%;">
+                <canvas id="graficoBoxplot"></canvas>
             </div>
         </div>
 
-        <div class="form-group">
-            <label>Ciclo de Levantamento</label>
-            <div id="ciclo-btns" class="btn-group btn-group-sm" role="group"></div>
+        <div style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+            <h4 style="text-align: center; color: #333; font-size: 1.1rem; font-weight: bold;">Média Anual Consolidada</h4>
+            <div style="height: 300px; width: 100%;">
+                <canvas id="graficoAnual"></canvas>
+            </div>
         </div>
-    </div>
 
-    <div class="mosaico-mapas" id="mosaico"></div>
-
-    <div class="download-area">
-        <button class="btn btn-primary me-4 px-4 py-2" id="btnPng"><i class="bi bi-download"></i>PNG</button>
-        <button class="btn btn-success px-4 py-2" id="btnPdf"><i class="bi bi-file-earmark-pdf-fill"></i>PDF</button>
     </div>
+</div>
+
+<div id="container-estatistica" style="display: none; text-align: center; padding: 50px;">
+    <h3 style="color: #666;">Módulo Estatístico em desenvolvimento...</h3>
+</div>
+
+<div class="download-area" style="text-align: center; margin-top: 20px; margin-bottom: 20px;">
+    
+    <button class="btn btn-primary me-4 px-4 py-2 d-none d-md-inline-block" id="btnPng">
+        <i class="bi bi-download"></i> PNG
+    </button>
+    
+    <button class="btn btn-success px-4 py-2 d-none d-md-inline-block" id="btnPdf">
+        <i class="bi bi-file-earmark-pdf-fill"></i> PDF
+    </button>
+
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -469,10 +559,308 @@ let state = {
     dados: {}, meta: {},
     indice: 'iip',
     ciclo: 'ANO',
+    tipo: 'espacial', // Novo estado
     mapas: {}
 };
 
+let renderToken = 0;
 
+
+
+// Variáveis para guardar as instâncias dos gráficos e permitir destruí-las depois
+let chartST = null;
+let chartBoxplot = null;
+let chartAnual = null;
+
+function renderGraficosTemporais() {
+    if (state.tipo !== 'temporal') return;
+
+    const anosOrdenados = Object.keys(state.meta).sort((a, b) => a - b);
+
+    const labelsST = [];
+    const dadosST = [];
+    const dadosPorCiclo = { 0: [], 1: [], 2: [], 3: [], 4: [] }; 
+    const labelsAnual = [];
+    const dadosAnual = [];
+
+    // === DEFINIÇÃO DE CORES DINÂMICAS ===
+    const coresPorIndice = {
+        'iip': { border: '#0e945c', bg: 'rgba(14, 148, 92, 0.2)', bgSolid: '#0e945c' },  // Verde
+        'bre': { border: '#0d6efd', bg: 'rgba(13, 110, 253, 0.2)', bgSolid: '#0d6efd' }, // Azul
+        'alb': { border: '#fd7e14', bg: 'rgba(253, 126, 20, 0.2)', bgSolid: '#fd7e14' }  // Laranja
+    };
+    
+    const cor = coresPorIndice[state.indice];
+    const isAlb = state.indice === 'alb';
+
+    const nomeIndice = state.indice === 'iip' ? 'Infestação Predial (%)' : 
+                       state.indice === 'bre' ? 'Índice de Breteau' : 'Aedes Albopictus (Soma)';
+
+    anosOrdenados.forEach(ano => {
+        if (!state.dados[ano]) return;
+
+        // CÁLCULO DA SÉRIE TEMPORAL E BOXPLOT
+        const ciclos = state.meta[ano] || [];
+        ciclos.forEach((cicloObj, idx) => {
+            let somaCidadeCiclo = 0;
+            let countBairrosCiclo = 0;
+            
+            Object.values(state.dados[ano]).forEach(d => {
+                if (d && d[idx]) {
+                    const val = d[idx][state.indice];
+                    if (val !== null && val !== undefined) {
+                        somaCidadeCiclo += val;
+                        countBairrosCiclo++;
+                        dadosPorCiclo[idx].push(val); 
+                    }
+                }
+            });
+
+            if (countBairrosCiclo > 0) {
+                const mediaCiclo = isAlb ? somaCidadeCiclo : (somaCidadeCiclo / countBairrosCiclo);
+                labelsST.push(`${ano} - ${cicloObj.id}`);
+                dadosST.push(mediaCiclo.toFixed(2));
+            }
+        });
+
+        // CÁLCULO ANUAL
+        let somaCidadeAno = 0;
+        let countBairrosAno = 0;
+
+        Object.values(state.dados[ano]).forEach(d => {
+            if (d && d.length > 0) {
+                let somaBairro = 0;
+                d.forEach(c => somaBairro += (c[state.indice] || 0));
+                
+                const valBairroAno = isAlb ? somaBairro : (somaBairro / d.length);
+                somaCidadeAno += valBairroAno;
+                countBairrosAno++;
+            }
+        });
+
+        if (countBairrosAno > 0) {
+            const mediaAno = isAlb ? somaCidadeAno : (somaCidadeAno / countBairrosAno);
+            labelsAnual.push(ano);
+            dadosAnual.push(mediaAno.toFixed(2));
+        }
+    });
+
+    // DESTRUIR GRÁFICOS ANTIGOS
+    if (chartST) chartST.destroy();
+    if (chartBoxplot) chartBoxplot.destroy();
+    if (chartAnual) chartAnual.destroy();
+
+    // === CONFIGURAÇÃO DAS ÁREAS DE FUNDO E LINHAS DE LIMITE ===
+    let annotationsConfig = {};
+    if (!isAlb) {
+        annotationsConfig = {
+            // 1. Faixa Verde de Fundo (Abaixo de 1)
+            faixaSatisfatorio: {
+                type: 'box',
+                yMin: 0,
+                yMax: 1,
+                backgroundColor: 'rgba(25, 135, 84, 0.08)', // Verde bem translúcido
+                borderWidth: 0
+            },
+            // 2. Faixa Amarela de Fundo (Entre 1 e 4)
+            faixaAlerta: {
+                type: 'box',
+                yMin: 1,
+                yMax: 4,
+                backgroundColor: 'rgba(255, 193, 7, 0.08)', // Amarelo bem translúcido
+                borderWidth: 0
+            },
+            // 3. Faixa Vermelha de Fundo (Acima de 4)
+            faixaRisco: {
+                type: 'box',
+                yMin: 4,
+                backgroundColor: 'rgba(220, 53, 69, 0.08)', // Vermelho bem translúcido
+                borderWidth: 0
+            },
+            // 4. Linha do Limite Satisfatório (Fica, mas sem etiqueta de texto)
+            linhaSatisfatorio: {
+                type: 'line',
+                yMin: 1,
+                yMax: 1,
+                borderColor: '#198754',
+                borderWidth: 1.5,
+                borderDash: [5, 5]
+            },
+            // 5. Linha do Limite de Risco
+            linhaRisco: {
+                type: 'line',
+                yMin: 4,
+                yMax: 4,
+                borderColor: '#dc3545',
+                borderWidth: 1.5,
+                borderDash: [5, 5],
+                label: { 
+                    display: true, 
+                    content: 'Risco', 
+                    position: 'start', 
+                    backgroundColor: 'transparent',
+                    color: '#dc3545',
+                    font: { size: 11, weight: 'bold' },
+                    rotation: -90,
+                    xAdjust: -45,
+                    yAdjust: -35 
+                }
+            },
+            // 6. Texto de Alerta do lado de fora (Ancorado de forma invisível em 2.5)
+            textoAlerta: {
+                type: 'line',
+                yMin: 2.5,
+                yMax: 2.5,
+                borderColor: 'transparent', 
+                label: { 
+                    display: true, 
+                    content: 'Alerta', 
+                    position: 'start', 
+                    backgroundColor: 'transparent',
+                    color: '#d39e00',               
+                    font: { size: 11, weight: 'bold' },
+                    rotation: -90,
+                    xAdjust: -45
+                }
+            }
+        };
+    }
+
+    // ==========================================
+    // 1. SÉRIE TEMPORAL (Linha ou Coluna)
+    // ==========================================
+    const ctxST = document.getElementById('graficoST').getContext('2d');
+    chartST = new Chart(ctxST, {
+        type: isAlb ? 'bar' : 'line', 
+        data: {
+            labels: labelsST,
+            datasets: [{
+                label: nomeIndice,
+                data: dadosST,
+                borderColor: cor.border,
+                backgroundColor: isAlb ? cor.bgSolid : cor.bg, // Mantém o preenchimento clássico do indicador
+                borderWidth: 2,
+                pointRadius: 3,
+                pointBackgroundColor: cor.border,
+                fill: true,
+                tension: 0.3
+            }]
+        },
+        options: { 
+            responsive: true, 
+            maintainAspectRatio: false,
+            layout: {
+                padding: { left: 35 } // Ajustado para dar espaço perfeito para os nomes na esquerda
+            },
+            scales: {
+                y: { beginAtZero: true }
+            },
+            plugins: {
+                annotation: { 
+                    clip: false, 
+                    annotations: annotationsConfig 
+                }
+            }
+        }
+    });
+
+    // ==========================================
+    // 2. BOXPLOT
+    // ==========================================
+    const ctxBoxplot = document.getElementById('graficoBoxplot').getContext('2d');
+    chartBoxplot = new Chart(ctxBoxplot, {
+        type: 'boxplot',
+        data: {
+            labels: ['Ciclo 1', 'Ciclo 2', 'Ciclo 3', 'Ciclo 4', 'Ciclo 5'],
+            datasets: [{
+                label: `Distribuição - ${nomeIndice}`,
+                backgroundColor: cor.bg,
+                borderColor: cor.border,
+                borderWidth: 1,
+                outlierColor: '#dc3545',
+                data: [
+                    dadosPorCiclo[0], dadosPorCiclo[1], dadosPorCiclo[2], 
+                    dadosPorCiclo[3], dadosPorCiclo[4]
+                ]
+            }]
+        },
+        options: { 
+            responsive: true, 
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+
+    // ==========================================
+    // 3. ANUAL (Barra)
+    // ==========================================
+    const ctxAnual = document.getElementById('graficoAnual').getContext('2d');
+    chartAnual = new Chart(ctxAnual, {
+        type: 'bar',
+        data: {
+            labels: labelsAnual,
+            datasets: [{
+                label: `Média Anual - ${nomeIndice}`,
+                data: dadosAnual,
+                backgroundColor: cor.bgSolid,
+                borderRadius: 4
+            }]
+        },
+        options: { 
+            responsive: true, 
+            maintainAspectRatio: false,
+            layout: {
+                padding: { left: 35 }
+            },
+            scales: {
+                y: { beginAtZero: true }
+            },
+            plugins: {
+                annotation: { 
+                    clip: false, 
+                    annotations: annotationsConfig 
+                }
+            }
+        }
+    });
+}
+
+// Eventos dos botões de Tipo de Análise
+document.querySelectorAll('#tipo-analise-btns .btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        // Atualiza botões visualmente
+        document.querySelectorAll('#tipo-analise-btns .btn').forEach(b => {
+            b.classList.remove('btn-primary', 'active');
+            b.classList.add('btn-outline-primary');
+        });
+        btn.classList.remove('btn-outline-primary');
+        btn.classList.add('btn-primary', 'active');
+        
+        // Atualiza estado
+        state.tipo = btn.dataset.value;
+        
+        // Esconde tudo
+        document.getElementById('container-espacial').style.display = 'none';
+        document.getElementById('container-temporal').style.display = 'none';
+        document.getElementById('container-estatistica').style.display = 'none';
+        
+        // Mostra o container correto e renderiza
+        if (state.tipo === 'espacial') {
+            document.getElementById('container-espacial').style.display = 'block';
+            document.getElementById('grupo-ciclos').style.display = 'block'; // Mostra ciclos
+            renderMosaico();
+        } else if (state.tipo === 'temporal') {
+            document.getElementById('container-temporal').style.display = 'block';
+            document.getElementById('grupo-ciclos').style.display = 'none'; // Esconde ciclos na série temporal se quiser avaliar anos
+            renderGraficoTemporal();
+        } else if (state.tipo === 'estatistica') {
+            document.getElementById('container-estatistica').style.display = 'block';
+            document.getElementById('grupo-ciclos').style.display = 'block';
+        }
+    });
+});
 
 
 async function esperarImagensCarregarem(elemento) {
@@ -548,42 +936,155 @@ async function carregarDados() {
     }
 }
 
-function initCiclos() {
-    const container = document.getElementById("ciclo-btns");
-    container.innerHTML = '';
+// Adicione o estado 'tipo' logo no início, onde você declara o 'let state = {...}'
+// state.tipo = 'espacial';
 
-    const btnAno = document.createElement('button');
-    btnAno.className = `btn btn-sm ${state.ciclo==='ANO' ? 'btn-success' : 'btn-outline-secondary'} fw-bold px-4`;
-    btnAno.textContent = 'ANO';
-    btnAno.onclick = () => { state.ciclo = 'ANO'; updateCiclosUI(btnAno); renderMosaico(); };
-    container.appendChild(btnAno);
+// === LÓGICA DE CONTROLES (Sincroniza Botões Desktop e Selects Mobile) ===
 
-    const anoExemplo = Object.keys(state.meta).sort().reverse()[0];
-    (state.meta[anoExemplo] || []).forEach((c, idx) => {
-        const btn = document.createElement('button');
-        btn.className = `btn btn-sm ${state.ciclo===idx ? 'btn-success' : 'btn-outline-secondary'} fw-bold px-3`;
-        btn.textContent = c.id;
-        btn.onclick = () => { state.ciclo = idx; updateCiclosUI(btn); renderMosaico(); };
-        container.appendChild(btn);
-    });
+function alterarTipoAnalise(novoTipo) {
+    state.tipo = novoTipo;
+    
+    // Atualiza Botões
+    document.querySelectorAll('#tipo-analise-btns .btn').forEach(b => b.classList.remove('active'));
+    document.querySelector(`#tipo-analise-btns .btn[data-value="${novoTipo}"]`).classList.add('active');
+    
+    // Atualiza Select
+    document.getElementById('tipo-analise-select').value = novoTipo;
 
-    function updateCiclosUI(activeBtn) {
-        container.querySelectorAll('.btn').forEach(b => b.classList.replace('btn-success', 'btn-outline-secondary'));
-        activeBtn.classList.replace('btn-outline-secondary', 'btn-success');
+    // Alterna Visibilidade
+    document.getElementById('container-espacial').style.display = 'none';
+    document.getElementById('container-temporal').style.display = 'none';
+    document.getElementById('container-estatistica').style.display = 'none';
+    
+   if (state.tipo === 'espacial') {
+        document.getElementById('container-espacial').style.display = 'block';
+        document.getElementById('grupo-ciclos').style.display = 'block';
+        renderMosaico();
+    } else if (state.tipo === 'temporal') {
+        document.getElementById('container-temporal').style.display = 'block';
+        document.getElementById('grupo-ciclos').style.display = 'none';
+        renderGraficosTemporais(); // CHAMA A FUNÇÃO AQUI!
+    } else {
+        document.getElementById('container-estatistica').style.display = 'block';
+        document.getElementById('grupo-ciclos').style.display = 'block';
     }
 }
 
+function alterarIndicador(novoIndice) {
+    state.indice = novoIndice;
+    
+    document.querySelectorAll('#indicador-btns .btn').forEach(b => b.classList.remove('active'));
+    document.querySelector(`#indicador-btns .btn[data-value="${novoIndice}"]`).classList.add('active');
+    document.getElementById('indicador-select').value = novoIndice;
+    
+    if (state.tipo === 'espacial') renderMosaico();
+    else if (state.tipo === 'temporal') renderGraficosTemporais(); // ADICIONE ISSO AQUI!
+}
+
+function alterarCiclo(novoCiclo) {
+    state.ciclo = novoCiclo;
+    
+    // Atualiza UI Desktop
+    document.querySelectorAll('#ciclo-btns .btn').forEach(b => {
+        b.classList.replace('btn-success', 'btn-outline-secondary');
+        if (novoCiclo === 'ANO' && b.textContent === 'ANO') b.classList.replace('btn-outline-secondary', 'btn-success');
+        if (novoCiclo !== 'ANO' && parseInt(b.dataset.idx) === novoCiclo) b.classList.replace('btn-outline-secondary', 'btn-success');
+    });
+    
+    // Atualiza UI Mobile
+    document.getElementById('ciclo-select').value = novoCiclo;
+    
+    renderMosaico();
+}
+
+// === INICIALIZADORES E LISTENERS ===
+
+function initCiclos() {
+    const containerBtns = document.getElementById("ciclo-btns");
+    const containerSelect = document.getElementById("ciclo-select");
+    containerBtns.innerHTML = '';
+    containerSelect.innerHTML = '';
+
+    // Opção ANO (Desktop e Mobile)
+    const btnAno = document.createElement('button');
+    btnAno.className = `btn btn-sm ${state.ciclo==='ANO' ? 'btn-success' : 'btn-outline-secondary'} fw-bold px-4`;
+    btnAno.textContent = 'ANO';
+    btnAno.onclick = () => alterarCiclo('ANO');
+    containerBtns.appendChild(btnAno);
+
+    const optAno = document.createElement('option');
+    optAno.value = 'ANO';
+    optAno.textContent = 'Consolidado Anual (ANO)';
+    containerSelect.appendChild(optAno);
+
+    // Opções C1 a C5
+    const ciclosFixos = ['C1', 'C2', 'C3', 'C4', 'C5'];
+    ciclosFixos.forEach((id, idx) => {
+        const btn = document.createElement('button');
+        btn.className = `btn btn-sm ${state.ciclo===idx ? 'btn-success' : 'btn-outline-secondary'} fw-bold px-3`;
+        btn.textContent = id;
+        btn.dataset.idx = idx; // Marca o botão internamente
+        btn.onclick = () => alterarCiclo(idx);
+        containerBtns.appendChild(btn);
+
+        const opt = document.createElement('option');
+        opt.value = idx;
+        opt.textContent = `Ciclo ${idx + 1} (${id})`;
+        containerSelect.appendChild(opt);
+    });
+}
+
+// Escuta os cliques/mudanças e liga as funções
+document.querySelectorAll('#tipo-analise-btns .btn').forEach(b => b.addEventListener('click', e => alterarTipoAnalise(e.target.dataset.value)));
+document.getElementById('tipo-analise-select').addEventListener('change', e => alterarTipoAnalise(e.target.value));
+
+document.querySelectorAll('#indicador-btns .btn').forEach(b => b.addEventListener('click', e => alterarIndicador(e.target.dataset.value)));
+document.getElementById('indicador-select').addEventListener('change', e => alterarIndicador(e.target.value));
+
+document.getElementById('ciclo-select').addEventListener('change', e => {
+    alterarCiclo(e.target.value === 'ANO' ? 'ANO' : parseInt(e.target.value));
+});
+
 async function renderMosaico() {
+    // Incrementa a "senha" a cada clique/chamada nova
+    renderToken++;
+    const currentToken = renderToken;
+
     const container = document.getElementById('mosaico');
+
+    // 1. Destrói as instâncias antigas do Leaflet
+    if (state.mapas) {
+        Object.values(state.mapas).forEach(mapa => {
+            if (mapa && typeof mapa.remove === 'function') {
+                mapa.remove(); 
+            }
+        });
+    }
+    state.mapas = {};
     container.innerHTML = '';
 
+    if (state.tipo !== 'espacial') return;
+
+    // Busca o mapa base (isso leva alguns milissegundos, é aqui que o bug acontecia)
     const geoRes = await fetch("bairros_cg.geojson");
     const geojson = await geoRes.json();
     state.lastGeojson = geojson;
 
-    const anosOrdenados = ['2015','2016','2017','2018','2019','2021','2022','2023','2024','2025'];
+    // A MÁGICA ANTI-CLONE: Se o usuário clicou em algo e a senha mudou, aborta!
+    if (currentToken !== renderToken) return;
+
+    // 2. Ordem original restaurada (crescente: 2015, 2016... 2026)
+    let anosOrdenados = Object.keys(state.meta).sort((a, b) => a - b);
+
+    // Regra para não mostrar 2026 no consolidado anual
+    if (state.ciclo === 'ANO') {
+        anosOrdenados = anosOrdenados.filter(ano => ano !== '2026');
+    }
 
     for (const ano of anosOrdenados) {
+        // MAIS UMA CHECAGEM: Se mudou no meio do loop, aborta o resto
+        if (currentToken !== renderToken) return;
+
         if (!state.dados[ano]) continue;
 
         const ciclosDoAno = state.meta[ano] || [];
@@ -593,23 +1094,26 @@ async function renderMosaico() {
         let countBairrosComDados = 0;
 
         Object.keys(state.dados[ano]).forEach(bairro => {
-    const d = state.dados[ano][bairro];
-    let v = null;
+            const d = state.dados[ano][bairro];
+            let v = null;
 
-    if (!semCiclo && d && d.length > 0) {
-        if (state.ciclo === 'ANO') {
-    let s = 0; d.forEach(c => s += c[state.indice] || 0);
-    // Se for albopictus, v é a soma total. Se não, é a média.
-    v = (state.indice === 'alb') ? s : (s / d.length);
-} else {
-            v = d[state.ciclo] ? d[state.ciclo][state.indice] : null;
-        }
-        if (v !== null) {
-            somaIndice += v;
-            countBairrosComDados++;
-        }
-    }
-});
+            if (!semCiclo && d && d.length > 0) {
+                if (state.ciclo === 'ANO') {
+                    let s = 0; 
+                    d.forEach(c => s += c[state.indice] || 0);
+                    v = (state.indice === 'alb') ? s : (s / d.length);
+                } else {
+                    v = d[state.ciclo] ? d[state.ciclo][state.indice] : null;
+                }
+                
+                if (v !== null) {
+                    somaIndice += v;
+                    countBairrosComDados++;
+                }
+            }
+        });
+        
+        // ... (seu código de criar o card continua normal a partir daqui) ...
 
 
         // Se for Albopictus, o card mostra a SOMA de todos os bairros. Se não, mostra a MÉDIA.
@@ -808,24 +1312,27 @@ function gerarSvgMapa(ano) {
 
 
 // --- DOWNLOADS CORRIGIDOS (VERSÃO SVG + AJUSTE DE CICLO) ---
-// --- DOWNLOADS CORRIGIDOS (VERSÃO SVG + AJUSTE DE CICLO) ---
-
 async function prepararCapturaLimpa() {
     const exportDiv = document.createElement('div');
     exportDiv.style.width = '1200px';
-    exportDiv.style.padding = '30px';
+    exportDiv.style.padding = '0 30px 30px 30px'; // Tirado o padding do topo para diminuir a margem superior
     exportDiv.style.background = 'white';
     exportDiv.style.position = 'absolute';
     exportDiv.style.left = '-9999px';
     document.body.appendChild(exportDiv);
 
-    // 1. Cabeçalho
+    // 1. Cabeçalho (Envolvido em um container para forçar centralização e encolher a linha verde)
+    const headerWrapper = document.createElement('div');
+    headerWrapper.style.cssText = "width: 1100px; margin: 0 auto; padding-top: 10px;"; // Centraliza o bloco e reduz o topo
+
     const headerClone = document.querySelector('header').cloneNode(true);
 
-    // 🔥 FORÇA LAYOUT DESKTOP
-    headerClone.style.width = "1200px";
+    // 🔥 FORÇA LAYOUT DESKTOP CENTRALIZADO DENTRO DO WRAPPER
+    headerClone.style.boxSizing = "border-box";
+    headerClone.style.width = "100%";
     headerClone.style.height = "90px";
-    headerClone.style.padding = "0 30px";
+    headerClone.style.padding = "0"; // Deixa o wrapper controlar o respiro lateral
+    headerClone.style.margin = "0";
     headerClone.style.display = "flex";
     headerClone.style.alignItems = "center";
     headerClone.style.justifyContent = "space-between";
@@ -835,6 +1342,7 @@ async function prepararCapturaLimpa() {
     const apoios = headerClone.querySelector('.apoios');
     if (apoios) {
         apoios.style.display = "flex";
+        apoios.style.alignItems = "center";
     }
 
     // 🔥 RESTAURA TAMANHO DAS LOGOS
@@ -848,7 +1356,9 @@ async function prepararCapturaLimpa() {
         img.crossOrigin = "anonymous";
     });
 
-    exportDiv.appendChild(headerClone);
+    // Adiciona o cabeçalho dentro do wrapper protetor e depois na div principal
+    headerWrapper.appendChild(headerClone);
+    exportDiv.appendChild(headerWrapper);
 
     // 2. Título Dinâmico
     const nomesIndicadores = { 
@@ -858,118 +1368,170 @@ async function prepararCapturaLimpa() {
     };
     
     const titulo = document.createElement('h2');
-    titulo.style.cssText = "text-align:center; margin:25px 0; color:#0e945c; font-size:1.4rem; font-weight:700;";
+    titulo.style.cssText = "text-align:center; margin:20px 0; color:#0e945c; font-size:1.4rem; font-weight:700;";
     
-    const textoCiclo = state.ciclo === 'ANO' ? ' (Consolidado Anual)' : ` (Ciclo: C${Number(state.ciclo) + 1})`;
-    titulo.textContent = `Análise Espacial: ${nomesIndicadores[state.indice]}${textoCiclo}`;
+    if (state.tipo === 'espacial') {
+        const textoCiclo = state.ciclo === 'ANO' ? ' (Consolidado Anual)' : ` (Ciclo: C${Number(state.ciclo) + 1})`;
+        titulo.textContent = `Análise Espacial: ${nomesIndicadores[state.indice]}${textoCiclo}`;
+    } else {
+        titulo.textContent = `Análise Temporal: ${nomesIndicadores[state.indice]} (Histórico Consolidado)`;
+    }
     exportDiv.appendChild(titulo);
 
-    // 3. Mosaico
-    const mosaico = document.createElement('div');
-    mosaico.style.display = 'grid';
-    mosaico.style.gridTemplateColumns = 'repeat(5, 1fr)';
-    mosaico.style.gap = '12px';
-
-    const anosOrdenados = ['2015','2016','2017','2018','2019','2021','2022','2023','2024','2025'];
-    
-    anosOrdenados.forEach(ano => {
-        if (!state.dados[ano]) return;
+    // 🟢 CONDICIONAL DE ALTERNÂNCIA DE ABAS NA CAPTURA
+    if (state.tipo === 'espacial') {
         
-        let somaLocal = 0;
-        let contBairrosLocal = 0;
-        const ciclosDoAno = state.meta[ano] || [];
-        const semCiclo = state.ciclo !== 'ANO' && (!ciclosDoAno[state.ciclo]);
+        // 3. Mosaico Original (Mantido 100% Intacto)
+        const mosaico = document.createElement('div');
+        mosaico.style.display = 'grid';
+        mosaico.style.gridTemplateColumns = 'repeat(5, 1fr)';
+        mosaico.style.gap = '12px';
 
-        // Cálculo dos valores para o Card de Exportação
-        Object.keys(state.dados[ano]).forEach(b => {
-            const d = state.dados[ano][b];
-            if (d && d.length > 0 && !semCiclo) {
-                let v = 0;
-                if (state.ciclo === 'ANO') {
-                    let s = d.reduce((acc, curr) => acc + (curr[state.indice] || 0), 0);
-                    v = (state.indice === 'alb') ? s : (s / d.length);
-                } else {
-                    v = d[state.ciclo] ? (d[state.ciclo][state.indice] || 0) : 0;
+        const anosOrdenados = ['2015','2016','2017','2018','2019','2021','2022','2023','2024','2025'];
+        
+        anosOrdenados.forEach(ano => {
+            if (!state.dados[ano]) return;
+            
+            let somaLocal = 0;
+            let contBairrosLocal = 0;
+            const ciclosDoAno = state.meta[ano] || [];
+            const semCiclo = state.ciclo !== 'ANO' && (!ciclosDoAno[state.ciclo]);
+
+            // Cálculo dos valores para o Card de Exportação
+            Object.keys(state.dados[ano]).forEach(b => {
+                const d = state.dados[ano][b];
+                if (d && d.length > 0 && !semCiclo) {
+                    let v = 0;
+                    if (state.ciclo === 'ANO') {
+                        let s = d.reduce((acc, curr) => acc + (curr[state.indice] || 0), 0);
+                        v = (state.indice === 'alb') ? s : (s / d.length);
+                    } else {
+                        v = d[state.ciclo] ? (d[state.ciclo][state.indice] || 0) : 0;
+                    }
+                    somaLocal += v;
+                    contBairrosLocal++;
                 }
-                somaLocal += v;
-                contBairrosLocal++;
-            }
+            });
+
+            const valorFinal = (state.indice === 'alb') 
+                ? somaLocal.toFixed(0) 
+                : (contBairrosLocal > 0 ? (somaLocal / contBairrosLocal).toFixed(1) : "0.0");
+
+            const card = document.createElement('div');
+            card.style.cssText = "border:1px solid #ddd; border-radius:8px; overflow:hidden; display:flex; flex-direction:column; position:relative; background:white;";
+            
+            // Clonar rodapé de status da tela original
+            const resumoOrigem = document.getElementById(`s-${ano}`);
+            const resumoClone = resumoOrigem ? resumoOrigem.parentElement.parentElement.cloneNode(true) : document.createElement('div');
+            
+            resumoClone.style.display = 'flex';
+            resumoClone.style.flexDirection = 'row';
+            resumoClone.style.justifyContent = 'space-around';
+            resumoClone.style.alignItems = 'center';
+            resumoClone.style.width = '100%';
+            resumoClone.style.padding = '5px 0';
+            resumoClone.style.fontSize = '0.65rem';
+            resumoClone.style.background = '#fcfcfc';
+
+            resumoClone.querySelectorAll('.status-item').forEach(item => {
+                item.style.flex = '1';
+                item.style.display = 'flex';
+                item.style.flexDirection = 'column';
+                item.style.alignItems = 'center';
+                item.style.textAlign = 'center';
+            });
+
+            resumoClone.querySelectorAll('.numero').forEach(num => {
+                num.style.fontSize = '1.1rem';
+                num.style.lineHeight = '1';
+                num.style.marginBottom = '2px';
+            });
+            
+            card.innerHTML = `
+                <div style="background:#0e945c; color:white; text-align:center; font-weight:bold; padding:4px; font-size: 0.9rem;">${ano}</div>
+                
+                <div style="position:absolute; top:35px; right:5px; background:${getCor(parseFloat(valorFinal))}; color:white; padding:2px 6px; border-radius:4px; font-weight:800; font-size:0.9rem; z-index:10;">
+                    ${valorFinal}
+                </div>
+                
+                <div style="height:180px; display:flex; align-items:center; justify-content:center; background:#ffffff;">
+                    ${gerarSvgMapa(ano)}
+                </div>
+                
+                <div style="position:absolute; bottom:65px; left:5px; font-size:0.6rem; font-weight:bold; background:rgba(255,255,255,0.7); padding:1px 3px;">
+                    Bairros: ${contBairrosLocal}
+                </div>
+            `;
+            card.appendChild(resumoClone);
+            mosaico.appendChild(card);
         });
 
-        const valorFinal = (state.indice === 'alb') 
-            ? somaLocal.toFixed(0) 
-            : (contBairrosLocal > 0 ? (somaLocal / contBairrosLocal).toFixed(1) : "0.0");
+        exportDiv.appendChild(mosaico);
 
-        const card = document.createElement('div');
-        card.style.cssText = "border:1px solid #ddd; border-radius:8px; overflow:hidden; display:flex; flex-direction:column; position:relative; background:white;";
+    } else if (state.tipo === 'temporal') {
         
-        // Clonar rodapé de status da tela original
-        // --- CÓDIGO CORRIGIDO PARA CENTRALIZAÇÃO ---
+        // 4. Captura Segura dos Gráficos via instância do ID do Canvas (Evita loop infinito)
+        const chart1 = Chart.getChart(document.getElementById("graficoST"));
+        const chart2 = Chart.getChart(document.getElementById("graficoBoxplot"));
+        const chart3 = Chart.getChart(document.getElementById("graficoAnual"));
+
+        // Gráfico Grande: Série Histórica (Topo)
+        const c1 = document.createElement('div');
+        c1.style.cssText = "background:white; padding:20px; border:1px solid #e0e0e0; border-radius:8px; margin-bottom:25px; text-align:center; box-shadow: 0 2px 5px rgba(0,0,0,0.02);";
+        c1.innerHTML = `<h4 style="font-size:1.1rem; font-weight:bold; color:#333; margin-bottom:15px; text-align:center;">Série Temporal Histórica (Todos os Ciclos)</h4>`;
         
-        // 1. Localiza o original e clona
-        const resumoOrigem = document.getElementById(`s-${ano}`);
-        const resumoClone = resumoOrigem ? resumoOrigem.parentElement.parentElement.cloneNode(true) : document.createElement('div');
+        const img1 = document.createElement('img');
+        img1.src = chart1 ? chart1.toBase64Image() : ''; 
+        img1.style.width = "100%";
+        img1.style.height = "auto";
+        c1.appendChild(img1);
+        exportDiv.appendChild(c1);
+
+        // Grid para dispor os dois gráficos menores lado a lado (Base)
+        const gridBaixo = document.createElement('div');
+        gridBaixo.style.cssText = "display:grid; grid-template-columns: 1fr 1fr; gap:25px;";
+
+        // Gráfico Esquerdo: Boxplot
+        const c2 = document.createElement('div');
+        c2.style.cssText = "background:white; padding:20px; border:1px solid #e0e0e0; border-radius:8px; text-align:center; box-shadow: 0 2px 5px rgba(0,0,0,0.02);";
+        c2.innerHTML = `<h4 style="font-size:1.1rem; font-weight:bold; color:#333; margin-bottom:15px; text-align:center;">Distribuição por Ciclo (Boxplot)</h4>`;
         
-        // 2. Força o container pai a distribuir os itens em linha e centralizar
-        resumoClone.style.display = 'flex';
-        resumoClone.style.flexDirection = 'row';
-        resumoClone.style.justifyContent = 'space-around';
-        resumoClone.style.alignItems = 'center';
-        resumoClone.style.width = '100%';
-        resumoClone.style.padding = '5px 0';
-        resumoClone.style.fontSize = '0.65rem';
-        resumoClone.style.background = '#fcfcfc';
+        const img2 = document.createElement('img');
+        img2.src = chart2 ? chart2.toBase64Image() : '';
+        img2.style.width = "100%";
+        img2.style.height = "auto";
+        c2.appendChild(img2);
+        gridBaixo.appendChild(c2);
 
-        // 3. Força cada item (Satisfatório, Alerta, Risco) a centralizar seu conteúdo interno
-        resumoClone.querySelectorAll('.status-item').forEach(item => {
-            item.style.flex = '1';              // Cada um ganha o mesmo espaço
-            item.style.display = 'flex';
-            item.style.flexDirection = 'column';
-            item.style.alignItems = 'center';    // Centraliza horizontalmente
-            item.style.textAlign = 'center';
-        });
-
-        // 4. Garante que os números grandes também estejam centralizados
-        resumoClone.querySelectorAll('.numero').forEach(num => {
-            num.style.fontSize = '1.1rem';
-            num.style.lineHeight = '1';
-            num.style.marginBottom = '2px';
-        });
+        // Gráfico Direito: Média Anual Consolidada
+        const c3 = document.createElement('div');
+        c3.style.cssText = "background:white; padding:20px; border:1px solid #e0e0e0; border-radius:8px; text-align:center; box-shadow: 0 2px 5px rgba(0,0,0,0.02);";
+        c3.innerHTML = `<h4 style="font-size:1.1rem; font-weight:bold; color:#333; margin-bottom:15px; text-align:center;">Média Anual Consolidada</h4>`;
         
-        // --- FIM DA CORREÇÃO ---
+        const img3 = document.createElement('img');
+        img3.src = chart3 ? chart3.toBase64Image() : '';
+        img3.style.width = "100%";
+        img3.style.height = "auto";
+        c3.appendChild(img3);
+        gridBaixo.appendChild(c3);
 
-        card.innerHTML = `
-            <div style="background:#0e945c; color:white; text-align:center; font-weight:bold; padding:4px; font-size: 0.9rem;">${ano}</div>
-            
-            <div style="position:absolute; top:35px; right:5px; background:${getCor(parseFloat(valorFinal))}; color:white; padding:2px 6px; border-radius:4px; font-weight:800; font-size:0.9rem; z-index:10;">
-                ${valorFinal}
-            </div>
-            
-            <div style="height:180px; display:flex; align-items:center; justify-content:center; background:#ffffff;">
-                ${gerarSvgMapa(ano)}
-            </div>
-            
-            <div style="position:absolute; bottom:65px; left:5px; font-size:0.6rem; font-weight:bold; background:rgba(255,255,255,0.7); padding:1px 3px;">
-                Bairros: ${contBairrosLocal}
-            </div>
-        `;
-        card.appendChild(resumoClone); // Adiciona o clone já estilizado
-        mosaico.appendChild(card);
-    });
-
-    exportDiv.appendChild(mosaico);
+        exportDiv.appendChild(gridBaixo);
+    }
 
     await esperarImagensCarregarem(exportDiv);
 
     const canvas = await html2canvas(exportDiv, { 
-    scale: 2,
-    useCORS: true,
-    logging: false,
-    windowWidth: 1400
-});
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        windowWidth: 1400
+    });
+    
     document.body.removeChild(exportDiv);
     return canvas;
 }
+
+
 
 document.getElementById('btnPng').onclick = async () => {
     const btn = document.getElementById('btnPng');
@@ -984,19 +1546,52 @@ document.getElementById('btnPng').onclick = async () => {
 
 document.getElementById('btnPdf').onclick = async () => {
     const btn = document.getElementById('btnPdf');
+    // Salva o texto original para restaurar depois
+    const textoOriginal = btn.innerHTML; 
     btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Gerando PDF...';
-    const canvas = await prepararCapturaLimpa();
-    const imgData = canvas.toDataURL('image/png');
-    const pdf = new jsPDF('l', 'mm', 'a4');
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const imgProps = pdf.getImageProperties(imgData);
-    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
 
-    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-    pdf.save(`Relatorio_LIRAa_${state.indice}.pdf`);
-    btn.innerHTML = '<i class="bi bi-file-earmark-pdf-fill"></i> PDF';
+    try {
+        // Chama a sua função original que cria a div temporária de captura
+        const canvas = await prepararCapturaLimpa();
+        const imgData = canvas.toDataURL('image/png');
+        
+        // Cria o PDF em modo Paisagem (Landscape), unidade milímetros, papel A4
+        const pdf = new jspdf.jsPDF('l', 'mm', 'a4');
+        
+        // Pega as dimensões exatas da folha A4 em modo paisagem (297mm x 210mm)
+        const pdfWidth = pdf.internal.pageSize.getWidth(); // 297
+        const pdfHeight = pdf.internal.pageSize.getHeight(); // 210
+
+        // Pega as dimensões da imagem capturada
+        const imgProps = pdf.getImageProperties(imgData);
+        
+        // Calcula a altura proporcional que a imagem teria se ocupasse a largura total da folha
+        let renderWidth = pdfWidth;
+        let renderHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+        // 🚨 O PULO DO GATO: Se a altura calculada for maior que a folha A4 (comum na aba Temporal)
+        if (renderHeight > pdfHeight) {
+            // Reduz a escala baseado na altura para caber perfeitamente na página sem cortar
+            renderHeight = pdfHeight - 10; // 10mm de margem de segurança
+            renderWidth = (imgProps.width * renderHeight) / imgProps.height;
+        }
+
+        // Centraliza a imagem na folha caso ela precise ser encolhida
+        const xOffset = (pdfWidth - renderWidth) / 2;
+        const yOffset = (pdfHeight - renderHeight) / 2;
+
+        // Adiciona a imagem perfeitamente dimensionada e centralizada
+        pdf.addImage(imgData, 'PNG', xOffset, yOffset, renderWidth, renderHeight);
+        pdf.save(`Relatorio_LIRAa_${state.indice}.pdf`);
+
+    } catch (error) {
+        console.error("Erro ao gerar PDF:", error);
+        alert("Ocorreu um erro ao gerar o PDF. Verifique o console.");
+    } finally {
+        // Restaura o botão original independente de dar certo ou erro
+        btn.innerHTML = textoOriginal; 
+    }
 };
-
 // Listener para redimensionamento e carregamento inicial
 window.addEventListener('resize', () => {
     Object.values(state.mapas).forEach(m => m && m.invalidateSize());
