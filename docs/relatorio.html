@@ -219,7 +219,7 @@
             }
 
             /* Ocultação dos blocos de download no celular */
-            #actions-bairros, #actions-geral {
+            #actions-bairros, #actions-geral, #box-dados-brutos-bottom {
                 display: none !important;
             }
 
@@ -320,7 +320,8 @@
         </div>
 
         <div class="d-flex gap-2">
-            <div id="actions-bairros">
+            <div id="actions-bairros" class="d-flex gap-2">
+                <button id="btnExcelBairros" class="btn btn-outline-success fw-bold text-uppercase text-nowrap" onclick="exportarExcelBairrosComSpinner()"><i id="iconExcelBairros" class="bi bi-file-earmark-excel me-1"></i>XLSX</button>
                 <button id="btnPdfBairros" class="btn btn-danger text-uppercase fw-bold text-nowrap" onclick="exportarLayoutOficialBairros()"><i id="iconPdfBairros" class="bi bi-file-earmark-pdf-fill me-1"></i>PDF</button>
             </div>
             <div id="actions-geral" style="display: none; gap: 8px;">
@@ -402,6 +403,17 @@
                     <tfoot id="foot-lira"></tfoot>
                 </table>
             </div>
+        </div>
+
+        <!-- Botão de exportação de dados brutos posicionado no final da tela de DADOS -->
+        <div id="box-dados-brutos-bottom" class="mt-4 p-3 bg-white rounded-3 shadow-sm d-flex align-items-center justify-content-between border">
+            <div>
+                <h6 class="fw-bold mb-1 text-dark"><i class="bi bi-database-fill-down me-2 text-success"></i>Base Completa de Dados Brutos</h6>
+                <span class="text-muted small">Faça o download do histórico longitudinal de todos os bairros do início da série até o ano mais recente em formato XLSX.</span>
+            </div>
+            <button id="btnExcelDadosBrutos" class="btn btn-success fw-bold text-uppercase text-nowrap px-4 py-2" onclick="exportarDadosBrutosHistoricoComSpinner()">
+                <i id="iconExcelBrutos" class="bi bi-file-earmark-spreadsheet-fill me-2"></i>Exportar Dados Brutos
+            </button>
         </div>
     </div>
 </div>
@@ -498,8 +510,12 @@ function mudarModoInterface(modo) {
         document.getElementById('box-bairro-select').style.display = 'block';
         document.getElementById('box-filtro-ano').style.display = 'none';
         pBairros.forEach(el => el.style.display = 'block');
-        document.getElementById('actions-bairros').style.display = 'block';
-        document.getElementById('actions-geral').style.display = 'none';
+        if (window.innerWidth > 992) {
+            document.getElementById('actions-bairros').style.setProperty('display', 'flex', 'important');
+        } else {
+            document.getElementById('actions-bairros').style.setProperty('display', 'none', 'important');
+        }
+        document.getElementById('actions-geral').style.setProperty('display', 'none', 'important');
         processarDossieBairros();
     } else {
         btnB.className = "btn btn-outline-success fw-bold text-sm px-3";
@@ -509,9 +525,11 @@ function mudarModoInterface(modo) {
         document.getElementById('box-bairro-select').style.display = 'none';
         document.getElementById('box-filtro-ano').style.display = 'block';
         pBairros.forEach(el => el.style.display = 'none');
-        document.getElementById('actions-bairros').style.display = 'none';
+        document.getElementById('actions-bairros').style.setProperty('display', 'none', 'important');
         if (window.innerWidth > 992) {
-            document.getElementById('actions-geral').style.display = 'flex';
+            document.getElementById('actions-geral').style.setProperty('display', 'flex', 'important');
+        } else {
+            document.getElementById('actions-geral').style.setProperty('display', 'none', 'important');
         }
         render(document.getElementById('selectAno').value);
     }
@@ -554,7 +572,7 @@ function render(ano) {
 }
 
 function obterSerieTemporalAvancada(tipo, local) {
-    let l = [], v = [];
+    let l = [], v = [], detalhes = [];
     const deAno = parseInt(document.getElementById('selectDeAno').value);
     const ateAno = parseInt(document.getElementById('selectAteAno').value);
     const cicloFiltro = document.getElementById('selectCicloFiltro').value;
@@ -572,10 +590,15 @@ function obterSerieTemporalAvancada(tipo, local) {
             targets.forEach(b => {
                 if(state.dados[ano][b] && state.dados[ano][b][c]) { s += state.dados[ano][b][c][tipo]; count++; }
             });
-            if(count>0) { l.push(`${ano}.C${c+1}`); v.push(s/count); }
+            if(count>0) { 
+                l.push(`${ano}.C${c+1}`); 
+                v.push(s/count); 
+                const metaCiclo = state.meta[ano] && state.meta[ano][c] ? state.meta[ano][c].periodo : "N/I";
+                detalhes.push({ ano: ano, ciclo: `Ciclo ${c+1}`, periodo: metaCiclo, valor: s/count });
+            }
         }
     });
-    return { l, v };
+    return { l, v, detalhes };
 }
 
 function processarDossieBairros() {
@@ -694,6 +717,107 @@ function renderizarRankingsLongitudinais() {
     drawRelative('rank-iip-list', 'iip', 'var(--danger)');
     drawRelative('rank-ib-list', 'ib', '#a57c00');
     drawRelative('rank-alb-list', 'alb', 'var(--primary)');
+}
+
+function exportarExcelBairrosComSpinner() {
+    const icon = document.getElementById('iconExcelBairros');
+    icon.className = "bi bi-arrow-clockwise bi-spin me-1";
+    setTimeout(() => { 
+        const bSelect = document.getElementById('selectBairroFoco');
+        const b = bSelect.value;
+        const bTexto = bSelect.options[bSelect.selectedIndex].text;
+        const deAno = document.getElementById('selectDeAno').value;
+        const ateAno = document.getElementById('selectAteAno').value;
+        const cicloFiltro = document.getElementById('selectCicloFiltro').value;
+        
+        const sIIP = obterSerieTemporalAvancada('iip', b);
+        const sIB = obterSerieTemporalAvancada('ib', b);
+        const sALB = obterSerieTemporalAvancada('alb', b);
+
+        const agora = new Date();
+        const dataGeracao = agora.toLocaleDateString('pt-BR') + " às " + agora.toLocaleTimeString('pt-BR');
+
+        const dadosExcel = [
+            ["RELATÓRIO DE SÉRIE TEMPORAL - LIRAA DIGITAL"],
+            ["Origem dos Dados:", "Vigilância Ambiental - Campina Grande / PB"],
+            ["Localidade Selecionada:", bTexto],
+            ["Intervalo de Anos:", `${deAno} a ${ateAno}`],
+            ["Filtro de Ciclo:", cicloFiltro === "TODOS" ? "Todos os Ciclos" : `Ciclo ${cicloFiltro}`],
+            ["Data de Geração:", dataGeracao],
+            [], // Linha em branco
+            ["ANO", "PERIODO", "CICLO", "IIP (%)", "IB", "Albopictus"]
+        ];
+
+        for (let i = 0; i < sIIP.detalhes.length; i++) {
+            dadosExcel.push([
+                parseInt(sIIP.detalhes[i].ano),
+                sIIP.detalhes[i].periodo,
+                sIIP.detalhes[i].ciclo,
+                Number(sIIP.detalhes[i].valor.toFixed(1)),
+                Number(sIB.detalhes[i].valor.toFixed(1)),
+                Number(sALB.detalhes[i].valor.toFixed(1))
+            ]);
+        }
+
+        const ws = XLSX.utils.aoa_to_sheet(dadosExcel);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Série Temporal");
+        XLSX.writeFile(wb, `Serie_Temporal_${b}.xlsx`);
+
+        icon.className = "bi bi-file-earmark-excel me-1"; 
+    }, 250);
+}
+
+function exportarDadosBrutosHistoricoComSpinner() {
+    const icon = document.getElementById('iconExcelBrutos');
+    icon.className = "bi bi-arrow-clockwise bi-spin me-2";
+    setTimeout(() => {
+        const anosOrdenados = [...state.anos].map(x => parseInt(x)).sort((a,b) => a - b);
+        const anoInicial = anosOrdenados[0];
+        const anoFinal = anosOrdenados[anosOrdenados.length - 1];
+
+        const agora = new Date();
+        const dataGeracao = agora.toLocaleDateString('pt-BR') + " às " + agora.toLocaleTimeString('pt-BR');
+
+        const dadosExcel = [
+            ["BASE COMPLETA DE DADOS BRUTOS POR BAIRRO - LIRAA DIGITAL"],
+            ["Origem dos Dados:", "Vigilância Ambiental - Campina Grande / PB"],
+            ["Período Abrangido:", `Do início do LIRAa (${anoInicial}) até o mais recente (${anoFinal})`],
+            ["Data de Geração:", dataGeracao],
+            [], // Linha em branco
+            ["BAIRRO", "ANO", "PERIODO", "CICLO", "IIP (%)", "IB", "Albopictus"]
+        ];
+
+        anosOrdenados.forEach(anoNum => {
+            const ano = anoNum.toString();
+            if(!state.dados[ano]) return;
+            
+            const ciclos = state.meta[ano] || [];
+            const bairros = Object.keys(state.dados[ano]).sort();
+
+            bairros.forEach(b => {
+                ciclos.forEach((cMeta, cIdx) => {
+                    const d = state.dados[ano][b][cIdx] || { iip: 0, ib: 0, alb: 0 };
+                    dadosExcel.push([
+                        b,
+                        anoNum,
+                        cMeta.periodo,
+                        cMeta.id,
+                        Number(d.iip.toFixed(1)),
+                        Number(d.ib.toFixed(1)),
+                        Number(d.alb.toFixed(1))
+                    ]);
+                });
+            });
+        });
+
+        const ws = XLSX.utils.aoa_to_sheet(dadosExcel);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Dados Brutos LIRAa");
+        XLSX.writeFile(wb, `Dados_Brutos_LIRAa_Historico_Completo.xlsx`);
+
+        icon.className = "bi bi-file-earmark-spreadsheet-fill me-2";
+    }, 250);
 }
 
 function exportarExcelGeralComSpinner() {
