@@ -45,26 +45,47 @@
         .titulo-sistema span { font-size: 0.85rem; font-weight: 500; color: #666; display: block; }
 
         .apoios { display: flex; align-items: center; gap: 25px; }
-        .apoios img { height: 50px; width: auto; transition: transform 0.3s ease; }
-        .apoios img:hover { transform: scale(1.05); }
+        .apoios img { height: 50px; width: auto; transition: transform 0.3s ease, opacity 0.3s; filter: grayscale(20%); }
+        .apoios img:hover { transform: scale(1.08); filter: grayscale(0%); opacity: 1; }
 
-        /* --- NAVBAR --- */
+        /* --- NAVBAR EXATAMENTE IGUAL AO INDEX.HTML --- */
         nav { 
             background: var(--primary); 
             display: flex; padding: 0 10px; height: 40px; 
             align-items: center; z-index: 2000; 
             box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+            justify-content: space-between;
+        }
+        .nav-links {
+            display: flex;
+            align-items: center;
+            height: 100%;
         }
         nav a { 
             color: #ffffff !important; 
             text-decoration: none; margin-right: 30px;
             font-weight: 600; font-size: 0.85rem; 
             display: flex; align-items: center; gap: 8px;
-            transition: 0.3s; opacity: 0.9;
+            transition: 0.3s; opacity: 0.9; cursor: pointer;
             text-transform: uppercase;
         }
-        nav a i { font-size: 1.1rem; }
+        nav a i { font-size: 1.1rem; color: #ffffff; }
+        nav a:hover { opacity: 1; transform: translateY(-1px); text-shadow: 0 0 10px rgba(255,255,255,0.3); }
         nav a.active { border-bottom: 3px solid white; height: 100%; display: flex; align-items: center; opacity: 1; }
+
+        .btn-admin-icon {
+            color: #ffffff !important;
+            opacity: 0.6;
+            transition: 0.3s;
+            margin-right: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+        .btn-admin-icon:hover {
+            opacity: 1;
+            transform: translateY(-1px);
+        }
 
         /* --- CONTEÚDO --- */
         #main-container { padding: 20px 40px; max-width: 1100px; margin: auto; }
@@ -156,23 +177,16 @@
         }
 
     /* 📱 RESPONSIVIDADE MOBILE */
-    /* ============================= */
-    /* ============================= */
-    /* 📱 RESPONSIVIDADE AJUSTADA */
-    /* ============================= */
-
     .mobile-footer {
         display: none;
     }
 
     @media (max-width: 992px) {
-
         body, html {
             height: auto;
             overflow: auto;
         }
 
-        /* HEADER mantém linha horizontal */
         header {
             padding: 10px 15px;
             height: 70px;
@@ -195,54 +209,15 @@
             line-height: 1.2;
         }
 
-        /* Esconde apoios do topo */
         .apoios {
             display: none;
         }
 
-        /* Layout coluna */
         #main-container {
             flex-direction: column;
             height: auto;
         }
 
-        #sidebar {
-            width: 100%;
-            border-right: none;
-        }
-
-        #map-area {
-            height: 55vh;
-        }
-
-        /* MINI CARDS continuam 3 colunas */
-        .mini-card-container {
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 6px;
-        }
-
-        .mini-card {
-            padding: 6px 2px;
-        }
-
-        .mini-card span {
-            font-size: 0.55rem;
-        }
-
-        .mini-card b {
-            font-size: 0.9rem;
-        }
-
-        /* KPI menor */
-        .kpi-val-small {
-            font-size: 1.6rem;
-        }
-
-        .kpi-title-small {
-            font-size: 0.85rem;
-        }
-
-        /* Galeria em 2 colunas para telas menores */
         .grid-fotos-aces {
             grid-template-columns: repeat(2, 1fr);
             gap: 8px;
@@ -251,7 +226,6 @@
             height: 120px;
         }
 
-        /* FOOTER aparece */
         .mobile-footer {
             display: block;
             background: white;
@@ -270,28 +244,6 @@
             height: 30px;
             filter: grayscale(20%);
         }
-    }
-
-    /* Ajuste fino focado em telas extremamente pequenas (320px) */
-    @media (max-width: 400px) {
-        .secao-galeria-aces {
-            padding: 8px;
-        }
-        .grid-fotos-aces {
-            gap: 6px;
-        }
-        .foto-ace-item {
-            height: 95px;
-        }
-        .apoios-section {
-            gap: 20px;
-        }
-        .apoios-section img {
-            height: 48px; /* Reduz altura de forma proporcional sem quebrar bordas */
-        }
-    }
-
-    @media (max-width: 992px) {
 
         nav {
             justify-content: space-between;
@@ -308,14 +260,12 @@
             font-size: 0.9rem;
         }
 
-        /* Grid de índices passa a 1 coluna no mobile */
         .grid-indices {
-            grid-template-columns: 1fr;   /* 1 card por linha */
+            grid-template-columns: 1fr;
             gap: 15px;
             margin: 20px 0;
         }
 
-        /* Reduz tamanho dos cards */
         .card-indice {
             padding: 15px;
         }
@@ -331,6 +281,24 @@
 
         .card-indice p {
             font-size: 0.8rem;
+        }
+    }
+
+    @media (max-width: 400px) {
+        .secao-galeria-aces {
+            padding: 8px;
+        }
+        .grid-fotos-aces {
+            gap: 6px;
+        }
+        .foto-ace-item {
+            height: 95px;
+        }
+        .apoios-section {
+            gap: 20px;
+        }
+        .apoios-section img {
+            height: 48px;
         }
     }
     </style>
@@ -354,10 +322,17 @@
 </header>
 
 <nav>
-    <a href="index.html"><i class="bi bi-grid-1x2-fill"></i> Dashboard</a>
-    <a href="analise.html"><i class="bi bi-geo-fill"></i> Análise</a>
-    <a href="relatorio.html"><i class="bi bi-file-earmark-text-fill"></i> Relatórios</a>
-    <a class="active"><i class="bi bi-question-circle-fill"></i> Sobre</a>
+    <div class="nav-links">
+        <a href="index.html"><i class="bi bi-grid-1x2-fill"></i> Dashboard</a>
+        <a href="analise.html"><i class="bi bi-geo-fill"></i> Análise</a>
+        <a href="relatorio.html"><i class="bi bi-file-earmark-text-fill"></i> Relatórios</a>
+        <a class="active"><i class="bi bi-question-circle-fill"></i> Sobre</a>
+    </div>
+    
+    <!-- Ícone Discreto na Extremidade Direita da Barra Verde -->
+    <a class="btn-admin-icon" data-bs-toggle="modal" data-bs-target="#modalLogin" title="Área Restrita / Gestão">
+        <i class="bi bi-lock-fill"></i>
+    </a>
 </nav>
 
 <div id="main-container">
@@ -375,7 +350,6 @@
         Em Campina Grande, os dados que alimentam este monitoramento são levantados em visitas domiciliares pelos <b>Agentes de Combate às Endemias (ACEs)</b> da <b>Secretaria Municipal de Saúde</b>, cujo trabalho em campo é fundamental para identificar e eliminar os focos do vetor.
     </p>
 
-    <!-- GALERIA COMPACTA DE IMAGENS LADO A LADO -->
     <div class="secao-galeria-aces">
         <div class="grid-fotos-aces">
             <div class="foto-ace-item">
@@ -464,7 +438,6 @@
     O <b>LIRAa Digital</b> foi desenvolvido pelo <b>GAT 5 – PET Saúde Digital da UFCG</b>, cujo tema é <b>"Inovação no Mapeamento e Monitoramento das Arboviroses em Campina Grande - PB"</b>, em parceria com a <b>Secretaria Municipal de Saúde de Campina Grande</b>. A plataforma tem como objetivo facilitar a visualização e a análise dos dados do Levantamento Rápido de Índices para Aedes aegypti (LIRAa), apoiando a vigilância em saúde e subsidiando a tomada de decisões estratégicas para o controle do <i>Aedes aegypti</i> e das arboviroses no município.
 </p>
 
-    <!-- Lembrar de Corrigido o Link do GAT-5 para redirecionar para o Instagram correto(NÃO ESQUECER) -->
     <div class="apoios-section">
         <a href="https://www.instagram.com/pet_saude_digital_ufcg/" target="_blank"><img src="https://lh3.googleusercontent.com/d/1Lvrvq6cCcIJgvLBSdi8u6B1SA75L9V_K" alt="PET-Saúde Digital"></a>
         <a href="https://www.instagram.com/arboviroses_cg/" target="_blank"><img src="https://lh3.googleusercontent.com/d/1fGEuRXpKXXiNafxDzFd0JDwwrVxKvd-a" alt="GAT-5"></a>
@@ -472,6 +445,65 @@
     </div>
 
 </div>
+
+<!-- Modal de Login -->
+<div class="modal fade" id="modalLogin" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content" style="border-radius: 12px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+      <div class="modal-header border-0 pb-0">
+        <h6 class="modal-title fw-bold text-success"><i class="bi bi-shield-lock me-2"></i>Gestão LIRAa</h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="formLogin">
+          <div class="mb-3">
+            <label class="form-label text-muted fw-bold" style="font-size: 0.7rem;">E-MAIL</label>
+            <input type="email" id="loginEmail" class="form-control form-control-sm" placeholder="usuario@campinagrande.pb.gov.br" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label text-muted fw-bold" style="font-size: 0.7rem;">SENHA</label>
+            <input type="password" id="loginSenha" class="form-control form-control-sm" placeholder="••••••••" required>
+          </div>
+          <button type="submit" class="btn btn-sm btn-success w-100 fw-bold py-2 mt-2">ENTRAR</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyC7AAUfPEeunp56NmUfhTtuUMA65582L34",
+    authDomain: "liraa-digital.firebaseapp.com",
+    projectId: "liraa-digital",
+    storageBucket: "liraa-digital.firebasestorage.app",
+    messagingSenderId: "751796699178",
+    appId: "1:751796699178:web:6b2224f73325a0f49e8353",
+    measurementId: "G-P1H677122T"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  document.getElementById('formLogin').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const email = document.getElementById('loginEmail').value;
+    const senha = document.getElementById('loginSenha').value;
+
+    signInWithEmailAndPassword(auth, email, senha)
+      .then((userCredential) => {
+        window.location.href = "admin.html";
+      })
+      .catch((error) => {
+        alert("Acesso negado: Credenciais inválidas.");
+      });
+  });
+</script>
 
 </body>
 </html>
