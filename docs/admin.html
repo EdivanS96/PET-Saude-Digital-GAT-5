@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão LIRAa | LIRAa Digital - Campina Grande</title>
+
+    <link rel="icon" href="https://lh3.googleusercontent.com/d/129d-MAaUr_Hj6uu0TLBtUxKrn-t6Oc0z" type="image/png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <style>
+        :root { 
+            --primary: #0e945c; 
+            --primary-dark: #076e43;
+            --danger: #d32f2f; 
+            --warning: #fbc02d; 
+            --safe: #2e7d32; 
+            --bg-light: #f8f9fa;
+        }
+        
+        body, html { 
+            margin: 0; 
+            font-family: 'Inter', system-ui, -apple-system, sans-serif; 
+            background: var(--bg-light); 
+        }
+
+        header { 
+            display: flex; align-items: center; justify-content: space-between; 
+            background: #ffffff; padding: 0 30px; height: 90px; 
+            border-bottom: 4px solid var(--primary); 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            z-index: 2000;
+        }
+        .logo-gat { display: flex; align-items: center; gap: 20px; }
+        .logo-gat img { height: 140px; }
+        .titulo-sistema h1 { margin: 0; font-size: 1.5rem; font-weight: 800; color: #1a1a1a; letter-spacing: -0.5px; }
+        .titulo-sistema span { font-size: 0.85rem; font-weight: 500; color: #666; display: block; margin-top: 2px; }
+
+        .apoios { display: flex; align-items: center; gap: 25px; }
+        .apoios img { height: 50px; width: auto; filter: grayscale(20%); }
+
+        nav { 
+            background: var(--primary); 
+            display: flex; padding: 0 10px; height: 40px; 
+            align-items: center; z-index: 2000; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+            justify-content: space-between;
+        }
+        .nav-links { display: flex; align-items: center; height: 100%; }
+        nav a { 
+            color: #ffffff !important; text-decoration: none; margin-right: 30px;
+            font-weight: 600; font-size: 0.85rem; display: flex; align-items: center; gap: 8px;
+            text-transform: uppercase; cursor: pointer; opacity: 0.9; transition: 0.3s;
+        }
+        nav a i { font-size: 1.1rem; }
+        nav a:hover { opacity: 1; transform: translateY(-1px); text-shadow: 0 0 10px rgba(255,255,255,0.3); }
+        nav a.active { border-bottom: 3px solid white; height: 100%; display: flex; align-items: center; opacity: 1; }
+
+        .btn-logout {
+            color: white !important; opacity: 0.8; font-size: 0.8rem; font-weight: 700;
+            cursor: pointer; text-decoration: none; margin-right: 10px; display: flex; align-items: center; gap: 5px;
+        }
+        .btn-logout:hover { opacity: 1; transform: translateY(-1px); }
+
+        #main-content { padding: 20px 30px; }
+
+        .area-filtros {
+            display: flex; justify-content: space-between; align-items: flex-end;
+            margin-bottom: 20px; background: white; padding: 15px 25px; border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05); flex-wrap: wrap; gap: 15px;
+        }
+
+        .relatorio-container { background: white; padding: 20px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+
+        .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .table-lira { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 0.75rem; border-radius: 16px; overflow: hidden; min-width: 800px; }
+        .table-lira th { background: #0e945c !important; color: white !important; border: 1px solid #076e43; padding: 6px 2px; text-align: center; }
+        .table-lira td { border: 1px solid #ddd; padding: 5px 2px; text-align: center; font-weight: 600; }
+        
+        .bairro-cell { text-align: left !important; padding-left: 10px !important; width: 220px; background: #f9f9f9; }
+        .data-ciclo { display: block; font-size: 0.62rem; font-weight: 400; color: #fff; margin-top: 2px; }
+
+        .v-risco { color: #d32f2f !important; font-weight: 800; }
+        .v-alerta { color: #856404 !important; font-weight: 800; }
+        .v-safe { color: #155724 !important; }
+        .bg-media { background-color: #f0f7f3 !important; border-left: 2px solid #0e945c !important; }
+        .footer-media { background: #212529 !important; color: white !important; }
+
+        .btn-del-bairro, .btn-del-ciclo {
+            color: #ff8a80; cursor: pointer; font-size: 0.85rem; transition: 0.2s;
+        }
+        .btn-del-bairro:hover, .btn-del-ciclo:hover { color: #ffffff; transform: scale(1.2); }
+        .btn-del-bairro { color: #d32f2f; margin-right: 6px; }
+
+        .form-control-edit {
+            width: 100%; border: 1px solid #ccc; border-radius: 4px; padding: 2px 4px; font-size: 0.75rem; text-align: center; font-weight: 700;
+        }
+
+        .info-atualizacao {
+            font-size: 0.75rem;
+            color: #666;
+            font-weight: 600;
+            background: #e8f5e9;
+            padding: 4px 12px;
+            border-radius: 20px;
+            border: 1px solid #c8e6c9;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo-gat">
+        <img src="https://lh3.googleusercontent.com/d/1CjAJykaxRU8iqYiCdiTD9fMkyLFWR7vx" alt="Logo LIRAa">
+        <div class="titulo-sistema">
+            <h1>Vigilância Ambiental</h1>
+            <span>Painel Administrativo - Edição Direta da Planilha</span>
+        </div>
+    </div>
+    <div class="apoios">
+        <a href="https://www.instagram.com/pet_saude_digital_ufcg/" target="_blank"><img src="https://lh3.googleusercontent.com/d/1Lvrvq6cCcIJgvLBSdi8u6B1SA75L9V_K" alt="PET-Saúde Digital"></a>
+        <a href="https://www.instagram.com/arboviroses_cg/" target="_blank"><img src="https://lh3.googleusercontent.com/d/1fGEuRXpKXXiNafxDzFd0JDwwrVxKvd-a" alt="GAT-5"></a>
+        <a href="https://saude.campinagrande.pb.gov.br/" target="_blank"><img src="https://lh3.googleusercontent.com/d/1vsaPX967sHVuynqPwLpFfktsO6s-_OZD" alt="Secretaria de Saúde"></a>
+    </div>
+</header>
+
+<nav>
+    <div class="nav-links">
+        <a href="index.html"><i class="bi bi-grid-1x2-fill"></i> Dashboard</a>
+        <a href="analise.html"><i class="bi bi-geo-fill"></i> Análise</a>
+        <a href="relatorio.html"><i class="bi bi-file-earmark-text-fill"></i> Relatórios</a>
+        <a href="sobre.html"><i class="bi bi-question-circle-fill"></i> Sobre</a>
+    </div>
+    <a id="btnLogout" class="btn-logout"><i class="bi bi-box-arrow-right"></i> SAIR</a>
+</nav>
+
+<div id="main-content">
+    <div class="area-filtros">
+        <div class="d-flex align-items-end gap-3 flex-wrap">
+            <div>
+                <label class="small fw-bold text-uppercase d-block mb-1 text-muted">Ano Base</label>
+                <select id="selectAno" class="form-select border-success fw-bold" style="width: 150px;" onchange="mudarAno(this.value)"></select>
+            </div>
+            
+            <button id="btnToggleEdit" class="btn btn-success fw-bold px-3" onclick="toggleModoEdicao()">
+                <i class="bi bi-pencil-square me-1"></i> EDITAR
+            </button>
+
+            <!-- BOTÃO MANUAL (CARREGAR EXCEL DO COMPUTADOR) -->
+            <input type="file" id="inputFileManual" accept=".xlsx" class="d-none" onchange="uploadManualPlanilha(event)">
+            <button class="btn btn-outline-secondary fw-bold px-3" onclick="document.getElementById('inputFileManual').click()">
+                <i class="bi bi-upload me-1"></i> MANUAL
+            </button>
+
+            <div id="box-acoes-edicao" class="d-flex gap-2" style="display: none !important;">
+                <button class="btn btn-outline-primary fw-bold btn-sm" onclick="modalNovoAno()">
+                    <i class="bi bi-calendar-plus me-1"></i> ADICIONAR ANO
+                </button>
+                <button class="btn btn-outline-success fw-bold btn-sm" onclick="modalNovoCiclo()">
+                    <i class="bi bi-plus-circle me-1"></i> ADICIONAR CICLO
+                </button>
+                <button class="btn btn-outline-dark fw-bold btn-sm" onclick="modalNovoBairro()">
+                    <i class="bi bi-geo-alt-fill me-1"></i> ADICIONAR BAIRRO
+                </button>
+            </div>
+        </div>
+
+        <div id="box-salvar" style="display: none;">
+            <button id="btnSalvarRepo" class="btn btn-danger fw-bold text-uppercase px-4 shadow-sm" onclick="salvarDiretoNoGitHub()">
+                <i class="bi bi-cloud-arrow-up-fill me-2"></i> SALVAR NO REPOSITÓRIO
+            </button>
+        </div>
+    </div>
+
+    <div class="relatorio-container">
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <h4 class="fw-bold text-dark m-0">Tabela de Dados LIRAa - <span id="ano-label"></span></h4>
+            <div id="boxUltimaAtualizacao" class="info-atualizacao">
+                <i class="bi bi-clock-history"></i> <span id="txtUltimaAtualizacao">Última atualização: Carregando...</span>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table-lira" id="tabela-dados">
+                <thead id="head-lira"></thead>
+                <tbody id="body-lira"></tbody>
+                <tfoot id="foot-lira"></tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- MODAIS DE EDIÇÃO -->
+<div class="modal fade" id="modalAno" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content">
+      <div class="modal-header"><h6 class="modal-title fw-bold">Novo Ano Base</h6><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <input type="number" id="inputNovoAno" class="form-control form-control-sm mb-3" placeholder="Ex: 2027">
+        <button class="btn btn-sm btn-success w-100 fw-bold" onclick="confirmarNovoAno()">CRIAR ANO</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="modalCiclo" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header"><h6 class="modal-title fw-bold">Novo Ciclo</h6><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <p class="small text-muted mb-2">Ano Selecionado: <b id="labelAnoCiclo" class="text-success"></b></p>
+        <div class="row g-2 mb-3">
+            <div class="col-6">
+                <label class="small fw-bold text-muted">INÍCIO (DD/MM)</label>
+                <input type="text" id="cicloInicio" class="form-control form-control-sm" placeholder="23/03" maxlength="5" oninput="aplicarMascaraData(this)">
+            </div>
+            <div class="col-6">
+                <label class="small fw-bold text-muted">FIM (DD/MM)</label>
+                <input type="text" id="cicloFim" class="form-control form-control-sm" placeholder="27/03" maxlength="5" oninput="aplicarMascaraData(this)">
+            </div>
+        </div>
+        <button class="btn btn-sm btn-success w-100 fw-bold" onclick="confirmarNovoCiclo()">CRIAR CICLO</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="modalBairro" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header"><h6 class="modal-title fw-bold">Adicionar Bairro</h6><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <select id="selectBairrosGeoJSON" class="form-select form-select-sm mb-3"></select>
+        <button class="btn btn-sm btn-success w-100 fw-bold" onclick="confirmarNovoBairro()">INCLUIR BAIRRO</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-auth.js";
+  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyC7AAUfPEeunp56NmUfhTtuUMA65582L34",
+    authDomain: "liraa-digital.firebaseapp.com",
+    projectId: "liraa-digital",
+    storageBucket: "liraa-digital.firebasestorage.app",
+    messagingSenderId: "751796699178",
+    appId: "1:751796699178:web:6b2224f73325a0f49e8353",
+    measurementId: "G-P1H677122T"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  onAuthStateChanged(auth, (user) => {
+    if (!user) { window.location.href = "sobre.html"; }
+    else { carregarDadosIniciais(); }
+  });
+
+  document.getElementById('btnLogout').addEventListener('click', () => {
+    signOut(auth).then(() => window.location.href = "sobre.html");
+  });
+
+  // Função para consultar o Token salvo no Firestore
+  window.obterTokenFirestore = async function() {
+    try {
+        const docRef = doc(db, "configuracoes", "github");
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            return docSnap.data().token;
+        } else {
+            alert("Erro: O token do GitHub não foi localizado no Firestore. Verifique se a coleção 'configuracoes' e o documento 'github' foram criados.");
+            return null;
+        }
+    } catch (e) {
+        console.error("Erro ao carregar token:", e);
+        alert("Falha ao recuperar credenciais de autenticação do servidor.");
+        return null;
+    }
+  };
+</script>
+
+<script>
+const GITHUB_USER = "EdivanS96";
+const GITHUB_REPO = "PET-Saude-Digital-GAT-5";
+const GITHUB_FILE_PATH = "docs/LIRAa Dados.xlsx";
+
+let state = { dados: {}, meta: {}, anos: [], bairrosGeoJSON: [], ultimaAtualizacao: "N/A" };
+let anoAtual = null;
+let modoEdicao = false;
+
+function fmtData(n) {
+    if(!n) return "";
+    if(typeof n === 'string') return n;
+    const d = new Date(Math.round((n - 25569) * 86400 * 1000));
+    return d.toLocaleDateString('pt-BR', {day: '2-digit', month: '2-digit', year: 'numeric'});
+}
+
+function aplicarMascaraData(input) {
+    let v = input.value.replace(/\D/g, '');
+    if (v.length >= 2) {
+        input.value = v.substring(0, 2) + '/' + v.substring(2, 4);
+    } else {
+        input.value = v;
+    }
+}
+
+async function carregarDadosIniciais() {
+    try {
+        const geoRes = await fetch("bairros_cg.geojson");
+        const geoData = await geoRes.json();
+        state.bairrosGeoJSON = geoData.features.map(f => f.properties.Name.trim().toUpperCase()).sort();
+
+        const res = await fetch("LIRAa Dados.xlsx");
+        processarArrayBufferExcel(await res.arrayBuffer());
+    } catch(e) { console.error("Erro ao carregar dados", e); }
+}
+
+function processarArrayBufferExcel(buffer) {
+    const wb = XLSX.read(buffer, { type: "array" });
+    state.dados = {}; state.meta = {}; state.anos = [];
+
+    wb.SheetNames.forEach(name => {
+        const ano = name.replace("LIRA_", "");
+        if(!state.anos.includes(ano)) state.anos.push(ano);
+        const raw = XLSX.utils.sheet_to_json(wb.Sheets[name], { header: 1 });
+        state.dados[ano] = {}; state.meta[ano] = [];
+        let isF = false;
+
+        raw.slice(1).forEach(row => {
+            if (row[0] === 'F') { isF = true; return; }
+            if (row[0] === 'INFO_UPD') {
+                state.ultimaAtualizacao = row[1] || "N/A";
+                return;
+            }
+            if (!isF && row[1]) {
+                const b = row[1].toString().trim().toUpperCase();
+                state.dados[ano][b] = [];
+                for (let i = 2; i < row.length; i += 3) {
+                    const iipVal = row[i] !== undefined && row[i] !== "" ? parseFloat(row[i]) : "";
+                    const ibVal  = row[i+1] !== undefined && row[i+1] !== "" ? parseFloat(row[i+1]) : "";
+                    const albVal = row[i+2] !== undefined && row[i+2] !== "" ? parseFloat(row[i+2]) : "";
+
+                    state.dados[ano][b].push({ iip: iipVal, ib: ibVal, alb: albVal });
+                }
+            } else if (isF && row[0]) {
+                state.meta[ano].push({
+                    id: row[0],
+                    inicio: fmtData(row[1]),
+                    fim: fmtData(row[2])
+                });
+            }
+        });
+    });
+
+    state.anos.sort((a,b)=>b-a);
+    const selAno = document.getElementById('selectAno');
+    selAno.innerHTML = "";
+    state.anos.forEach(a => selAno.add(new Option(a, a)));
+
+    anoAtual = state.anos[0];
+    selAno.value = anoAtual;
+
+    document.getElementById('txtUltimaAtualizacao').textContent = `Última atualização: ${state.ultimaAtualizacao}`;
+    renderizarTabela();
+}
+
+function uploadManualPlanilha(e) {
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = function(evt) {
+        processarArrayBufferExcel(evt.target.result);
+        alert("Planilha manual carregada! Verifique os dados na tela e clique em 'SALVAR NO REPOSITÓRIO' para aplicar.");
+        if(!modoEdicao) toggleModoEdicao();
+    };
+    reader.readAsArrayBuffer(file);
+}
+
+function mudarAno(ano) {
+    anoAtual = ano;
+    renderizarTabela();
+}
+
+function getCor(v) { return v >= 4 ? 'v-risco' : (v >= 1 ? 'v-alerta' : 'v-safe'); }
+
+function renderizarTabela() {
+    document.getElementById('ano-label').textContent = anoAtual;
+    const ciclos = state.meta[anoAtual] || [];
+    const bairros = Object.keys(state.dados[anoAtual] || {}).sort();
+
+    let h = `<tr><th rowspan="2">Nº</th><th rowspan="2" class="bairro-cell">LOCALIDADE</th>`;
+    ciclos.forEach((c, cIdx) => {
+        let btnDelCiclo = modoEdicao ? `<i class="bi bi-trash-fill btn-del-ciclo ms-1" onclick="excluirCiclo(${cIdx})" title="Excluir este Ciclo"></i>` : '';
+        h += `<th colspan="3">${c.id} ${btnDelCiclo}<span class="data-ciclo">${c.inicio} a ${c.fim}</span></th>`;
+    });
+    h += `<th colspan="3">MÉDIA ANUAL</th></tr><tr>`;
+    ciclos.forEach(() => h += `<th>Inf.Predial</th><th>Breteau</th><th>Alb</th>`);
+    h += `<th>Inf.Predial</th><th>Breteau</th><th>Alb</th></tr>`;
+    document.getElementById('head-lira').innerHTML = h;
+
+    let bHtml = '', totais = Array(ciclos.length * 3 + 3).fill(0);
+    bairros.forEach((b, idx) => {
+        let btnDel = modoEdicao ? `<i class="bi bi-x-circle-fill btn-del-bairro" onclick="excluirBairro('${b}')" title="Excluir Bairro"></i>` : '';
+        let r = `<tr><td>${idx+1}</td><td class="bairro-cell">${btnDel}${b}</td>`, sIIP = 0, sIB = 0, sALB = 0;
+
+        ciclos.forEach((_, cIdx) => {
+            const d = state.dados[anoAtual][b][cIdx] || {iip: "", ib: "", alb: ""};
+            const iipNum = typeof d.iip === 'number' ? d.iip : 0;
+            const ibNum  = typeof d.ib === 'number' ? d.ib : 0;
+            const albNum = typeof d.alb === 'number' ? d.alb : 0;
+
+            sIIP += iipNum; sIB += ibNum; sALB += albNum;
+            totais[cIdx*3] += iipNum; totais[cIdx*3+1] += ibNum; totais[cIdx*3+2] += albNum;
+
+            if (modoEdicao) {
+                r += `
+                    <td><input type="number" step="0.1" class="form-control-edit ${getCor(iipNum)}" value="${d.iip}" placeholder="-" onchange="atualizarValor('${b}', ${cIdx}, 'iip', this.value)"></td>
+                    <td><input type="number" step="0.1" class="form-control-edit ${getCor(ibNum)}" value="${d.ib}" placeholder="-" onchange="atualizarValor('${b}', ${cIdx}, 'ib', this.value)"></td>
+                    <td><input type="number" step="0.1" class="form-control-edit" value="${d.alb}" placeholder="-" onchange="atualizarValor('${b}', ${cIdx}, 'alb', this.value)"></td>
+                `;
+            } else {
+                r += `<td class="${getCor(iipNum)}">${d.iip !== "" ? iipNum.toFixed(1) : "-"}</td>
+                      <td class="${getCor(ibNum)}">${d.ib !== "" ? ibNum.toFixed(1) : "-"}</td>
+                      <td>${d.alb !== "" ? albNum.toFixed(1) : "-"}</td>`;
+            }
+        });
+
+        const mIIP = ciclos.length ? sIIP / ciclos.length : 0;
+        const mIB  = ciclos.length ? sIB  / ciclos.length : 0;
+        const mALB = sALB; 
+
+        totais[totais.length-3] += mIIP; totais[totais.length-2] += mIB; totais[totais.length-1] += mALB;
+        r += `<td class="bg-media ${getCor(mIIP)}">${mIIP.toFixed(1)}</td><td class="bg-media ${getCor(mIB)}">${mIB.toFixed(1)}</td><td class="bg-media">${mALB.toFixed(1)}</td></tr>`;
+        bHtml += r;
+    });
+
+    document.getElementById('body-lira').innerHTML = bHtml;
+
+    let fHtml = `<tr class="footer-media"><td>F</td><td class="text-start ps-3">ÍNDICES GERAIS DO MUNICÍPIO</td>`;
+    totais.forEach((t, i) => {
+        const isALB = (i % 3 === 2); 
+        const valFinal = isALB ? t.toFixed(1) : (bairros.length ? (t / bairros.length).toFixed(1) : '0.0');
+        fHtml += `<td>${valFinal}</td>`;
+    });
+    document.getElementById('foot-lira').innerHTML = fHtml + `</tr>`;
+}
+
+function toggleModoEdicao() {
+    modoEdicao = !modoEdicao;
+    const btn = document.getElementById('btnToggleEdit');
+    const boxAcoes = document.getElementById('box-acoes-edicao');
+    const boxSalvar = document.getElementById('box-salvar');
+
+    if(modoEdicao) {
+        btn.className = "btn btn-outline-secondary fw-bold px-3";
+        btn.innerHTML = `<i class="bi bi-eye-fill me-1"></i> VISUALIZAR`;
+        boxAcoes.style.setProperty('display', 'flex', 'important');
+        boxSalvar.style.display = 'block';
+    } else {
+        btn.className = "btn btn-success fw-bold px-3";
+        btn.innerHTML = `<i class="bi bi-pencil-square me-1"></i> EDITAR`;
+        boxAcoes.style.setProperty('display', 'none', 'important');
+        boxSalvar.style.display = 'none';
+    }
+    renderizarTabela();
+}
+
+function atualizarValor(bairro, cicloIdx, campo, val) {
+    state.dados[anoAtual][bairro][cicloIdx][campo] = val !== "" ? parseFloat(val) : "";
+    renderizarTabela();
+}
+
+function excluirBairro(bairro) {
+    if(confirm(`Remover o bairro ${bairro}?`)) {
+        delete state.dados[anoAtual][bairro];
+        renderizarTabela();
+    }
+}
+
+function excluirCiclo(cicloIdx) {
+    if(confirm(`Deseja realmente excluir todo o Ciclo ${cicloIdx + 1} de ${anoAtual}?`)) {
+        state.meta[anoAtual].splice(cicloIdx, 1);
+        state.meta[anoAtual].forEach((c, idx) => c.id = `C${idx + 1}`);
+
+        Object.keys(state.dados[anoAtual]).forEach(b => {
+            state.dados[anoAtual][b].splice(cicloIdx, 1);
+        });
+
+        renderizarTabela();
+    }
+}
+
+function modalNovoAno() { new bootstrap.Modal(document.getElementById('modalAno')).show(); }
+
+function confirmarNovoAno() {
+    const ano = document.getElementById('inputNovoAno').value.trim();
+    if(!ano) return;
+    if(!state.dados[ano]) {
+        state.dados[ano] = {};
+        state.meta[ano] = [{ id: 'C1', inicio: `01/01/${ano}`, fim: `30/01/${ano}` }];
+        
+        const anoAnterior = state.anos[0];
+        const bairrosExistentes = anoAnterior ? Object.keys(state.dados[anoAnterior]) : state.bairrosGeoJSON;
+
+        bairrosExistentes.forEach(b => {
+            state.dados[ano][b] = [{ iip: "", ib: "", alb: "" }];
+        });
+
+        state.anos.push(ano);
+        state.anos.sort((a,b)=>b-a);
+        
+        const selAno = document.getElementById('selectAno');
+        selAno.innerHTML = "";
+        state.anos.forEach(a => selAno.add(new Option(a, a)));
+        anoAtual = ano;
+        selAno.value = anoAtual;
+
+        bootstrap.Modal.getInstance(document.getElementById('modalAno')).hide();
+        renderizarTabela();
+    }
+}
+
+function modalNovoCiclo() {
+    document.getElementById('labelAnoCiclo').innerText = anoAtual;
+    document.getElementById('cicloInicio').value = "";
+    document.getElementById('cicloFim').value = "";
+    new bootstrap.Modal(document.getElementById('modalCiclo')).show();
+}
+
+function confirmarNovoCiclo() {
+    let ini = document.getElementById('cicloInicio').value.trim();
+    let fim = document.getElementById('cicloFim').value.trim();
+    if(!ini || !fim) return alert("Preencha as datas de início e fim!");
+
+    if(!ini.includes('/' + anoAtual)) ini += '/' + anoAtual;
+    if(!fim.includes('/' + anoAtual)) fim += '/' + anoAtual;
+
+    const cId = `C${(state.meta[anoAtual].length || 0) + 1}`;
+
+    state.meta[anoAtual].push({ id: cId, inicio: ini, fim: fim });
+
+    Object.keys(state.dados[anoAtual]).forEach(b => {
+        state.dados[anoAtual][b].push({ iip: "", ib: "", alb: "" });
+    });
+
+    bootstrap.Modal.getInstance(document.getElementById('modalCiclo')).hide();
+    renderizarTabela();
+}
+
+function modalNovoBairro() {
+    const sel = document.getElementById('selectBairrosGeoJSON');
+    sel.innerHTML = "";
+    
+    const bairrosJaCadastrados = Object.keys(state.dados[anoAtual] || {});
+    const disponiveis = state.bairrosGeoJSON.filter(b => !bairrosJaCadastrados.includes(b));
+
+    if(disponiveis.length === 0) {
+        alert("Todos os bairros do município já foram adicionados!");
+        return;
+    }
+
+    disponiveis.forEach(b => sel.add(new Option(b, b)));
+    new bootstrap.Modal(document.getElementById('modalBairro')).show();
+}
+
+function confirmarNovoBairro() {
+    const b = document.getElementById('selectBairrosGeoJSON').value;
+    if(!b) return;
+
+    const numCiclos = state.meta[anoAtual].length || 1;
+    state.dados[anoAtual][b] = Array(numCiclos).fill(null).map(() => ({ iip: "", ib: "", alb: "" }));
+
+    bootstrap.Modal.getInstance(document.getElementById('modalBairro')).hide();
+    renderizarTabela();
+}
+
+function gerarBinaryExcel() {
+    const wb = XLSX.utils.book_new();
+    const dataHoraAgora = new Date().toLocaleString('pt-BR');
+
+    state.anos.forEach(ano => {
+        const sheetName = `LIRA_${ano}`;
+        const dataBairros = state.dados[ano] || {};
+        const metaCiclos = state.meta[ano] || [];
+        const bairrosLista = Object.keys(dataBairros).sort();
+
+        let wsData = [];
+        
+        let header = ["N°", "LOCALIDADE"];
+        let maxCiclos = metaCiclos.length;
+
+        for(let c=1; c<=maxCiclos; c++) {
+            header.push("Inf.Predial", "Breteau", "Alb");
+        }
+        wsData.push(header);
+
+        bairrosLista.forEach((b, idx) => {
+            let row = [idx + 1, b];
+            for(let c=0; c<maxCiclos; c++) {
+                const d = dataBairros[b][c] || { iip: "", ib: "", alb: "" };
+                row.push(d.iip, d.ib, d.alb);
+            }
+            wsData.push(row);
+        });
+
+        let fRow = ["F", "ÍNDICES GERAIS DO MUNICÍPIO"];
+        for(let c=0; c<maxCiclos; c++) {
+            let sIIP=0, sIB=0, sALB=0, count=0;
+            bairrosLista.forEach(b => {
+                const d = dataBairros[b][c] || { iip: "", ib: "", alb: "" };
+                if(typeof d.iip === 'number') { sIIP += d.iip; count++; }
+                if(typeof d.ib === 'number') sIB += d.ib;
+                if(typeof d.alb === 'number') sALB += d.alb;
+            });
+            fRow.push(
+                count ? (sIIP / count).toFixed(1) : "",
+                count ? (sIB / count).toFixed(1) : "",
+                sALB ? sALB.toFixed(1) : ""
+            );
+        }
+        wsData.push(fRow);
+
+        metaCiclos.forEach(m => {
+            wsData.push([m.id, m.inicio, m.fim]);
+        });
+
+        wsData.push(["INFO_UPD", dataHoraAgora]);
+
+        const ws = XLSX.utils.aoa_to_sheet(wsData);
+        XLSX.utils.book_append_sheet(wb, ws, sheetName);
+    });
+
+    return XLSX.write(wb, { bookType: 'xlsx', type: 'base64' });
+}
+
+async function salvarDiretoNoGitHub() {
+    const btn = document.getElementById("btnSalvarRepo");
+    btn.disabled = true;
+    btn.innerHTML = `<i class="bi bi-arrow-clockwise bi-spin me-2"></i> SALVANDO...`;
+
+    try {
+        const token = await window.obterTokenFirestore();
+        if(!token) {
+            btn.disabled = false;
+            btn.innerHTML = `<i class="bi bi-cloud-arrow-up-fill me-2"></i> SALVAR NO REPOSITÓRIO`;
+            return;
+        }
+
+        const url = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${GITHUB_FILE_PATH}`;
+        
+        const getFile = await fetch(url, { 
+            headers: { 'Authorization': `token ${token}` } 
+        });
+        
+        if(!getFile.ok) {
+            throw new Error("Não foi possível localizar o arquivo no repositório.");
+        }
+
+        const fileData = await getFile.json();
+        const sha = fileData.sha;
+
+        const contentBase64 = gerarBinaryExcel();
+
+        const updateRes = await fetch(url, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `token ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                message: `Atualização da planilha LIRAa via Painel Administrativo`,
+                content: contentBase64,
+                sha: sha
+            })
+        });
+
+        if(updateRes.ok) {
+            alert("Planilha atualizada e salva no repositório com sucesso!");
+            location.reload();
+        } else {
+            const errData = await updateRes.json();
+            alert(`Erro ao atualizar arquivo no GitHub: ${errData.message}`);
+        }
+
+    } catch(e) {
+        console.error(e);
+        alert(`Falha: ${e.message}`);
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<i class="bi bi-cloud-arrow-up-fill me-2"></i> SALVAR NO REPOSITÓRIO`;
+    }
+}
+</script>
+</body>
+</html>
